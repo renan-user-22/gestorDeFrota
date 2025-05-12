@@ -16,14 +16,15 @@ import EmpresasPage from '../empresas';
 import RelatoriosPage from '../relatorios';
 import ConfiguracoesPage from '../configuracoes';
 import MultasPage from '../multas';
-import PessoaFisica from '../pessoaFisica';
+import Ia from '../ia';
 import CheckListPage from '../CheckListPage';
 
 // Ícones
 import { GoOrganization } from 'react-icons/go';
 import { FaChartBar, FaFileInvoiceDollar, FaClipboardCheck } from 'react-icons/fa';
 import { IoSettingsSharp } from 'react-icons/io5';
-import { MdPersonPin } from "react-icons/md";
+import { LuBrainCircuit } from "react-icons/lu";
+import { HiMiniUser } from "react-icons/hi2";
 
 import Logomarca from '../../images/logomarcaWhite.png';
 
@@ -33,13 +34,14 @@ const Home = () => {
 
   // estados de página
   const [empresasAction, setEmpresasAction] = useState(false);
+  const [pessoaFisica, setPessoaFisica] = useState(false);
   const [relatoriosAction, setRelatoriosAction] = useState(false);
   const [multasAction, setMultasAction] = useState(false);
   const [checklistAction, setChecklistAction] = useState(false);
-  const [pessoafisicaAction, setPessoafisicaAction] = useState(false);
+  const [iaAction, setIaAction] = useState(false);
   const [configuracoesAction, setConfiguracoesAction] = useState(false);
 
-  
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,40 +56,41 @@ const Home = () => {
     Empresas: GoOrganization,
     Relatórios: FaChartBar,
     Configurações: IoSettingsSharp,
-    PessoaFisica: MdPersonPin,
     Multas: FaFileInvoiceDollar,
     CheckList: FaClipboardCheck,
+    'Fleet IA': LuBrainCircuit, // ou outro ícone mais representativo
+    'Pessoa Física': HiMiniUser, // ou outro ícone mais representativo
   };
 
   const buttonData = [
     {
       titulo: 'Relatórios',
-      descricao: 'Acessar relatórios financeiros e de desempenho',
+      descricao: 'Acompanhe tudo em tempo real sobre a sua empresa',
       action: setRelatoriosAction,
     },
     {
       titulo: 'Empresas',
-      descricao: 'Informações das frotas cadastradas',
+      descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
       action: setEmpresasAction,
     },
     {
-      titulo: 'CheckList',
-      descricao: 'Informações das frotas cadastradas',
-      action: setChecklistAction,
-    },
-    {
-      titulo: 'PessoaFisica',
-      descricao: 'Informações de CPFS não sei que mais',
-      action: setPessoafisicaAction,
+      titulo: 'Pessoa Física',
+      descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
+      action: setPessoaFisica,
     },
     {
       titulo: 'Multas',
-      descricao: 'Informações das frotas cadastradas',
+      descricao: 'Gerencie e visualize as multas das frotas cadastradas',
       action: setMultasAction,
     },
     {
+      titulo: 'Fleet IA',
+      descricao: 'Utilize a inteligência artificial para pesquisas e automações',
+      action: setIaAction,
+    },
+    {
       titulo: 'Configurações',
-      descricao: 'Ajustes de sistema e preferências',
+      descricao: 'Ajustes de sistema e preferências de usuário',
       action: setConfiguracoesAction,
     },
   ];
@@ -101,7 +104,8 @@ const Home = () => {
     setRelatoriosAction(false);
     setConfiguracoesAction(false);
     setMultasAction(false);
-    setPessoafisicaAction(false);
+    setIaAction(false);
+    setPessoaFisica(false);
     setChecklistAction(false);
     setter(true);
     if (isMobile) setIsDrawerOpen(false);
@@ -139,7 +143,6 @@ const Home = () => {
                   <TextDefault size="14px" weight="bold">
                     {titulo}
                   </TextDefault>
-                  <TextDefault size="12px">{descricao}</TextDefault>
                 </Box>
               </IconDefaultButton>
             );
@@ -167,8 +170,8 @@ const Home = () => {
           <ConfiguracoesPage isMobile={isMobile} />
         </PageTransition>
 
-        <PageTransition visible={pessoafisicaAction}>
-          <PessoaFisica isMobile={isMobile} />
+        <PageTransition visible={iaAction}>
+          <Ia isMobile={isMobile} />
         </PageTransition>
 
         <PageTransition visible={multasAction}>

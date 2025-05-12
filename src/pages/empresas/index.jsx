@@ -16,7 +16,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 //ícones
 import { GoOrganization } from 'react-icons/go';
+import { ImUserTie } from "react-icons/im";
 import { MdEditSquare } from "react-icons/md";
+import { BiSolidUserCircle } from "react-icons/bi";
 import { FaTruckFront } from "react-icons/fa6";
 import { PiSteeringWheelFill } from "react-icons/pi";
 import { PiListBulletsFill } from "react-icons/pi";
@@ -191,24 +193,39 @@ const Empresas = () => {
                           paddingBottom={'5px'}
                         >
 
-                          <Button color={colors.orange} onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nome)} right={'20px'}>
-                            <MdEditSquare size={'20px'} />
+                          <Button direction={'column'} color={colors.orange} onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nome)} right={'20px'}>
+                            <MdEditSquare size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Editar
+                            </TextDefault>
                           </Button>
 
-                          <Button color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
-                            <FaTruckFront size={'20px'} />
+                          <Button direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
+                            <FaTruckFront size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Veículos
+                            </TextDefault>
                           </Button>
 
-                          <Button color={colors.orange} onClick={() => areaModalListMotoristas(empresa.id, empresa.nome)} right={'20px'}>
-                            <PiSteeringWheelFill size={'20px'} />
+                          <Button direction={'column'} color={colors.orange} onClick={() => areaModalListMotoristas(empresa.id, empresa.nome)} right={'20px'}>
+                            <BiSolidUserCircle size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Motoristas
+                            </TextDefault>
                           </Button>
 
-                          <Button color={colors.orange} onClick={() => { }} right={'20px'}>
-                            <PiListBulletsFill size={'20px'} />
+                          <Button direction={'column'} color={colors.orange} onClick={() => { }} right={'20px'}>
+                            <PiListBulletsFill size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              CheckList
+                            </TextDefault>
                           </Button>
 
-                          <Button color={colors.orange} onClick={() => { }} right={'20px'}>
-                            <FaArrowUpRightDots size={'20px'} />
+                          <Button direction={'column'} color={colors.orange} onClick={() => { }} right={'20px'}>
+                            <FaArrowUpRightDots size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Relatórios
+                            </TextDefault>
                           </Button>
 
                         </Box>

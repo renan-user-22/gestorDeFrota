@@ -4,18 +4,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
-import { FaWindowClose } from "react-icons/fa";
-import { BsCardHeading } from "react-icons/bs";
-import { MdAddBox } from "react-icons/md";
-import { FaChevronDown } from 'react-icons/fa';
-import { FaTruckFront } from "react-icons/fa6";
-import { FaFilePdf } from "react-icons/fa6";
+import ListMultasPage from '../listMultas';
 
-import AddVeiculos from '../AddVeiculos';
-import EditAnoLicenciamento from '../EditAnoLicenciamento'
+import { FaWindowClose } from "react-icons/fa";
+import { FaChevronDown } from 'react-icons/fa';
+import { FaFilePdf } from "react-icons/fa6";
+import { FaFileInvoiceDollar } from 'react-icons/fa';
 
 import { db } from '../../../firebaseConnection';
-import { ref, onValue, remove } from 'firebase/database';
+import { ref, onValue } from 'firebase/database';
 
 import { Box, TextDefault } from '../../../stylesAppDefault';
 import { colors } from '../../../theme';
@@ -33,22 +30,20 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
     const [listaVeiculos, setListaVeiculos] = useState([]);
     const [veiculoExpandido, setVeiculoExpandido] = useState(null);
 
-    const [modalAddVeiculosForm, setModalAddVeiculosForm] = useState(false);
-    const [modalEditLicenciamentoVeiculo, setModalEditLicenciamentoVeiculo] = useState(false);
-
-    const [veiculoSelecionado, setVeiculoSelecionado] = useState(null);
+    const [modallistMultas, setModallistMultas] = useState(false);
     const [veiculoModelo, setVeiculoModelo] = useState('');
-
-    const editarLicenciamento = (id, modelo) => {
-        const veiculo = listaVeiculos.find((item) => item.id === id);
-        setVeiculoSelecionado(veiculo);
-        setModalEditLicenciamentoVeiculo(true);
-        setVeiculoModelo(modelo);
-    };
+    const [veiculoSelecionado, setVeiculoSelecionado] = useState(null);
 
     const toggleExpandirVeiculo = (id) => {
         setVeiculoExpandido((prev) => (prev === id ? null : id));
     };
+
+    const ListMultas = (id, modelo) => {
+        const veiculo = listaVeiculos.find((item) => item.id === id);
+        setVeiculoSelecionado(veiculo);
+        setModallistMultas(true);
+        setVeiculoModelo(modelo);
+    }
 
     const gerarPdfVeiculos = () => {
         const doc = new jsPDF();
@@ -90,7 +85,6 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
         };
     };
 
-
     useEffect(() => {
         const veiculosRef = ref(db, `empresas/${empresaId}/veiculos`);
         onValue(veiculosRef, (snapshot) => {
@@ -107,40 +101,15 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
         });
     }, [empresaId]);
 
-    const excluirVeiculo = (veiculoId) => {
-        Swal.fire({
-            title: 'Tem certeza?',
-            text: 'Deseja excluir este veículo?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: colors.orange,
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, excluir',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const veiculoRef = ref(db, `empresas/${empresaId}/veiculos/${veiculoId}`);
-                remove(veiculoRef)
-                    .then(() => {
-                        Swal.fire('Excluído!', 'O veículo foi excluído com sucesso.', 'success');
-                    })
-                    .catch((error) => {
-                        Swal.fire('Erro!', 'Não foi possível excluir o veículo.', 'error');
-                        console.error('Erro ao excluir veículo:', error);
-                    });
-            }
-        });
-    };
-
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
                 <Box width={'100%'} height={'65px'} radius={'10px'} direction={'row'} topSpace={'10px'} bottomSpace={'10px'} align={'center'} justify={'space-between'}>
                     <Box>
 
-                        <FaTruckFront size={'30px'} color={colors.silver} />
+                        <FaFileInvoiceDollar size={'30px'} color={colors.silver} />
                         <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>
-                            Veículo(s) da empresa {empresaNome}
+                            Gerenciamento de multas da empresa {empresaNome}
                         </TextDefault>
                     </Box>
                     <DefaultButton onClick={closeModalListVeiculos}>
@@ -149,10 +118,6 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                 </Box>
 
                 <Box>
-                    <Button color={colors.orange} onClick={() => setModalAddVeiculosForm(true)} right={'20px'}>
-                        <MdAddBox size={'30px'} color={colors.silver} />
-                    </Button>
-
                     <Button color={colors.orange} onClick={gerarPdfVeiculos} right={'20px'}>
                         <FaFilePdf size={'30px'} color={colors.silver} />
                     </Button>
@@ -234,12 +199,13 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                             )}
 
                                             <Box width="30%" topSpace="10px">
-                                                <Button color={colors.black} onClick={() => excluirVeiculo(veiculo.id)}>
-                                                    <FaWindowClose size={'20px'} color={colors.silver} />
-                                                </Button>
 
-                                                <Button color={colors.orange} onClick={() => editarLicenciamento(veiculo.id, veiculo.modelo)} left={'10px'}>
-                                                    <BsCardHeading size={'20px'} color={colors.silver} />
+
+                                                <Button direction={'column'} color={colors.orange} onClick={() => ListMultas(veiculo.id, veiculo.modelo)}>
+                                                    <FaFileInvoiceDollar size={'17px'} color={colors.silver} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Multas
+                                                    </TextDefault>
                                                 </Button>
 
                                             </Box>
@@ -252,18 +218,11 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
 
                 </ListaScrollContainer>
 
-                {modalAddVeiculosForm && (
-                    <AddVeiculos
-                        closeModalAddVeiculos={() => setModalAddVeiculosForm(false)}
+                {modallistMultas && veiculoSelecionado && (
+                    <ListMultasPage
+                        closeModalAddVeiculos={() => setModallistMultas(false)}
                         empresaIdProp={empresaId}
-                    />
-                )}
-
-                {modalEditLicenciamentoVeiculo && (
-                    <EditAnoLicenciamento
-                        closeModalEditLicenciamento={() => setModalEditLicenciamentoVeiculo(false)}
-                        empresaIdProp={empresaId}
-                        veiculoSelecionado={veiculoSelecionado}
+                        veiculoId={veiculoSelecionado.id}
                         veiculoModelo={veiculoModelo}
                     />
                 )}
@@ -273,5 +232,4 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
         </ModalAreaTotalDisplay>
     );
 };
-
 export default ModalListaVeiculos;

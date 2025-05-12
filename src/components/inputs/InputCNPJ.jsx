@@ -10,7 +10,6 @@ const StyledInput = styled.input`
     border: 1px solid ${colors.silver};
     font-size: 14px;
     margin-bottom: 10px;
-    margin-left: 20px;
     border-radius: 7px;
 `;
 

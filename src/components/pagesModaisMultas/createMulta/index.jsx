@@ -17,6 +17,7 @@ import { ref, set, push } from 'firebase/database';
 import { FaWindowClose } from "react-icons/fa";
 import { MdAddBox } from "react-icons/md";
 import { LuSave } from "react-icons/lu";
+import { FaFileInvoiceDollar } from 'react-icons/fa';
 
 // Estilos:
 import { Box, TextDefault } from '../../../stylesAppDefault';
@@ -29,7 +30,7 @@ import {
   DefaultButton
 } from './styles';
 
-const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
+const CreateMultas = ({ closeModalAddVeiculos, empresaIdProp }) => {
 
   const [modelo, setModelo] = useState('');
   const [marca, setMarca] = useState('');
@@ -104,7 +105,11 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
     }
   };
 
-  const salvarVeiculo = async () => {
+  const salvarVeiculo = () => {
+    alert("pegadinha do malandro heheee");
+  }
+
+  const salvarVeicudfdlo = async () => {
     // Verificações de campos obrigatórios
     if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento) {
       Swal.fire({
@@ -220,8 +225,8 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
           justify={'space-between'}
         >
           <Box leftSpace={'20px'}>
-            <MdAddBox size={'30px'} color={colors.silver} />
-            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Novo Veículo</TextDefault>
+            <FaFileInvoiceDollar size={'30px'} color={colors.silver} />
+            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Nova Multa</TextDefault>
           </Box>
 
           <DefaultButton onClick={() => goBack()}>
@@ -232,85 +237,49 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
         {/* Linha 1: Modelo / Marca / Placa */}
         <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
           <Box flex={'1'} direction="column">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Modelo</TextDefault>
-            <Input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="Ex: Onix 1.0" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="Informações da multa" />
           </Box>
 
           <Box direction="column" flex={'1'} leftSpace={'30px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Marca</TextDefault>
-            <Input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Ex: Chevrolet" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Informações da multa" />
           </Box>
 
           <Box direction="column" flex={'0.6'} leftSpace={'30px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Placa</TextDefault>
-            <Input value={placa} onChange={e => setPlaca(e.target.value.toUpperCase())} placeholder="ABC-1234" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={placa} onChange={e => setPlaca(e.target.value.toUpperCase())} placeholder="Informações da multa" />
           </Box>
 
           <Box flex={'1'} direction="column" paddingLeft="20px" leftSpace={'10px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Licenciamento</TextDefault>
-            <Input value={licenciamento} onChange={e => setLicenciamento(e.target.value)} placeholder="Ano do Licenciamento" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={licenciamento} onChange={e => setLicenciamento(e.target.value)} placeholder="Informações da multa" />
           </Box>
         </Box>
 
         {/* Linha 2: Cor / Ano / Tipo / Renavam */}
         <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
           <Box flex={'0.8'} direction="column">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Chassi</TextDefault>
-            <Input value={chassi} onChange={e => setChassi(e.target.value)} placeholder="Ex: Número do Chassi" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={chassi} onChange={e => setChassi(e.target.value)} placeholder="Informações da multa" />
           </Box>
 
           <Box flex={'0.5'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Ano</TextDefault>
-            <Input value={ano} onChange={e => setAno(e.target.value)} placeholder="Ex: 2020" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={ano} onChange={e => setAno(e.target.value)} placeholder="Informações da multa" />
           </Box>
 
           <Box flex={'0.8'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Tipo</TextDefault>
-            <Input value={tipo} onChange={e => setTipo(e.target.value)} placeholder="Ex: Carro, Moto, Van" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={tipo} onChange={e => setTipo(e.target.value)} placeholder="Informações da multa" />
           </Box>
 
           <Box flex={'1'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Renavam</TextDefault>
-            <Input value={renavam} onChange={e => setRenavam(e.target.value)} placeholder="Número do Renavam" />
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
+            <Input value={renavam} onChange={e => setRenavam(e.target.value)} placeholder="Informações da multa" />
           </Box>
         </Box>
 
-        {isTerceirizado && (
-          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
-            <Box flex={'1'} direction="column">
-              <TextDefault size="12px" color={colors.silver} bottom="5px">Nome do proprietário</TextDefault>
-              <Input value={nomeProprietario} onChange={e => setNomeProprietario(e.target.value)} placeholder="Nome completo" />
-            </Box>
-
-            <Box flex={'0.8'} direction="column" leftSpace="20px">
-              <TextDefault size="12px" color={colors.silver} bottom="5px">CPF do proprietário</TextDefault>
-              <InputCpf value={cpfProprietario} onChange={setCpfProprietario} placeholder="CPF" />
-            </Box>
-
-            <Box flex={'0.8'} direction="column" leftSpace="20px">
-              <TextDefault size="12px" color={colors.silver} bottom="5px">CNPJ do proprietário (opcional)</TextDefault>
-              <InputCNPJ value={cnpjProprietario} onChange={setCnpjProprietario} placeholder="CNPJ (se houver)" />
-            </Box>
-
-            <Box flex={'0.8'} direction="column" leftSpace="20px">
-              <TextDefault size="12px" color={colors.silver} bottom="5px">Contato</TextDefault>
-              <InputTelefone value={contatoProprietario} onChange={setContatoProprietario} placeholder="WhatsApp ou telefone" />
-            </Box>
-          </Box>
-        )}
-
-
-        {/* Linha 3: Cor / Ano / Tipo / Renavam */}
-        <Box direction="row" align="center" topSpace="20px" bottomSpace="10px" width="97%">
-          <input
-            type="checkbox"
-            checked={isTerceirizado}
-            onChange={() => setIsTerceirizado(!isTerceirizado)}
-          />
-          <TextDefault left="10px" color={colors.silver} size="14px">
-            Veículo terceirizado
-          </TextDefault>
-        </Box>
 
         <Box direction="row" justify="space-between" topSpace="20px">
           <Button onClick={salvarVeiculo}>
@@ -324,4 +293,4 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   );
 };
 
-export default AddVeiculo;
+export default CreateMultas;

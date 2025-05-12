@@ -177,7 +177,7 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
                 <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="70%">
                     
                     <Box flex={'1'} direction="column" >
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">Observação</TextDefault>
+                        <TextDefault size="12px" color={colors.silver} bottom="5px">Observação (CNH)</TextDefault>
                         <Input value={obs} onChange={e => setObs(e.target.value)} placeholder="EAR, Usa Oculos, etc..." />
                     </Box>
 

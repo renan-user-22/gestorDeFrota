@@ -56,7 +56,7 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: 70px;
+  width: ${(props) => props.width || '70px'};
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;

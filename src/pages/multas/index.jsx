@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
 //Importações de Modais: 
-import ModalListaVeiculos from '../../components/pagesModaisMultas/listVeiculos';
-
+import CreateMultasForm from '../../components/pagesModaisMultas/createMulta';
+import ListMultas from '../../components/pagesModaisMultas/listMultas';
 
 //Banco de dados conexões:
 import { db } from '../../firebaseConnection';
@@ -16,7 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GoOrganization } from 'react-icons/go';
 import { FaFileInvoiceDollar } from 'react-icons/fa';
 import { HiMiniUser } from "react-icons/hi2";
-import { FaTruckFront } from "react-icons/fa6";
+import { IoMdListBox } from "react-icons/io";
+import { FaArrowUpRightDots } from "react-icons/fa6";
 import { IoIosArrowDown } from "react-icons/io";
 
 //Estilos: 
@@ -24,7 +25,6 @@ import { TextDefault, Box, InfoBox } from '../../stylesAppDefault';
 import { colors } from '../../theme';
 import {
   Container,
-  DefaultButton,
   Input,
   Button,
   ListaEmpresasWrapper,
@@ -37,7 +37,7 @@ const Multas = () => {
   const [termoBusca, setTermoBusca] = useState('');
 
   const [areaModalListMotoristaInfo, setAreaModalListMotoristaInfo] = useState(false);
-  const [areaModalListVeiculosInfo, setAreaModalListVeiculosInfo] = useState(false);
+  const [areaModalFormAddMultas, setAreaModalFormAddMultas] = useState(false);
   const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
 
@@ -51,11 +51,21 @@ const Multas = () => {
     )
     : [];
 
-  const areaModaladdVeiculo = (id, n) => {
-    setEmpresaSelecionada({ id, nome: n }); // ← crie esse state para guardar o ID e nome da empresa
-    setAreaModalListVeiculosInfo(true);
+  const areaModaladdVeiculo = (id, n, cnpj) => {
+    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
+    setAreaModalFormAddMultas(true);
     setAreaModalListMotoristaInfo(false);
     setAreaModalEditEmpresa(false);
+  }
+
+  const areaModalListMultas = (id, n, cnpj) => {
+    
+    alert("Irá abrir uma Modal com a lista de multas registradas com todas as informações do cadastro");
+    
+    //setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
+    //setAreaModalFormAddMultas(false);
+   // setAreaModalListMotoristaInfo(true);
+    //setAreaModalEditEmpresa(false);
   }
 
   // lê lista de empresas
@@ -88,7 +98,7 @@ const Multas = () => {
         </Box>
 
         <Box leftSpace={'20px'}>
-         
+
           <Button padding={'5px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
             <GoOrganization size={'17px'} />
             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
@@ -96,7 +106,7 @@ const Multas = () => {
             </TextDefault>
           </Button>
 
-          <Button  padding={'5px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
+          <Button padding={'5px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
             <HiMiniUser size={'17px'} />
             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
               P.F
@@ -180,10 +190,17 @@ const Multas = () => {
                           paddingBottom={'5px'}
                         >
 
-                          <Button direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
-                            <FaTruckFront size={'17px'} />
+                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome, empresa.cnpj)} right={'20px'}>
+                            <IoMdListBox size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-                              Veículos
+                              Registrar
+                            </TextDefault>
+                          </Button>
+
+                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModalListMultas(empresa.id, empresa.nome)} right={'20px'}>
+                            <FaFileInvoiceDollar size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Exibir
                             </TextDefault>
                           </Button>
 
@@ -211,13 +228,21 @@ const Multas = () => {
         </ListaEmpresasWrapper>
       )}
 
-
-      {areaModalListVeiculosInfo && empresaSelecionada && (
-        <ModalListaVeiculos
-          closeModalListVeiculos={() => setAreaModalListVeiculosInfo(false)}
+      {areaModalFormAddMultas && empresaSelecionada && (
+        <CreateMultasForm
+          closeModalAddMultas={() => setAreaModalFormAddMultas(false)}
           empresaId={empresaSelecionada.id}
           empresaNome={empresaSelecionada.nome}
+          empresaCpfCnpj={empresaSelecionada.cnpj}
+        />
+      )}
 
+      {areaModalListMotoristaInfo && empresaSelecionada && (
+        <ListMultas
+          closeModalListMultas={() => setAreaModalListMotoristaInfo(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+          empresaCpfCnpj={empresaSelecionada.cnpj}
         />
       )}
 

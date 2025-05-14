@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Bibliotecas:
 import Swal from 'sweetalert2';
+//import { differenceInCalendarDays, parse } from 'date-fns';
 
 //Importação de components de Inputs:
-import InputTelefone from '../../inputs/InputTelefone';
-import InputCpf from '../../inputs/formatCPF';
-import InputCNPJ from '../../inputs/InputCNPJ';
 import InputDate from '../../inputs/formatDate';
+import InputDin from '../../inputs/InputValorReais';
 
 // Firebase:
 import { db } from '../../../firebaseConnection';
-import { ref, set, push } from 'firebase/database';
+import { getDatabase, ref, push, set, update, onValue } from 'firebase/database';
 
 // Ícones:
 import { FaWindowClose } from "react-icons/fa";
-import { MdAddBox } from "react-icons/md";
 import { LuSave } from "react-icons/lu";
 import { FaFileInvoiceDollar } from 'react-icons/fa';
 
@@ -27,266 +25,400 @@ import {
   ModalAreaInfo,
   Input,
   Button,
-  DefaultButton
+  DefaultButton,
+  ListaEmpresasWrapper
 } from './styles';
 
-const CreateMultas = ({ closeModalAddVeiculos, empresaIdProp }) => {
+const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfCnpj }) => {
 
-  const [modelo, setModelo] = useState('');
-  const [marca, setMarca] = useState('');
-  const [placa, setPlaca] = useState('');
-  const [chassi, setChassi] = useState('');
-  const [ano, setAno] = useState('');
-  const [renavam, setRenavam] = useState('');
-  const [licenciamento, setLicenciamento] = useState('');
-  const [tipo, setTipo] = useState('');
+  // Multa
+  const [numeroAIT, setNumeroAIT] = useState('');
+  const [orgaoAutuador, setOrgaoAutuador] = useState('');
+  const [dataInfracao, setDataInfracao] = useState('');
+  const [dataEmissao, setDataEmissao] = useState('');
+  const [artigo, setArtigo] = useState('');
+  const [gravidade, setGravidade] = useState('');
+  const [pontuacao, setPontuacao] = useState(0);
 
-  const [isTerceirizado, setIsTerceirizado] = useState(false);
+  // Local da infração
+  const [logradouro, setLogradouro] = useState('');
+  const [numeroLocal, setNumeroLocal] = useState('');
+  const [cidade, setCidade] = useState('');
+
+  // Veículos e condutores
+  const [veiculoSelecionado, setVeiculoSelecionado] = useState(null);
+  const [listaVeiculos, setListaVeiculos] = useState([]);
+  const [condutorSelecionado, setCondutorSelecionado] = useState(null);
+  const [listaCondutores, setListaCondutores] = useState([]);
+  const [cpfCondutor, setCpfCondutor] = useState('');
+
+  // Proprietário (vindo do veículo)
   const [nomeProprietario, setNomeProprietario] = useState('');
-  const [cpfProprietario, setCpfProprietario] = useState('');
-  const [cnpjProprietario, setCnpjProprietario] = useState('');
-  const [contatoProprietario, setContatoProprietario] = useState('');
+  const [cpfCnpj, setCpfCnpj] = useState('');
 
+  const [prazos, setPrazos] = useState('');
+  const [dataProtocolo, setDataProtocolo] = useState('');
+  const [status, setStatus] = useState('');
+  const [informacoesGerais, setInformacoesGerais] = useState('');
+  const [valorMulta, setValorMulta] = useState('');
+  const [valorPago, setValorPago] = useState('');
 
+  //Buscando dados de veículos e condutores no Firebase:
+  useEffect(() => {
+    const veiculosRef = ref(db, `empresas/${empresaId}/veiculos`);
+    const condutoresRef = ref(db, `empresas/${empresaId}/motoristas`);
 
-  const goBack = () => {
-    closeModalAddVeiculos();
-  };
+    onValue(veiculosRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const veiculosArray = Object.entries(data).map(([key, value]) => ({ id: key, ...value }));
+        setListaVeiculos(veiculosArray);
+      }
+    });
 
-  const salvarVeiculoooo = async () => {
-    if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos obrigatórios',
-        text: 'Por favor, preencha todos os campos obrigatórios.',
-        confirmButtonColor: '#f27474'
-      });
-      return;
-    }
+    onValue(condutoresRef, snapshot => {
+      const data = snapshot.val();
+      if (data) {
+        const condutoresArray = Object.entries(data).map(([key, value]) => ({ id: key, ...value }));
+        setListaCondutores(condutoresArray);
+      }
+    });
+  }, [empresaId]);
 
-    try {
-      const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
-      await set(veiculoRef, {
-        modelo,
-        marca,
-        placa,
-        licenciamento,
-        chassi,
-        ano,
-        renavam,
-        tipo
-      });
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Veículo cadastrado!',
-        text: `Veículo ${placa} adicionado com sucesso.`,
-        confirmButtonColor: '#3085d6'
-      });
-
-      // Limpa campos e fecha modal
-      setModelo('');
-      setMarca('');
-      setPlaca('');
-      setChassi('');
-      setAno('');
-      setRenavam('');
-      setLicenciamento('');
-      setTipo('');
-      closeModalAddVeiculos();
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao cadastrar',
-        text: 'Não foi possível salvar o veículo. Tente novamente.',
-        confirmButtonColor: '#d33'
-      });
-      console.error("Erro ao salvar veículo:", error);
+  //Quando selecionar veículo, preencher proprietário:
+  const handleSelecionarVeiculo = (veiculo) => {
+    setVeiculoSelecionado(veiculo);
+    if (veiculo?.proprietario) {
+      setNomeProprietario(veiculo.proprietario.nome || '');
+      setCpfCnpj(veiculo.proprietario.cpf || veiculo.proprietario.cnpj || '');
+    } else {
+      setNomeProprietario(empresaNome);
+      setCpfCnpj('');
     }
   };
 
-  const salvarVeiculo = () => {
-    alert("pegadinha do malandro heheee");
+  const handleSelecionarMotorista = (condutor) => {
+    setCondutorSelecionado(condutor);
+    setCpfCondutor(condutor.cpf)
   }
 
-  const salvarVeicudfdlo = async () => {
-    // Verificações de campos obrigatórios
-    if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento) {
+  //Gravidade → Pontuação
+  const gravidades = {
+    Leve: 3,
+    Média: 4,
+    Grave: 5,
+    'Gravíssima': 7
+  };
+
+  const handleGravidadeChange = (value) => {
+    setGravidade(value);
+    setPontuacao(gravidades[value] || 0);
+  };
+
+  //Voltar para a pagina anterior
+  const goBack = () => {
+    closeModalAddMultas();
+  };
+
+  const createregisterMulta = async () => {
+    if (!numeroAIT || !orgaoAutuador || !dataInfracao || !dataEmissao || !gravidade || !artigo) {
       Swal.fire({
         icon: 'warning',
-        title: 'Campos obrigatórios',
-        text: 'Por favor, preencha todos os campos obrigatórios.',
-        confirmButtonColor: '#f27474'
+        title: 'Preencha todos os campos obrigatórios!',
       });
       return;
     }
 
-    // Validação extra se for terceirizado
-    if (isTerceirizado) {
-      if (!nomeProprietario || !contatoProprietario) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Campos do proprietário',
-          text: 'Preencha os campos de proprietário para veículos terceirizados (nome, CPF e contato).',
-          confirmButtonColor: '#f27474'
-        });
-        return;
-      }
-    }
+    const novaMulta = {
+      numeroAIT,
+      orgaoAutuador,
+      dataInfracao,
+      dataEmissao,
+      //diasEntreDatas,
+      artigo,
+      gravidade,
+      pontuacao,
 
-    if (!cpfProprietario && !cnpjProprietario) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'CPF ou CNPJ obrigatório',
-        text: 'Preencha ao menos o CPF ou o CNPJ do proprietário.',
-        confirmButtonColor: '#f27474'
-      });
-      return;
-    }
+      // Local da infração
+      logradouro,
+      numeroLocal,
+      cidade,
+
+      // Veículo
+      veiculoId: veiculoSelecionado?.id || '',
+      placaVeiculo: veiculoSelecionado?.placa || '',
+      modeloVeiculo: veiculoSelecionado?.modelo || '',
+      //corVeiculo: veiculoSelecionado?.cor || '',
+      renavam: veiculoSelecionado?.renavam || '',
+
+      // Proprietário
+      nomeProprietario,
+      cpfCnpjProprietario: cpfCnpj || empresaCpfCnpj,
+
+      // Condutor
+      motoristaId: condutorSelecionado?.id || '',
+      nomeMotorista: condutorSelecionado?.nome || '',
+      cpfCondutor: condutorSelecionado?.cpf || '',
+      //categoriaCNH: condutorSelecionado?.categoria || '',
+
+      // Outras informações
+      prazos,
+      dataProtocolo,
+      status,
+      informacoesGerais,
+      valorMulta,
+      valorPago,
+
+      // Data do registro
+      criadoEm: new Date().toISOString()
+    };
 
     try {
-      const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
-      const veiculoData = {
-        modelo,
-        marca,
-        placa,
-        licenciamento,
-        chassi,
-        ano,
-        renavam,
-        tipo,
-        terceirizado: isTerceirizado || false
-      };
-
-      // Adiciona dados do proprietário se for terceirizado
-      if (isTerceirizado) {
-        veiculoData.proprietario = {
-          nome: nomeProprietario,
-          cpf: cpfProprietario || '',
-          cnpj: cnpjProprietario || '',
-          contato: contatoProprietario
-        };
-      }
-
-      await set(veiculoRef, veiculoData);
+      const multaRef = push(ref(db, `empresas/${empresaId}/multas`));
+      await set(multaRef, novaMulta);
 
       Swal.fire({
         icon: 'success',
-        title: 'Veículo cadastrado!',
-        text: `Veículo ${placa} adicionado com sucesso.`,
-        confirmButtonColor: '#3085d6'
+        title: 'Multa registrada com sucesso!',
       });
 
-      // Limpa campos
-      setModelo('');
-      setMarca('');
-      setPlaca('');
-      setChassi('');
-      setAno('');
-      setRenavam('');
-      setLicenciamento('');
-      setTipo('');
-
-      if (isTerceirizado) {
-        setNomeProprietario('');
-        setCpfProprietario('');
-        setCnpjProprietario('');
-        setContatoProprietario('');
-        setIsTerceirizado(false);
-      }
-
-      closeModalAddVeiculos();
-
+      closeModalAddMultas();
     } catch (error) {
+      console.error('Erro ao registrar multa:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Erro ao cadastrar',
-        text: 'Não foi possível salvar o veículo. Tente novamente.',
-        confirmButtonColor: '#d33'
+        title: 'Erro ao registrar a multa',
+        text: error.message,
       });
-      console.error("Erro ao salvar veículo:", error);
     }
   };
-
-
 
   return (
     <ModalAreaTotalDisplay>
       <ModalAreaInfo>
+        <ListaEmpresasWrapper>
+          <Box
+            width={'100%'}
+            height={'65px'}
+            radius={'10px'}
+            direction={'row'}
+            topSpace={'10px'}
+            bottomSpace={'20px'}
+            align={'center'}
+            justify={'space-between'}
+          >
+            <Box leftSpace={'20px'}>
+              <FaFileInvoiceDollar size={'30px'} color={colors.silver} />
+              <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Nova Multa da empresa {empresaNome} cnpj {empresaCpfCnpj}</TextDefault>
+            </Box>
 
-        <Box
-          width={'100%'}
-          height={'65px'}
-          radius={'10px'}
-          direction={'row'}
-          topSpace={'10px'}
-          bottomSpace={'20px'}
-          align={'center'}
-          justify={'space-between'}
-        >
-          <Box leftSpace={'20px'}>
-            <FaFileInvoiceDollar size={'30px'} color={colors.silver} />
-            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Nova Multa</TextDefault>
+            <DefaultButton onClick={() => goBack()}>
+              <FaWindowClose size={'30px'} color={colors.silver} />
+            </DefaultButton>
           </Box>
 
-          <DefaultButton onClick={() => goBack()}>
-            <FaWindowClose size={'30px'} color={colors.silver} />
-          </DefaultButton>
-        </Box>
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Nº AIT</TextDefault>
+              <Input value={numeroAIT} onChange={e => setNumeroAIT(e.target.value)} placeholder="Número da AIT" />
+            </Box>
 
-        {/* Linha 1: Modelo / Marca / Placa */}
-        <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
-          <Box flex={'1'} direction="column">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={modelo} onChange={e => setModelo(e.target.value)} placeholder="Informações da multa" />
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Órgão autuador</TextDefault>
+              <Input value={orgaoAutuador} onChange={e => setOrgaoAutuador(e.target.value)} placeholder="Órgão autuador" />
+            </Box>
+
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Artigo</TextDefault>
+              <Input value={artigo} onChange={e => setArtigo(e.target.value)} placeholder="Artigo do CTB" />
+            </Box>
           </Box>
 
-          <Box direction="column" flex={'1'} leftSpace={'30px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={marca} onChange={e => setMarca(e.target.value)} placeholder="Informações da multa" />
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Data da infração</TextDefault>
+              <InputDate value={dataInfracao} onChange={setDataInfracao} />
+            </Box>
+
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Data de emissão</TextDefault>
+              <InputDate value={dataEmissao} onChange={setDataEmissao} />
+            </Box>
+
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Gravidade</TextDefault>
+              <select
+                value={gravidade}
+                onChange={e => handleGravidadeChange(e.target.value)}
+                style={{ height: '40px', borderRadius: '8px', padding: '5px' }}
+              >
+                <option value="">Selecione</option>
+                <option value="Leve">Leve</option>
+                <option value="Média">Média</option>
+                <option value="Grave">Grave</option>
+                <option value="Gravíssima">Gravíssima</option>
+              </select>
+            </Box>
+
+            <Box direction="column" flex="0.5" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Pontuação</TextDefault>
+              <Input value={pontuacao} disabled />
+            </Box>
           </Box>
 
-          <Box direction="column" flex={'0.6'} leftSpace={'30px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={placa} onChange={e => setPlaca(e.target.value.toUpperCase())} placeholder="Informações da multa" />
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Valor da Multa (R$)</TextDefault>
+              <InputDin
+                value={valorMulta}
+                onChange={setValorMulta}
+                placeholder="Ex: 293.47"
+              />
+            </Box>
+
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Valor Pago (R$)</TextDefault>
+              <InputDin
+                value={valorPago}
+                onChange={setValorPago}
+                placeholder="Se já foi pago"
+              />
+            </Box>
           </Box>
 
-          <Box flex={'1'} direction="column" paddingLeft="20px" leftSpace={'10px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={licenciamento} onChange={e => setLicenciamento(e.target.value)} placeholder="Informações da multa" />
-          </Box>
-        </Box>
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="2">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Logradouro da multa</TextDefault>
+              <Input value={logradouro} onChange={e => setLogradouro(e.target.value)} placeholder="Rua / Avenida" />
+            </Box>
 
-        {/* Linha 2: Cor / Ano / Tipo / Renavam */}
-        <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
-          <Box flex={'0.8'} direction="column">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={chassi} onChange={e => setChassi(e.target.value)} placeholder="Informações da multa" />
-          </Box>
+            <Box direction="column" flex="0.5" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Número</TextDefault>
+              <Input value={numeroLocal} onChange={e => setNumeroLocal(e.target.value)} placeholder="Número" />
+            </Box>
 
-          <Box flex={'0.5'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={ano} onChange={e => setAno(e.target.value)} placeholder="Informações da multa" />
-          </Box>
-
-          <Box flex={'0.8'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={tipo} onChange={e => setTipo(e.target.value)} placeholder="Informações da multa" />
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Cidade</TextDefault>
+              <Input value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade" />
+            </Box>
           </Box>
 
-          <Box flex={'1'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">Informações da multa</TextDefault>
-            <Input value={renavam} onChange={e => setRenavam(e.target.value)} placeholder="Informações da multa" />
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Veículo</TextDefault>
+              <select
+                value={veiculoSelecionado?.id || ''}
+                onChange={e => {
+                  const selected = listaVeiculos.find(v => v.id === e.target.value);
+                  handleSelecionarVeiculo(selected);
+                }}
+                style={{ height: '40px', borderRadius: '8px', padding: '5px' }}
+              >
+                <option value="">Selecione</option>
+                {listaVeiculos.map(veiculo => (
+                  <option key={veiculo.id} value={veiculo.id}>
+                    {veiculo.modelo} - {veiculo.placa}
+                  </option>
+                ))}
+              </select>
+            </Box>
+
+            <Box direction="column" flex="1" leftSpace="20px">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Nome do Condutor</TextDefault>
+              <select
+                value={condutorSelecionado?.id || ''}
+                onChange={e => {
+                  const condutor = listaCondutores.find(c => c.id === e.target.value);
+                  handleSelecionarMotorista(condutor);
+                }}
+                style={{ height: '40px', borderRadius: '8px', padding: '5px' }}
+              >
+                <option value="">Indentifique o Infrator (Caso não seja o proprietário)</option>
+                {listaCondutores.map(condutor => (
+                  <option key={condutor.id} value={condutor.id}>
+                    {condutor.nome}
+                  </option>
+                ))}
+              </select>
+            </Box>
           </Box>
-        </Box>
 
+          {/* Descrição */}
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1" width="95%">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Proprietário</TextDefault>
+              <Input value={nomeProprietario} disabled width="98%" />
+            </Box>
 
-        <Box direction="row" justify="space-between" topSpace="20px">
-          <Button onClick={salvarVeiculo}>
-            <LuSave color={colors.silver} size={'20px'} />
-            <TextDefault color={colors.silver} left={'10px'}>Salvar</TextDefault>
-          </Button>
-        </Box>
+            <Box direction="column" flex="1" leftSpace="20px" width="95%">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">CPF do Condutor</TextDefault>
+              <Input value={cpfCondutor} disabled width="98%" />
+            </Box>
+          </Box>
+
+          <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
+            <Box direction="column" flex="1">
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Status da multa</TextDefault>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ height: '40px', width: '72%', borderRadius: '8px', padding: '5px' }}>
+                <option value="">Selecione o status</option>
+                <option value="defesa_previa">NAIT - Defesa Prévia</option>
+                <option value="defesa_previa_condutor">NAIT - FICI</option>
+                <option value="defesa_previa_FICI">NAIT - Defesa Prévia + FICI</option>
+                <option value="recurso_jari">NPMT - Recurso à JARI</option>
+                <option value="recurso_setran">NPMT - Recurso ao SETRAN</option>
+                <option value="pago">NPMT - Pago</option>
+                <option value="pago_20">NPMT - Pago 20%</option>
+                <option value="pago_40">NPMT - Pago 40%</option>
+                <option value="pago_20_recurso">NPMT - Pago 20% + Recurso</option>
+                <option value="NAIT_aguardando_NPMT">NAIT - Aguardando NPMT</option>
+                <option value="NPMT_aguardando_pagamento">NPMT - Aguardando Pagamento</option>
+              </select>
+
+              <Box direction="column" flex="1" width={'70%'}>
+                <TextDefault top={'20px'} size="12px" color={colors.silver} bottom="5px">Prazo</TextDefault>
+                <InputDate value={prazos} onChange={setPrazos} />
+              </Box>
+
+              <Box direction="column" flex="1" width={'70%'}>
+                <TextDefault top={'20px'} size="12px" color={colors.silver} bottom="5px">Protocolo</TextDefault>
+                <InputDate width={'70%'} value={dataProtocolo} onChange={setDataProtocolo} />
+              </Box>
+            </Box>
+
+            <Box direction="column" flex="1" width={'40%'}>
+              {/* INFORMAÇÕES GERAIS */}
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Informações Gerais</TextDefault>
+              <textarea
+                value={informacoesGerais}
+                onChange={(e) => setInformacoesGerais(e.target.value)}
+                placeholder="Digite aqui qualquer informação adicional sobre a multa"
+                rows={4}
+                style={{
+                  width: '98%', // largura fixa
+                  height: '200px', // altura fixa
+                  borderRadius: '10px',
+                  padding: '10px',
+                  resize: 'none', // impede redimensionamento manual, opcional
+                  fontFamily: 'Octosquares Extra Light',
+                  fontSize: '16px',
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Descrição*/}
+          <Box direction="row" justify="space-between" topSpace="20px">
+            <Button onClick={createregisterMulta}>
+              <LuSave color={colors.silver} size={'20px'} />
+              <TextDefault color={colors.silver} left={'10px'}>Salvar</TextDefault>
+            </Button>
+          </Box>
+        </ListaEmpresasWrapper>
 
       </ModalAreaInfo>
     </ModalAreaTotalDisplay>

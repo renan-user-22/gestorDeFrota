@@ -38,10 +38,17 @@ export const Input = styled.input`
   margin-left:${props => props.left || '0px'};
   height: 40px;
   padding-left: 10px;
-  border: 1px solid ${colors.silver};
+  border: 1px solid ${(props) => props.color || colors.silver};
   font-size: 14px;
   margin-bottom: 10px;
   border-radius: 7px;
+
+  &:disabled {
+    background-color: ${colors.yellow}; // ou qualquer cor que preferir
+    border-color: ${colors.gray}; // altera a cor da borda quando desativado
+    color: ${colors.silver}; // altera a cor do texto, se quiser
+    cursor: not-allowed; // indica visualmente que o input está desativado
+  }
 `;
 
 export const Button = styled.button`
@@ -63,11 +70,11 @@ export const Button = styled.button`
 `;
 
 export const ListaEmpresasWrapper = styled.div`
-  width: 95%;
+  width: 100%;
   margin-top: 20px;
   margin-bottom: 20px;
   overflow-y: auto;
-  padding-right: 10px;
+  height: 95%;
 
   /* Scrollbar personalizada */
   &::-webkit-scrollbar {

@@ -25,4 +25,4 @@ const storage = getStorage(app);
 const auth = getAuth(app);
 
 // Exporta
-export { db, storage, auth };
+export { db, storage, auth, app };

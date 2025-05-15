@@ -1,36 +1,6 @@
 import styled, { keyframes, css } from 'styled-components';
 import { colors } from '../../../theme'; // Lembrando de importar o tema para usar as cores
 
-export const Container = styled.div`
-  display: flex;
-  width: 80vw;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  background-color: ${colors.darkGray};
-  overflow: hidden;
-`;
-
-export const ListaScrollContainer = styled.div`
-  max-height: 450px;
-  width: 100%;
-  overflow-y: auto;
-
-  /* Opcional: customização da barra de rolagem */
-  //scrollbar-width: thin;
-  scrollbar-color: ${colors.orange};
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${colors.yellow};
-    border-radius: 4px;
-  }
-`;
-
-
 export const DefaultButton = styled.button`
   display: flex;
   background-color: transparent;
@@ -64,24 +34,24 @@ export const ModalAreaInfo = styled.div`
 `;
 
 export const Input = styled.input`
-  width:${props => props.width || '70%'};
+  width:${props => props.width || '100%'};
   margin-left:${props => props.left || '0px'};
   height: 40px;
   padding-left: 10px;
   border: 1px solid ${colors.silver};
   font-size: 14px;
-  //margin-bottom: 10px;
+  margin-bottom: 10px;
   border-radius: 7px;
 `;
 
 export const Button = styled.button`
   display: flex;
-  width: ${(props) => props.width || 'auto'};
+  width: auto;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.color || colors.orange};
-  padding: 7px;
+  padding: 10px;
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
   color: ${colors.silver};
@@ -93,11 +63,11 @@ export const Button = styled.button`
 `;
 
 export const ListaEmpresasWrapper = styled.div`
-  width: 100%;
+  width: 95%;
   margin-top: 20px;
   margin-bottom: 20px;
   overflow-y: auto;
-  height: 95%;
+  padding-right: 10px;
 
   /* Scrollbar personalizada */
   &::-webkit-scrollbar {

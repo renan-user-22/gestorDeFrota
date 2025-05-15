@@ -96,7 +96,6 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
         };
     };
 
-
     useEffect(() => {
         const db = getDatabase();
         const motoristasRef = ref(db, `empresas/${empresaId}/motoristas`);

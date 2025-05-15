@@ -59,13 +59,10 @@ const Multas = () => {
   }
 
   const areaModalListMultas = (id, n, cnpj) => {
-    
-    alert("Irá abrir uma Modal com a lista de multas registradas com todas as informações do cadastro");
-    
-    //setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
-    //setAreaModalFormAddMultas(false);
-   // setAreaModalListMotoristaInfo(true);
-    //setAreaModalEditEmpresa(false);
+    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
+    setAreaModalFormAddMultas(false);
+    setAreaModalListMotoristaInfo(true);
+    setAreaModalEditEmpresa(false);
   }
 
   // lê lista de empresas
@@ -77,7 +74,6 @@ const Multas = () => {
       setEmpresas(list);
     });
   }, []);
-
 
   return (
     <Container>

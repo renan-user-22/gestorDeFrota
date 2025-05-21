@@ -12,9 +12,9 @@ import InputDate from '../../inputs/formatDate';
 
 //Icones: 
 import { FaWindowClose } from "react-icons/fa";
-import { FaSquarePhone } from "react-icons/fa6";
 import { LuSave } from "react-icons/lu";
 import { TbCancel } from "react-icons/tb";
+import { PiPathBold } from "react-icons/pi";
 
 //Estilos:
 import { Box, TextDefault } from '../../../stylesAppDefault';
@@ -32,15 +32,15 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
     const [prazos, setPrazos] = useState('');
     const [dataProtocolo, setDataProtocolo] = useState('');
 
-     // lê lista de empresas
-      useEffect(() => {
-       setPrazos(dadosMulta.prazos);
-       setDataProtocolo(dadosMulta.dataProtocolo);
-      }, []);
+    // lê lista de empresas
+    useEffect(() => {
+        setPrazos(dadosMulta.prazos);
+        setDataProtocolo(dadosMulta.dataProtocolo);
+    }, []);
 
-    const updateInfoStatusMulta = async () => {
+    const updateInfoStatusMultasss = async () => {
         // Validação
-        if (!status || !prazos ) {
+        if (!status || !prazos) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Preencha todos os campos obrigatórios!',
@@ -82,6 +82,84 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
         }
     };
 
+    const updateInfoStatusMulta = async () => {
+        // Validação
+        if (!status || !prazos) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Preencha todos os campos obrigatórios!',
+            });
+            return;
+        }
+
+        try {
+            if (!empresaId || !multaId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao localizar empresa ou multa!',
+                });
+                return;
+            }
+
+            // Conversão do valor da multa para número
+            const valorMultaNumerico = Number(dadosMulta?.valorMulta);
+            let valorPagoCalculado = 0;
+
+            switch (status) {
+                case 'Defesa_Previa':
+                case 'Defesa_Previa_FICI':
+                case 'Recurso_JARI':
+                case 'Recurso_SETRAN':
+                case 'NAIT_Aguardando_NPMT':
+                case 'NPMT_Aguardando_Pagamento':
+                case 'Multa_Anulada':
+                    valorPagoCalculado = 0;
+                    break;
+
+                case 'Defesa_Previa_Condutor':
+                case 'Pago':
+                    valorPagoCalculado = valorMultaNumerico;
+                    break;
+
+                case 'Pago_20':
+                case 'Pago_20_Recurso':
+                    valorPagoCalculado = valorMultaNumerico * 0.8;
+                    break;
+
+                case 'Pago_40':
+                    valorPagoCalculado = valorMultaNumerico * 0.6;
+                    break;
+
+                default:
+                    valorPagoCalculado = 0;
+                    break;
+            }
+
+            const updates = {
+                status,
+                prazos,
+                dataProtocolo,
+                valorPago: valorPagoCalculado
+            };
+
+            await update(ref(db, `empresas/${empresaId}/multas/${multaId}`), updates);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Status atualizado com sucesso!',
+            });
+
+            closeModalEditStatud();
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao atualizar status!',
+                text: error.message
+            });
+        }
+    };
+
+
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
@@ -97,7 +175,7 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
                     justify={'space-between'}
                 >
                     <Box>
-                        <FaSquarePhone size={'30px'} color={colors.silver} />
+                        <PiPathBold size={'30px'} color={colors.silver} />
                         <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>Alterar Status da Multa da placa: {dadosMulta?.placaVeiculo}</TextDefault>
                     </Box>
 
@@ -112,17 +190,18 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
                     <TextDefault size="12px" color={colors.silver} bottom="5px">Selecione um novo Status:</TextDefault>
                     <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ height: '40px', width: '100%', borderRadius: '8px', padding: '5px' }}>
                         <option value="">Selecione o status</option>
-                        <option value="defesa_previa">NAIT - Defesa Prévia</option>
-                        <option value="defesa_previa_condutor">NAIT - FICI</option>
-                        <option value="defesa_previa_FICI">NAIT - Defesa Prévia + FICI</option>
-                        <option value="recurso_jari">NPMT - Recurso à JARI</option>
-                        <option value="recurso_setran">NPMT - Recurso ao SETRAN</option>
-                        <option value="pago">NPMT - Pago</option>
-                        <option value="pago_20">NPMT - Pago 20%</option>
-                        <option value="pago_40">NPMT - Pago 40%</option>
-                        <option value="pago_20_recurso">NPMT - Pago 20% + Recurso</option>
-                        <option value="NAIT_aguardando_NPMT">NAIT - Aguardando NPMT</option>
-                        <option value="NPMT_aguardando_pagamento">NPMT - Aguardando Pagamento</option>
+                        <option value="Defesa_Previa">NAIT - Defesa Prévia</option>
+                        <option value="Defesa_Previa_Condutor">NAIT - FICI</option>
+                        <option value="Defesa_Previa_FICI">NAIT - Defesa Prévia + FICI</option>
+                        <option value="Recurso_JARI">NPMT - Recurso à JARI</option>
+                        <option value="Recurso_SETRAN">NPMT - Recurso ao SETRAN</option>
+                        <option value="Pago">NPMT - Pago</option>
+                        <option value="Pago_20">NPMT - Pago 20%</option>
+                        <option value="Pago_40">NPMT - Pago 40%</option>
+                        <option value="Pago_20_Recurso">NPMT - Pago 20% + Recurso</option>
+                        <option value="NAIT_Aguardando_NPMT">NAIT - Aguardando NPMT</option>
+                        <option value="NPMT_Aguardando_Pagamento">NPMT - Aguardando Pagamento</option>
+                        <option value="Multa_Anulada">NPMT - AIT Anulado</option>
                     </select>
                 </Box>
 

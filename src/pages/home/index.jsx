@@ -34,7 +34,7 @@ const Home = () => {
 
   // estados de página
   const [empresasAction, setEmpresasAction] = useState(false);
-  const [pessoaFisica, setPessoaFisica] = useState(false);
+  //const [pessoaFisica, setPessoaFisica] = useState(false);
   const [relatoriosAction, setRelatoriosAction] = useState(false);
   const [multasAction, setMultasAction] = useState(false);
   const [checklistAction, setChecklistAction] = useState(false);
@@ -54,17 +54,17 @@ const Home = () => {
 
   const iconMap = {
     Empresas: GoOrganization,
-    Relatórios: FaChartBar,
+    Dashboard: FaChartBar,
     Configurações: IoSettingsSharp,
     Multas: FaFileInvoiceDollar,
     CheckList: FaClipboardCheck,
     'Fleet IA': LuBrainCircuit, // ou outro ícone mais representativo
-    'Pessoa Física': HiMiniUser, // ou outro ícone mais representativo
+    //'Pessoa Física': HiMiniUser, // ou outro ícone mais representativo
   };
 
   const buttonData = [
     {
-      titulo: 'Relatórios',
+      titulo: 'Dashboard',
       descricao: 'Acompanhe tudo em tempo real sobre a sua empresa',
       action: setRelatoriosAction,
     },
@@ -73,11 +73,11 @@ const Home = () => {
       descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
       action: setEmpresasAction,
     },
-    {
+    /*{
       titulo: 'Pessoa Física',
       descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
       action: setPessoaFisica,
-    },
+    },*/
     {
       titulo: 'Multas',
       descricao: 'Gerencie e visualize as multas das frotas cadastradas',
@@ -105,7 +105,7 @@ const Home = () => {
     setConfiguracoesAction(false);
     setMultasAction(false);
     setIaAction(false);
-    setPessoaFisica(false);
+    //setPessoaFisica(false);
     setChecklistAction(false);
     setter(true);
     if (isMobile) setIsDrawerOpen(false);

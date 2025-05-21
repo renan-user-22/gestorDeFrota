@@ -93,23 +93,6 @@ const Multas = () => {
           <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Gerenciamento de Multas</TextDefault>
         </Box>
 
-        <Box leftSpace={'20px'}>
-
-          <Button padding={'5px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
-            <GoOrganization size={'17px'} />
-            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-              P.J
-            </TextDefault>
-          </Button>
-
-          <Button padding={'5px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome)} right={'20px'}>
-            <HiMiniUser size={'17px'} />
-            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-              P.F
-            </TextDefault>
-          </Button>
-        </Box>
-
       </Box>
 
       <Box width={'95%'}>

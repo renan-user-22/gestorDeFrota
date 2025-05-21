@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import InputTelefone from '../../inputs/InputTelefone';
 import InputCpf from '../../inputs/formatCPF';
 import InputCNPJ from '../../inputs/InputCNPJ';
-import InputDate from '../../inputs/formatDate';
 
 // Firebase:
 import { db } from '../../../firebaseConnection';
@@ -46,62 +45,8 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   const [cnpjProprietario, setCnpjProprietario] = useState('');
   const [contatoProprietario, setContatoProprietario] = useState('');
 
-
-
   const goBack = () => {
     closeModalAddVeiculos();
-  };
-
-  const salvarVeiculoooo = async () => {
-    if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Campos obrigatórios',
-        text: 'Por favor, preencha todos os campos obrigatórios.',
-        confirmButtonColor: '#f27474'
-      });
-      return;
-    }
-
-    try {
-      const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
-      await set(veiculoRef, {
-        modelo,
-        marca,
-        placa,
-        licenciamento,
-        chassi,
-        ano,
-        renavam,
-        tipo
-      });
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Veículo cadastrado!',
-        text: `Veículo ${placa} adicionado com sucesso.`,
-        confirmButtonColor: '#3085d6'
-      });
-
-      // Limpa campos e fecha modal
-      setModelo('');
-      setMarca('');
-      setPlaca('');
-      setChassi('');
-      setAno('');
-      setRenavam('');
-      setLicenciamento('');
-      setTipo('');
-      closeModalAddVeiculos();
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao cadastrar',
-        text: 'Não foi possível salvar o veículo. Tente novamente.',
-        confirmButtonColor: '#d33'
-      });
-      console.error("Erro ao salvar veículo:", error);
-    }
   };
 
   const salvarVeiculo = async () => {
@@ -129,7 +74,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
       }
     }
 
-    if (!cpfProprietario && !cnpjProprietario) {
+    /*if (!cpfProprietario && !cnpjProprietario) {
       Swal.fire({
         icon: 'warning',
         title: 'CPF ou CNPJ obrigatório',
@@ -137,7 +82,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
         confirmButtonColor: '#f27474'
       });
       return;
-    }
+    }*/
 
     try {
       const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
@@ -203,8 +148,6 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
     }
   };
 
-
-
   return (
     <ModalAreaTotalDisplay>
       <ModalAreaInfo>
@@ -266,10 +209,42 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
 
           <Box flex={'0.8'} direction="column" paddingLeft="20px">
             <TextDefault size="12px" color={colors.silver} bottom="5px">Tipo</TextDefault>
-            <Input value={tipo} onChange={e => setTipo(e.target.value)} placeholder="Ex: Carro, Moto, Van" />
+            <select
+              value={tipo}
+              onChange={e => setTipo(e.target.value)}
+              style={{
+                height: '44px',
+                borderRadius: '8px',
+                border: `1px solid ${colors.silver}`,
+                padding: '0 10px',
+                backgroundColor: '#fff',
+                color: colors.black,
+                fontSize: '14px'
+              }}
+            >
+              <option value="">Selecione o tipo de veículo</option>
+              <option value="Carro de Passeio">Carro de Passeio</option>
+              <option value="Utilitário">Utilitário</option>
+              <option value="Van de Passageiros">Van de Passageiros</option>
+              <option value="Van de Carga">Van de Carga</option>
+              <option value="Moto / Motocicleta">Moto / Motocicleta</option>
+              <option value="VUC – Veículo Urbano de Carga">VUC – Veículo Urbano de Carga</option>
+              <option value="Caminhão 3/4">Caminhão 3/4</option>
+              <option value="Caminhão Toco">Caminhão Toco</option>
+              <option value="Caminhão Truck">Caminhão Truck</option>
+              <option value="Cavalo Mecânico">Cavalo Mecânico</option>
+              <option value="Carreta">Carreta</option>
+              <option value="Bitrem">Bitrem</option>
+              <option value="Rodotrem">Rodotrem</option>
+              <option value="Micro-ônibus">Micro-ônibus</option>
+              <option value="Ônibus">Ônibus</option>
+              <option value="Caminhão-tanque">Caminhão-tanque</option>
+              <option value="Outros">Outros</option>
+            </select>
           </Box>
 
-          <Box flex={'1'} direction="column" paddingLeft="20px">
+
+          <Box flex={'1'} direction="column" paddingLeft="10px">
             <TextDefault size="12px" color={colors.silver} bottom="5px">Renavam</TextDefault>
             <Input value={renavam} onChange={e => setRenavam(e.target.value)} placeholder="Número do Renavam" />
           </Box>

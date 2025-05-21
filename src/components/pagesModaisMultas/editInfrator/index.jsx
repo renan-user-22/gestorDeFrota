@@ -7,14 +7,11 @@ import Swal from 'sweetalert2';
 import { db } from '../../../firebaseConnection';
 import { ref, update, getDatabase, onValue } from 'firebase/database';
 
-//Importação de components de Inputs:
-import InputDate from '../../inputs/formatDate';
-
 //Icones: 
 import { FaWindowClose } from "react-icons/fa";
-import { FaSquarePhone } from "react-icons/fa6";
 import { LuSave } from "react-icons/lu";
 import { TbCancel } from "react-icons/tb";
+import { MdAddBox } from "react-icons/md";
 
 //Estilos:
 import { Box, TextDefault } from '../../../stylesAppDefault';
@@ -47,7 +44,6 @@ const EditInfrator = ({ closeModalEditInfrator, dadosMulta, empresaId, multaId }
             }
         });
     }, [empresaId]);
-
 
     const handleSelectChange = (e) => {
         const motoristaId = e.target.value;
@@ -109,7 +105,7 @@ const EditInfrator = ({ closeModalEditInfrator, dadosMulta, empresaId, multaId }
                     justify={'space-between'}
                 >
                     <Box>
-                        <FaSquarePhone size={'30px'} color={colors.silver} />
+                        <MdAddBox size={'30px'} color={colors.silver} />
                         <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>Identificar Condutor infrator da placa: {dadosMulta?.placaVeiculo}</TextDefault>
                     </Box>
 

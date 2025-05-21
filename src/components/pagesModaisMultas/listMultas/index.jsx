@@ -16,7 +16,7 @@ import EditInfrator from '../editInfrator';
 import { FaWindowClose } from "react-icons/fa";
 import { MdAddBox } from "react-icons/md";
 import { FaChevronDown } from 'react-icons/fa';
-import { PiSteeringWheelFill } from "react-icons/pi";
+import { FaFileLines } from "react-icons/fa6";
 import { PiPathBold } from "react-icons/pi";
 import { FaFilePdf } from "react-icons/fa6";
 import { MdNotificationImportant } from "react-icons/md";
@@ -198,7 +198,6 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
     }
   };
 
-
   const editStatus = (id) => {
     const encontrada = multas.find((item) => item.id === id);
     setMultaSelecionada(encontrada);
@@ -258,7 +257,7 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
             justify={'space-between'}
           >
             <Box>
-              <PiSteeringWheelFill size={'30px'} color={colors.silver} />
+              <FaFileLines size={'30px'} color={colors.silver} />
               <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>Multas da Empresa {empresaNome}</TextDefault>
             </Box>
 
@@ -346,7 +345,7 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
                       <TextDefault color={colors.black} size="13px" weight="bold">
                         Proprietário: {multa.nomeProprietario} - CPF/CNPJ: {multa.cpfCnpjProprietario}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="13px" weight="bold">
+                      <TextDefault color={colors.orange} size="13px" weight="bold">
                         Status: {multa.status} - Prazo: {multa.prazos}
                       </TextDefault>
                     </Box>
@@ -381,34 +380,42 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
                             Artigo: {multa.artigo}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Motorista infrator: {multa.nomeMotorista || 'Não indentificado'} - CPF: {multa.cpfCondutor || 'Não indentificado'}
+                            Motorista Infrator: {multa.nomeMotorista || 'Não indentificado'} - CPF: {multa.cpfCondutor || 'Não indentificado'}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
                             Data da Infração:{multa.dataInfracao} - Data de Emissão: {multa.dataEmissao}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Protocolado dia: {multa.dataProtocolo || 'Não informado'}
+                            Protocolado Dia: {multa.dataProtocolo || 'Não informado'}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Gravidade: {multa.gravidade} - {multa.pontuacao} pontos
+                            Gravidade: {multa.gravidade} - {multa.pontuacao} Pontos
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Valor da Multa: {multa.valorMulta}
-                          </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Local da infração: {multa.cidade}, {multa.logradouro} - {multa.numeroLocal}
+                            Local da Infração: {multa.cidade}, {multa.logradouro} - {multa.numeroLocal}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
                             Órgão Autuador: {multa.orgaoAutuador}
                           </TextDefault>
+                          <TextDefault color={'red'} size="12px" bottom={'5px'} weight={'bold'}>
+                            Valor da Multa: {multa.valorMulta?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </TextDefault>
+                          <TextDefault color={'blue'} size="12px" bottom={'5px'} weight={'bold'}>
+                            Valor Pago ou Previsto: {multa.valorPago?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                          </TextDefault>
+                          <TextDefault color={'green'} size="12px" bottom={'5px'} weight={'bold'}>
+                            Economia Realizada ou Projetada: {
+                              multa.valorMulta != null && multa.valorPago != null
+                                ? (multa.valorMulta - multa.valorPago).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                : 'Não informado'
+                            }
+                          </TextDefault>
+
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Valor da Multa: {multa.valorMulta} - Valor Pago: {multa.valorPago}
+                            Informações Adicionais: {multa.informacoesGerais || 'Não informado'}
                           </TextDefault>
                           <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Informações adicionais: {multa.informacoesGerais}
-                          </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
-                            Registro no sistema:  {multa.criadoEm ? format(new Date(multa.criadoEm), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : 'Data inválida'}
+                            Registro no Sistema:  {multa.criadoEm ? format(new Date(multa.criadoEm), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : 'Data inválida'}
                           </TextDefault>
 
                           <Box width="70%" topSpace="10px">

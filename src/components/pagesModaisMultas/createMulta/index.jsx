@@ -129,12 +129,56 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
       return;
     }
 
+    // 🔄 Usando função segura para conversão de valor brasileiro
+    const valorMultaNumerico = parseValorBrasileiro(valorMulta);
+
+    if (isNaN(valorMultaNumerico)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Valor da multa inválido!',
+        text: 'Certifique-se de que o valor da multa está corretamente preenchido.',
+      });
+      return;
+    }
+
+    // 💰 Definindo valorPago com base no status
+    let valorPagoCalculado = 0;
+
+    switch (status) {
+      case 'defesa_previa':
+      case 'defesa_previa_FICI':
+      case 'recurso_jari':
+      case 'recurso_setran':
+      case 'NAIT_aguardando_NPMT':
+      case 'NPMT_aguardando_pagamento':
+      case 'Multa_Anulada':
+        valorPagoCalculado = 0;
+        break;
+
+      case 'defesa_previa_condutor':
+      case 'pago':
+        valorPagoCalculado = valorMultaNumerico;
+        break;
+
+      case 'pago_20':
+      case 'pago_20_recurso':
+        valorPagoCalculado = valorMultaNumerico * 0.8;
+        break;
+
+      case 'pago_40':
+        valorPagoCalculado = valorMultaNumerico * 0.6;
+        break;
+
+      default:
+        valorPagoCalculado = 0;
+        break;
+    }
+
     const novaMulta = {
       numeroAIT,
       orgaoAutuador,
       dataInfracao,
       dataEmissao,
-      //diasEntreDatas,
       artigo,
       gravidade,
       pontuacao,
@@ -148,7 +192,6 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
       veiculoId: veiculoSelecionado?.id || '',
       placaVeiculo: veiculoSelecionado?.placa || '',
       modeloVeiculo: veiculoSelecionado?.modelo || '',
-      //corVeiculo: veiculoSelecionado?.cor || '',
       renavam: veiculoSelecionado?.renavam || '',
 
       // Proprietário
@@ -159,15 +202,14 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
       motoristaId: condutorSelecionado?.id || '',
       nomeMotorista: condutorSelecionado?.nome || '',
       cpfCondutor: condutorSelecionado?.cpf || '',
-      //categoriaCNH: condutorSelecionado?.categoria || '',
 
       // Outras informações
       prazos,
       dataProtocolo,
       status,
       informacoesGerais,
-      valorMulta,
-      valorPago,
+      valorMulta: valorMultaNumerico,
+      valorPago: valorPagoCalculado,
 
       // Data do registro
       criadoEm: new Date().toISOString()
@@ -193,6 +235,17 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
     }
   };
 
+  // Função auxiliar
+  function parseValorBrasileiro(valor) {
+    if (!valor) return 0;
+    const valorLimpo = valor
+      .toString()
+      .replace(/\./g, '')       // remove pontos (milhar)
+      .replace(',', '.')        // troca vírgula decimal por ponto
+      .replace(/[^\d.-]/g, ''); // remove tudo que não é número, ponto ou hífen
+    return parseFloat(valorLimpo);
+  }
+
   return (
     <ModalAreaTotalDisplay>
       <ModalAreaInfo>
@@ -209,7 +262,7 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
           >
             <Box leftSpace={'20px'}>
               <FaFileInvoiceDollar size={'30px'} color={colors.silver} />
-              <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Nova Multa da empresa {empresaNome} cnpj {empresaCpfCnpj}</TextDefault>
+              <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Nova Multa da empresa {empresaNome}</TextDefault>
             </Box>
 
             <DefaultButton onClick={() => goBack()}>
@@ -280,12 +333,8 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
             </Box>
 
             <Box direction="column" flex="1" leftSpace="20px">
-              <TextDefault size="12px" color={colors.silver} bottom="5px">Valor Pago (R$)</TextDefault>
-              <InputDin
-                value={valorPago}
-                onChange={setValorPago}
-                placeholder="Se já foi pago"
-              />
+              <TextDefault size="12px" color={colors.silver} bottom="5px">Valor Pago | Previsão (R$)</TextDefault>
+              <Input value={valorPago} disabled />
             </Box>
           </Box>
 
@@ -366,17 +415,18 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
               <TextDefault size="12px" color={colors.silver} bottom="5px">Status da multa</TextDefault>
               <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ height: '40px', width: '72%', borderRadius: '8px', padding: '5px' }}>
                 <option value="">Selecione o status</option>
-                <option value="defesa_previa">NAIT - Defesa Prévia</option>
-                <option value="defesa_previa_condutor">NAIT - FICI</option>
-                <option value="defesa_previa_FICI">NAIT - Defesa Prévia + FICI</option>
-                <option value="recurso_jari">NPMT - Recurso à JARI</option>
-                <option value="recurso_setran">NPMT - Recurso ao SETRAN</option>
-                <option value="pago">NPMT - Pago</option>
-                <option value="pago_20">NPMT - Pago 20%</option>
-                <option value="pago_40">NPMT - Pago 40%</option>
-                <option value="pago_20_recurso">NPMT - Pago 20% + Recurso</option>
-                <option value="NAIT_aguardando_NPMT">NAIT - Aguardando NPMT</option>
-                <option value="NPMT_aguardando_pagamento">NPMT - Aguardando Pagamento</option>
+                <option value="Defesa_Previa">NAIT - Defesa Prévia</option>
+                <option value="Defesa_Previa_Condutor">NAIT - FICI</option>
+                <option value="Defesa_Previa_FICI">NAIT - Defesa Prévia + FICI</option>
+                <option value="Recurso_JARI">NPMT - Recurso à JARI</option>
+                <option value="Recurso_SETRAN">NPMT - Recurso ao SETRAN</option>
+                <option value="Pago">NPMT - Pago</option>
+                <option value="Pago_20">NPMT - Pago 20%</option>
+                <option value="Pago_40">NPMT - Pago 40%</option>
+                <option value="Pago_20_Recurso">NPMT - Pago 20% + Recurso</option>
+                <option value="NAIT_Aguardando_NPMT">NAIT - Aguardando NPMT</option>
+                <option value="NPMT_Aguardando_Pagamento">NPMT - Aguardando Pagamento</option>
+                <option value="Multa_Anulada">NPMT - AIT Anulado</option>
               </select>
 
               <Box direction="column" flex="1" width={'70%'}>

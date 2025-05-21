@@ -39,7 +39,7 @@ export const InfoBox = styled.div`
 `;
 
 export const TextDefault = styled.h1`
-  text-align: ${props => props.align || 'left'};;
+  text-align: ${props => props.align || 'right'};;
   font-size: ${props => props.size || '16px'};
   color: ${(props) => props.color || colors.silver};
   font-weight: ${props => props.weight || 'normal'};

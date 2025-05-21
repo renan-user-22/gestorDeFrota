@@ -154,7 +154,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                         />
                     </Box>
 
-                    <Box direction="column" flex={'1'}>
+                    <Box direction="column" flex={'1'} leftSpace={'30px'}>
                         <TextDefault size="12px" color={colors.silver} bottom="5px" left={'20px'}>
                             CNPJ
                         </TextDefault>
@@ -163,7 +163,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                 </Box>
 
                 {/* Linha 3: Endereço completo */}
-                <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="96.5%">
+                <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="94.5%">
                     <Box flex={'1.5'} direction="column">
                         <TextDefault size="12px" color={colors.silver} bottom="5px">
                             Logradouro

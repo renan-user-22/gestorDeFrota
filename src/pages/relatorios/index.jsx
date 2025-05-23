@@ -333,7 +333,7 @@ const Dashboard = () => {
           align={'center'}
         >
 
-          <Box direction={'column'} height={'400px'} flex={'1'}>
+          <Box direction={'column'} height={'500px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault weight="bold" align="center" color={colors.black}>
                 Totais por Tipo de Veículo:
@@ -353,7 +353,7 @@ const Dashboard = () => {
           </Box>
 
 
-          <Box direction={'column'} height={'390px'} flex={'1'}>
+          <Box direction={'column'} height={'500px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Previsão de Economia:
@@ -378,7 +378,7 @@ const Dashboard = () => {
           </Box>
 
 
-          <Box direction={'column'} height={'400px'} flex={'1.2'}>
+          <Box direction={'column'} height={'500px'} flex={'1.2'}>
             <ChartsWrapper flex={'1'} height={'80%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Economia Real (R$):

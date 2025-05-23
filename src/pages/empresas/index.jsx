@@ -142,15 +142,15 @@ const Empresas = () => {
               topSpace={'10px'}
               direction={'row'}
               align={'center'}
-              justify={'space-between'}
+              justify={'flex-start'}
               paddingTop={'10px'}
               paddingLeft={'10px'}
               color={colors.silver}
               onClick={() => toggleInfoEmpresa(empresa.id)}
               style={{ cursor: 'pointer' }}
             >
-              <Box direction={'column'} flex={'1'} >
-                <Box direction={'column'} width={'100%'}>
+              <Box direction={'column'} flex={'1'} justify={'flex-start'} align={'flex-start'}>
+                <Box direction={'column'} width={'100%'}  justify={'flex-start'} align={'flex-start'}>
                   <TextDefault color={colors.darkGray} size={'18px'} weight={'bold'} bottom={'5px'}>
                     {empresa.nome}
                   </TextDefault>
@@ -235,7 +235,7 @@ const Empresas = () => {
                 </AnimatePresence>
               </Box>
 
-              <Box direction={'column'}>
+              <Box direction={'column'} >
                 <IoIosArrowDown
                   size={'30px'}
                   color={colors.orange}

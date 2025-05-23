@@ -116,7 +116,7 @@ const Home = () => {
     <Container>
       {/* SIDEBAR */}
       <Box
-        width={isMobile ? '100%' : '20%'}
+        width={isMobile ? '100%' : '15%'}
         color={colors.black}
         height="100%"
       >
@@ -152,7 +152,7 @@ const Home = () => {
 
       {/* CONTEÚDO */}
       <Box
-        width={isMobile ? '100%' : '80%'}
+        width={isMobile ? '100%' : '90%'}
         height={'100vh'}
         direction={'column'}
         style={{ overflowY: 'none', position: 'relative' }}

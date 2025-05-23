@@ -31,6 +31,7 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
     const [status, setStatus] = useState('');
     const [prazos, setPrazos] = useState('');
     const [dataProtocolo, setDataProtocolo] = useState('');
+    const [flagStatus, setFlagStatus] = useState('');
 
     // lê lista de empresas
     useEffect(() => {
@@ -38,51 +39,13 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
         setDataProtocolo(dadosMulta.dataProtocolo);
     }, []);
 
-    const updateInfoStatusMultasss = async () => {
-        // Validação
-        if (!status || !prazos) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Preencha todos os campos obrigatórios!',
-            });
-            return;
-        }
+    useEffect(() => {
+        setPrazos(dadosMulta.prazos);
+        setDataProtocolo(dadosMulta.dataProtocolo);
+        setFlagStatus(dadosMulta.flagStatus || ''); // Caso futuramente precise carregar
+    }, []);
 
-        try {
-
-            if (!empresaId || !multaId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro ao localizar empresa ou multa!',
-                });
-                return;
-            }
-
-            const updates = {
-                status: status,
-                prazos: prazos,
-                dataProtocolo: dataProtocolo
-            };
-
-            await update(ref(db, `empresas/${empresaId}/multas/${multaId}`), updates);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Status atualizado com sucesso!',
-            });
-
-            closeModalEditStatud();
-
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro ao atualizar status!',
-                text: error.message
-            });
-        }
-    };
-
-    const updateInfoStatusMulta = async () => {
+    const updateInfoStatusMultaaaa = async () => {
         // Validação
         if (!status || !prazos) {
             Swal.fire({
@@ -159,6 +122,77 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
         }
     };
 
+    const updateInfoStatusMulta = async () => {
+        if (!status || !prazos || !flagStatus) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Preencha todos os campos obrigatórios!',
+            });
+            return;
+        }
+
+        try {
+            if (!empresaId || !multaId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro ao localizar empresa ou multa!',
+                });
+                return;
+            }
+
+            const valorMultaNumerico = Number(dadosMulta?.valorMulta);
+            let valorPagoCalculado = 0;
+
+            switch (status) {
+                case 'Defesa_Previa':
+                case 'Defesa_Previa_FICI':
+                case 'Recurso_JARI':
+                case 'Recurso_SETRAN':
+                case 'NAIT_Aguardando_NPMT':
+                case 'NPMT_Aguardando_Pagamento':
+                case 'Multa_Anulada':
+                    valorPagoCalculado = 0;
+                    break;
+                case 'Defesa_Previa_Condutor':
+                case 'Pago':
+                    valorPagoCalculado = valorMultaNumerico;
+                    break;
+                case 'Pago_20':
+                case 'Pago_20_Recurso':
+                    valorPagoCalculado = valorMultaNumerico * 0.8;
+                    break;
+                case 'Pago_40':
+                    valorPagoCalculado = valorMultaNumerico * 0.6;
+                    break;
+                default:
+                    valorPagoCalculado = 0;
+                    break;
+            }
+
+            const updates = {
+                status,
+                prazos,
+                dataProtocolo,
+                valorPago: valorPagoCalculado,
+                flagStatus // <-- Salva a Flag aqui
+            };
+
+            await update(ref(db, `empresas/${empresaId}/multas/${multaId}`), updates);
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Status e Flag atualizados com sucesso!',
+            });
+
+            closeModalEditStatud();
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro ao atualizar!',
+                text: error.message
+            });
+        }
+    };
 
     return (
         <ModalAreaTotalDisplay>
@@ -168,7 +202,6 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
                     height={'65px'}
                     radius={'10px'}
                     direction={'row'}
-
                     topSpace={'10px'}
                     bottomSpace={'10px'}
                     align={'center'}
@@ -206,14 +239,29 @@ const EditStatus = ({ closeModalEditStatud, dadosMulta, empresaId, multaId }) =>
                 </Box>
 
                 <Box direction="column" flex="1" width={'39%'}>
-                    <TextDefault size="12px" color={colors.silver} bottom="5px">Alterar Prazo Atual</TextDefault>
+                    <TextDefault size="12px" color={colors.silver} bottom="5px">Alterar Prazo Atual:</TextDefault>
                     <InputDate value={prazos} onChange={setPrazos} />
                 </Box>
 
                 <Box direction="column" flex="1" width={'39%'}>
-                    <TextDefault top={'20px'} size="12px" color={colors.silver} bottom="5px">Alterar Protocolo Atual</TextDefault>
+                    <TextDefault top={'20px'} size="12px" color={colors.silver} bottom="5px">Alterar Protocolo Atual:</TextDefault>
                     <InputDate width={'70%'} value={dataProtocolo} onChange={setDataProtocolo} />
                 </Box>
+
+                <Box direction="column" flex="1" width={'39%'} topSpace={'20px'} bottomSpace={'20px'}>
+                    <TextDefault size="12px" color={colors.silver} bottom="5px">Selecione Situação: </TextDefault>
+                    <select
+                        value={flagStatus}
+                        onChange={(e) => setFlagStatus(e.target.value)}
+                        style={{ height: '40px', width: '100%', borderRadius: '8px', padding: '5px' }}
+                    >
+                        <option value="">Selecione Situação</option>
+                        <option value="Indeferido">🚫 Indeferido</option>
+                        <option value="Deferido">✅ Deferido</option>
+                        <option value="Pendente">⏳ Pendente / Em Andamento</option>
+                    </select>
+                </Box>
+
 
                 {/* Ações */}
                 <Box direction="row" justify="flex-start" align="center" width="100%" topSpace="0px">

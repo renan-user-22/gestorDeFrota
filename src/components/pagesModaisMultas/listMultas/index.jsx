@@ -336,17 +336,17 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
                     style={{ cursor: 'pointer' }}
                   >
                     <Box direction="column">
-                      <TextDefault color={colors.black} weight="bold">
+                      <TextDefault color={colors.black} size="18px" >
                         Placa: {multa.placaVeiculo}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="13px" weight="bold">
+                      <TextDefault color={colors.black} size="16px">
                         Veículo: {multa.modeloVeiculo} - Renavam: {multa.renavam}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="13px" weight="bold">
+                      <TextDefault color={colors.black} size="16px" >
                         Proprietário: {multa.nomeProprietario} - CPF/CNPJ: {multa.cpfCnpjProprietario}
                       </TextDefault>
-                      <TextDefault color={colors.orange} size="13px" weight="bold">
-                        Status: {multa.status} - Prazo: {multa.prazos}
+                      <TextDefault color={colors.black} size="15px" weight="bold">
+                        Status: {multa.status} - Prazo: {multa.prazos}, {multa.flagStatus}
                       </TextDefault>
                     </Box>
 

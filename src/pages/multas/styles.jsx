@@ -3,7 +3,7 @@ import { colors } from '../../theme'; // Lembrando de importar o tema para usar 
 
 export const Container = styled.div`
   display: flex;
-  width: 80vw;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   height: 100vh;

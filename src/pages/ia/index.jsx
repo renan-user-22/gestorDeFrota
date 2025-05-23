@@ -228,7 +228,7 @@ const Ia = () => {
         width="94%"
         height="auto"
         direction="row"
-        justify="space-between"
+        justify="flex-end"
         align="center"
       >
         <ButtonDefault onClick={deletChat}>

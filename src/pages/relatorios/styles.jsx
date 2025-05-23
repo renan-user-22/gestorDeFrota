@@ -3,7 +3,7 @@ import { colors } from '../../theme'; // Lembrando de importar o tema para usar 
 
 export const Container = styled.div`
   display: flex;
-  width: 80vw;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   height: 100vh;
@@ -56,11 +56,12 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: 70px;
+  width: ${(props) => props.width || '100%'};
+  height: 60px;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => props.color || colors.orange};
+  background-color: ${(props) => props.color || colors.yellow};
   padding: 10px;
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
@@ -103,25 +104,27 @@ export const InfoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  width: 95%;
-  margin: 20px 0;
+  width: 97.5%;
+  margin: 10px 0;
 `;
 
 export const InfoCard = styled.div`
-  background-color: ${colors.black};
-  border-radius: 12px;
-  padding: 20px;
+  background-color: ${colors.silver};
+  border-radius: 5px;
+  padding: 15px;
   text-align: center;
 `;
 
 export const ChartsWrapper = styled.div`
   display: flex;
+  flex: ${(props) => props.flex || 'none'};;
   flex-direction: column;
   background-color: ${colors.silver};
-  border-radius: 10px;
-  margin: 10px;
+  border-radius: 5px;
+  margin: 2px;
   padding: 15px;
-  justify-content: space-around;
+  justify-content: flex-start;
+  align-items: flex-start;
   width: ${(props) => props.width || 'auto'};
-
+  height: ${(props) => props.height || 'auto'};
 `;

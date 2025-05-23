@@ -330,6 +330,7 @@ const Dashboard = () => {
           direction={'row'}
           justify={'flex-start'}
           width={'98%'}
+          height={'550px'}
           align={'center'}
         >
 
@@ -353,7 +354,7 @@ const Dashboard = () => {
           </Box>
 
 
-          <Box direction={'column'} height={'490px'} flex={'1'}>
+          <Box direction={'column'} height={'500px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Previsão de Economia:

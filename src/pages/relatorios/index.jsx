@@ -353,7 +353,7 @@ const Dashboard = () => {
           </Box>
 
 
-          <Box direction={'column'} height={'494px'} flex={'1'}>
+          <Box direction={'column'} height={'490px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Previsão de Economia:

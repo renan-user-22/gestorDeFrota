@@ -74,16 +74,6 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
       }
     }
 
-    /*if (!cpfProprietario && !cnpjProprietario) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'CPF ou CNPJ obrigatório',
-        text: 'Preencha ao menos o CPF ou o CNPJ do proprietário.',
-        confirmButtonColor: '#f27474'
-      });
-      return;
-    }*/
-
     try {
       const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
       const veiculoData = {
@@ -223,7 +213,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
               }}
             >
               <option value="">Selecione o tipo de veículo</option>
-              <option value="Carro de Passeio">Carro de Passeio</option>
+              <option value="Passeio">Passeio</option>
               <option value="Utilitário">Utilitário</option>
               <option value="Van de Passageiros">Van de Passageiros</option>
               <option value="Van de Carga">Van de Carga</option>

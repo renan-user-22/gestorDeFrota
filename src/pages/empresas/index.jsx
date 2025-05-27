@@ -8,7 +8,7 @@ import ModalEditEmpresa from '../../components/pagesModais/ModalEditEmpresa';
 
 //Banco de dados conexões:
 import { db } from '../../firebaseConnection';
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, remove  } from 'firebase/database';
 
 //Bibliotecas:
 import Swal from 'sweetalert2';
@@ -16,7 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 //ícones
 import { GoOrganization } from 'react-icons/go';
-import { ImUserTie } from "react-icons/im";
+import { FaWindowClose } from "react-icons/fa";
 import { MdEditSquare } from "react-icons/md";
 import { BiSolidUserCircle } from "react-icons/bi";
 import { FaTruckFront } from "react-icons/fa6";
@@ -85,6 +85,44 @@ const Empresas = () => {
     setAreaModalEditEmpresa(true);
   }
 
+  const areaModalDeleteEmpresa = async (empresaId, empresaNome) => {
+    const confirm = await Swal.fire({
+      title: `Deseja excluir a empresa "${empresaNome}"?`,
+      text: 'Todos os dados associados (veículos, motoristas, multas, etc.) também serão removidos!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Sim, excluir',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        const empresaRef = ref(db, `empresas/${empresaId}`);
+        await remove(empresaRef);
+
+        Swal.fire(
+          'Excluído!',
+          `A empresa "${empresaNome}" foi excluída com sucesso.`,
+          'success'
+        );
+
+        // Atualiza a lista localmente sem precisar recarregar a página
+        setEmpresas(prev => prev.filter(emp => emp.id !== empresaId));
+
+      } catch (error) {
+        console.error('Erro ao excluir a empresa:', error);
+        Swal.fire(
+          'Erro!',
+          'Ocorreu um erro ao tentar excluir a empresa. Tente novamente.',
+          'error'
+        );
+      }
+    }
+  };
+
+
   // lê lista de empresas
   useEffect(() => {
     const companiesRef = ref(db, 'empresas');
@@ -150,7 +188,7 @@ const Empresas = () => {
               style={{ cursor: 'pointer' }}
             >
               <Box direction={'column'} flex={'1'} justify={'flex-start'} align={'flex-start'}>
-                <Box direction={'column'} width={'100%'}  justify={'flex-start'} align={'flex-start'}>
+                <Box direction={'column'} width={'100%'} justify={'flex-start'} align={'flex-start'}>
                   <TextDefault color={colors.darkGray} size={'18px'} weight={'bold'} bottom={'5px'}>
                     {empresa.nome}
                   </TextDefault>
@@ -192,6 +230,12 @@ const Empresas = () => {
                           justify={'flex-start'}
                           paddingBottom={'5px'}
                         >
+                          <Button direction={'column'} color={colors.darkGray} onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nome)} right={'20px'}>
+                            <FaWindowClose size={'17px'} />
+                            <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                              Excluir
+                            </TextDefault>
+                          </Button>
 
                           <Button direction={'column'} color={colors.orange} onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nome)} right={'20px'}>
                             <MdEditSquare size={'17px'} />

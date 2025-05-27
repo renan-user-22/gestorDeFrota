@@ -40,7 +40,7 @@ export const InfoBox = styled.div`
 
 export const TextDefault = styled.h1`
   text-align: ${props => props.align || 'left'};;
-  font-size: ${props => props.size || '16px'};
+  font-size: ${props => props.size || '14px'};
   color: ${(props) => props.color || colors.silver};
   font-weight: ${props => props.weight || 'normal'};
   margin-left: ${props => props.left || '0px'};

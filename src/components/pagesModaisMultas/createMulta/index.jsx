@@ -10,7 +10,8 @@ import InputDin from '../../inputs/InputValorReais';
 
 // Firebase:
 import { db } from '../../../firebaseConnection';
-import { getDatabase, ref, push, set, update, onValue } from 'firebase/database';
+import { get, ref, set, child, update, onValue, push } from 'firebase/database';
+
 
 // Ícones:
 import { FaWindowClose } from "react-icons/fa";
@@ -120,7 +121,7 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
     closeModalAddMultas();
   };
 
-  const createregisterMulta = async () => {
+  const createregisterMultaaaaaa = async () => {
     if (!numeroAIT || !orgaoAutuador || !dataInfracao || !dataEmissao || !gravidade || !artigo) {
       Swal.fire({
         icon: 'warning',
@@ -235,7 +236,116 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
     }
   };
 
-  // Função auxiliar
+  const createregisterMulta = async () => {
+    if (!numeroAIT || !orgaoAutuador || !dataInfracao || !dataEmissao || !gravidade || !artigo) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Preencha todos os campos obrigatórios!',
+      });
+      return;
+    }
+
+    // Conversão do valor da multa para número
+    const valorMultaNumerico = parseValorBrasileiro(valorMulta);
+
+    if (isNaN(valorMultaNumerico) || valorMultaNumerico <= 0) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Valor da multa inválido!',
+        text: 'Certifique-se de que o valor da multa está corretamente preenchido.',
+      });
+      return;
+    }
+
+    // 💰 Cálculo do valor pago com base no status
+    let valorPagoCalculado = 0;
+
+    switch (status) {
+      case 'Pago':
+        valorPagoCalculado = valorMultaNumerico;
+        break;
+      case 'Pago_20':
+      case 'Pago_20_Recurso':
+        valorPagoCalculado = valorMultaNumerico * 0.8;
+        break;
+      case 'Pago_40':
+        valorPagoCalculado = valorMultaNumerico * 0.6;
+        break;
+      default:
+        valorPagoCalculado = 0;
+        break;
+    }
+
+    // 💸 Cálculo da economia
+    const valorEconomia = valorMultaNumerico - valorPagoCalculado;
+
+    // 📄 Objeto da multa
+    const novaMulta = {
+      numeroAIT,
+      orgaoAutuador,
+      dataInfracao,
+      dataEmissao,
+      artigo,
+      gravidade,
+      pontuacao,
+
+      // Local da infração
+      logradouro,
+      numeroLocal,
+      cidade,
+
+      // Veículo
+      veiculoId: veiculoSelecionado?.id || '',
+      placaVeiculo: veiculoSelecionado?.placa || '',
+      modeloVeiculo: veiculoSelecionado?.modelo || '',
+      renavam: veiculoSelecionado?.renavam || '',
+
+      // Proprietário
+      nomeProprietario,
+      cpfCnpjProprietario: cpfCnpj || empresaCpfCnpj,
+
+      // Condutor
+      motoristaId: condutorSelecionado?.id || '',
+      nomeMotorista: condutorSelecionado?.nome || '',
+      cpfCondutor: condutorSelecionado?.cpf || '',
+
+      // Outras informações
+      prazos,
+      dataProtocolo,
+      status,
+      informacoesGerais,
+
+      // Valores
+      valorMulta: valorMultaNumerico,
+      valorPago: valorPagoCalculado,
+      valorEconomia: valorEconomia >= 0 ? valorEconomia : 0,
+
+      // Data de criação
+      criadoEm: new Date().toISOString(),
+    };
+
+    try {
+      const multaRef = push(ref(db, `empresas/${empresaId}/multas`));
+      await set(multaRef, novaMulta);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Multa registrada com sucesso!',
+      });
+
+      closeModalAddMultas();
+    } catch (error) {
+      console.error('Erro ao registrar multa:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao registrar a multa',
+        text: error.message,
+      });
+    }
+  };
+
+
+
   function parseValorBrasileiro(valor) {
     if (!valor) return 0;
     const valorLimpo = valor
@@ -245,6 +355,7 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
       .replace(/[^\d.-]/g, ''); // remove tudo que não é número, ponto ou hífen
     return parseFloat(valorLimpo);
   }
+
 
   return (
     <ModalAreaTotalDisplay>

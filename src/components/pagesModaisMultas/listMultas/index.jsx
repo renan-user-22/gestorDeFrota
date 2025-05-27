@@ -38,7 +38,7 @@ import {
   Input,
 } from './styles';
 
-const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfCnpj }) => {
+const ListaMultas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfCnpj }) => {
 
   const [multas, setMultas] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
@@ -215,31 +215,39 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
   }
 
   useEffect(() => {
-    if (!empresaId) {
-      Swal.fire('Erro', 'Erro ao localizar empresa ou multa!', 'error');
-      return;
+  if (!empresaId) {
+    Swal.fire('Erro', 'Erro ao localizar empresa ou multa!', 'error');
+    return;
+  }
+
+  const db = getDatabase(app);
+  const empresaRef = ref(db, `empresas/${empresaId}/multas`);
+
+  onValue(empresaRef, (snapshot) => {
+    const multasData = snapshot.val();
+    const listaMultas = [];
+
+    if (multasData) {
+      Object.entries(multasData).forEach(([multaId, multa]) => {
+        const valorMulta = Number(multa.valorMulta) || 0;
+        const valorPago = Number(multa.valorPago) || 0;
+        const economia = valorMulta - valorPago;
+
+        listaMultas.push({
+          id: multaId,
+          ...multa,
+          empresa: empresaNome || 'Empresa não informada',
+          valorMulta,
+          valorPago,
+          economia,
+        });
+      });
     }
 
-    const db = getDatabase(app);
-    const empresaRef = ref(db, `empresas/${empresaId}/multas`);
+    setMultas(listaMultas);
+  });
+}, [empresaId, empresaNome]);
 
-    onValue(empresaRef, (snapshot) => {
-      const multasData = snapshot.val();
-      const listaMultas = [];
-
-      if (multasData) {
-        Object.entries(multasData).forEach(([multaId, multa]) => {
-          listaMultas.push({
-            id: multaId,
-            ...multa,
-            empresa: empresaNome || 'Empresa não informada',
-          });
-        });
-      }
-
-      setMultas(listaMultas);
-    });
-  }, [empresaId, empresaNome]);
 
   return (
     <ModalAreaTotalDisplay>
@@ -487,4 +495,4 @@ const ListaMotoristas = ({ closeModalListMultas, empresaId, empresaNome, empresa
     </ModalAreaTotalDisplay>
   );
 }
-export default ListaMotoristas;
+export default ListaMultas;

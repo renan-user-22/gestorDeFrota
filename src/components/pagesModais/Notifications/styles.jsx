@@ -1,15 +1,5 @@
 import styled, { keyframes, css } from 'styled-components';
-import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
-
-export const Container = styled.div`
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  background-color: ${colors.darkGray};
-  overflow: hidden;
-`;
+import { colors } from '../../../theme'; // Lembrando de importar o tema para usar as cores
 
 export const DefaultButton = styled.button`
   display: flex;
@@ -56,12 +46,11 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: ${(props) => props.width || '100%'};
-  height: 60px;
+  width: auto;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => props.color || colors.yellow};
+  background-color: ${(props) => props.color || colors.orange};
   padding: 10px;
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
@@ -74,12 +63,9 @@ export const Button = styled.button`
 `;
 
 export const ListaEmpresasWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  //justify-content: center;
-  align-items: center;
-  width: 99%;
-  //margin-top: 20px;
+  width: 100%;
+  height: 100%;
+  margin-top: 20px;
   margin-bottom: 20px;
   overflow-y: auto;
   padding-right: 1px;
@@ -98,33 +84,4 @@ export const ListaEmpresasWrapper = styled.div`
   &::-webkit-scrollbar-track {
     background-color: transparent;
   }
-`;
-
-export const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  width: 97.5%;
-  margin: 10px 0;
-`;
-
-export const InfoCard = styled.div`
-  background-color: #eee;
-  border-radius: 7px;
-  padding: 15px;
-  text-align: center;
-`;
-
-export const ChartsWrapper = styled.div`
-  display: flex;
-  flex: ${(props) => props.flex || 'none'};;
-  flex-direction: column;
-  background-color: #eee;
-  border-radius: 7px;
-  margin: 10px;
-  padding: 15px;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: ${(props) => props.width || 'auto'};
-  height: ${(props) => props.height || 'auto'};
 `;

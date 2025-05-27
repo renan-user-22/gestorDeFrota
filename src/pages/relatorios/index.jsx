@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../../firebaseConnection';
 import { ref, onValue } from 'firebase/database';
 
+//Importações de Modais:
+import ModalNotifications from '../../components/pagesModais/Notifications';
+
 //Icones
 import { FaChartBar } from 'react-icons/fa';
-
-//Bibliotecas:
-import { motion } from 'framer-motion';
-import dayjs from 'dayjs';
+import { IoMdNotifications } from "react-icons/io";
 
 // Recharts
 import {
@@ -23,6 +23,7 @@ import {
   InfoCard,
   ChartsWrapper,
   Button,
+  DefaultButton
 } from './styles';
 import { TextDefault, Box } from '../../stylesAppDefault';
 import { colors } from '../../theme';
@@ -45,6 +46,14 @@ const Dashboard = () => {
   const [licenciamentoPorAno, setLicenciamentoPorAno] = useState([]);
   const [multasPorGravidade, setMultasPorGravidade] = useState([]);
   const [multasPorMesEmpresa, setMultasPorMesEmpresa] = useState([]);
+
+  const [areaNotifications, setAreaNotifications] = useState(false);
+  const [notificacoesPrazos, setNotificacoesPrazos] = useState([]);
+
+
+  const openAreaNotifications = () => {
+    setAreaNotifications(true);
+  }
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -96,10 +105,6 @@ const Dashboard = () => {
     return null;
   };
 
-
-
-
-
   const getTotalEconomiaReal = () => {
     const total = economiaReal.reduce((acc, curr) => acc + curr.economia, 0);
     return total.toLocaleString('pt-BR', {
@@ -150,7 +155,6 @@ const Dashboard = () => {
 
     setMultasPorMesEmpresa(dadosAcumulados);
   }, [empresas]);
-
 
   useEffect(() => {
     const gravidadeCount = {};
@@ -273,6 +277,62 @@ const Dashboard = () => {
 
   }, [empresas]);
 
+  useEffect(() => {
+    const listaEmpresas = Object.values(empresas);
+    const hoje = new Date();
+    const novasNotificacoes = [];
+
+    listaEmpresas.forEach((empresa) => {
+      const { multas = {}, motoristas = {} } = empresa;
+
+      // Notificações de multas com prazos vencendo (10 dias)
+      Object.values(multas).forEach((multa) => {
+        const prazoParts = multa.prazos?.split('/');
+        if (prazoParts?.length === 3) {
+          const prazoDate = new Date(`${prazoParts[2]}-${prazoParts[1]}-${prazoParts[0]}`);
+          const diffTime = prazoDate.getTime() - hoje.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays <= 10 && diffDays >= 0) {
+            novasNotificacoes.push({
+              tipo: 'prazoMulta',
+              prazos: multa.prazos,
+              diasRestantes: diffDays,
+              numeroAIT: multa.numeroAIT,
+              nomeMotorista: multa.nomeMotorista || 'Não identificado',
+              status: multa.status,
+              empresa: empresa.nome,
+            });
+          }
+        }
+      });
+
+      // Notificações de CNH com validade vencendo (30 dias)
+      Object.values(motoristas).forEach((motorista) => {
+        const validadeParts = motorista.cnhValidade?.split('/');
+        if (validadeParts?.length === 3) {
+          const validadeDate = new Date(`${validadeParts[2]}-${validadeParts[1]}-${validadeParts[0]}`);
+          const diffTime = validadeDate.getTime() - hoje.getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+          if (diffDays <= 30 && diffDays >= 0) {
+            novasNotificacoes.push({
+              tipo: 'validadeCNH',
+              nomeMotorista: motorista.nome,
+              cpf: motorista.cpf,
+              telefone: motorista.telefone,
+              cnhValidade: motorista.cnhValidade,
+              diasRestantes: diffDays,
+              empresa: empresa.nome,
+            });
+          }
+        }
+      });
+    });
+
+    setNotificacoesPrazos(novasNotificacoes);
+  }, [empresas]);
+
   const COLORS = [
     colors.yellow,
     colors.orange,
@@ -296,8 +356,8 @@ const Dashboard = () => {
           color={colors.black}
           topSpace={'10px'}
           bottomSpace={'10px'}
-          align={'flex-start'}
-          justify={'flex-start'}
+          align={'center'}
+          justify={'space-between'}
           paddingTop={'20px'}
           paddingBottom={'20px'}
         >
@@ -305,6 +365,31 @@ const Dashboard = () => {
             <FaChartBar size={'27px'} color={colors.silver} />
             <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Fleet Solutions - Dashboard</TextDefault>
           </Box>
+
+          <DefaultButton onClick={openAreaNotifications} style={{ position: 'relative' }}>
+            <IoMdNotifications size={'30px'} color={colors.silver} />
+            {notificacoesPrazos.length > 0 && (
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: -5,
+                  right: -5,
+                  backgroundColor: 'red',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                }}
+              >
+                {notificacoesPrazos.length}
+              </Box>
+            )}
+          </DefaultButton>
+
         </Box>
 
         <InfoGrid>
@@ -334,17 +419,15 @@ const Dashboard = () => {
           align={'center'}
         >
 
-          <Box direction={'column'} height={'500px'} flex={'1'}>
+          <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault weight="bold" align="center" color={colors.black}>
-                Totais por Tipo de Veículo:
+                Tipo de Veículo:
               </TextDefault>
               <Box width={'100%'} height={'100%'} justify={'flex-start'} align={'flex-end'}>
-                <ResponsiveContainer width="100%" height="97%">
+                <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={tipoVeiculoTotal}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                    <XAxis dataKey="name" tick={false} />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar dataKey="qtd" fill={colors.darkGray} radius={[10, 10, 0, 0]} />
                   </BarChart>
@@ -353,19 +436,16 @@ const Dashboard = () => {
             </ChartsWrapper>
           </Box>
 
-
-          <Box direction={'column'} height={'500px'} flex={'1'}>
+          <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
-                Previsão de Economia:
+                Previsão de Economia (R$):
               </TextDefault>
               <Box width={'100%'} height={'100%'} justify={'flex-start'} align={'flex-end'}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={economiaPorEmpresa}>
-                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" tick={false} />
                     <Tooltip content={<CustomTooltip />} />
-
                     <Bar
                       dataKey="economia"
                       fill="blue"
@@ -378,8 +458,7 @@ const Dashboard = () => {
             </ChartsWrapper>
           </Box>
 
-
-          <Box direction={'column'} height={'500px'} flex={'1.2'}>
+          <Box direction={'column'} height={'400px'} flex={'1.2'}>
             <ChartsWrapper flex={'1'} height={'80%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Economia Real (R$):
@@ -391,7 +470,6 @@ const Dashboard = () => {
                     data={economiaReal}
                     margin={{ top: 5, right: 20, left: -30, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" />
                     <YAxis
                       dataKey="name"
@@ -406,21 +484,18 @@ const Dashboard = () => {
               </Box>
             </ChartsWrapper>
 
-            <ChartsWrapper flex={'0.2'} height={'20%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+            <ChartsWrapper flex={'0.1'} height={'15%'}>
+              <TextDefault bottom={'5px'}  color={colors.black}>
                 Nossos clientes já economizaram:
               </TextDefault>
               <Box>
-                <TextDefault size={'25px'} weight={'bold'} color={'green'}>
+                <TextDefault size={'30px'} weight={'bold'} color={'green'}>
                   {getTotalEconomiaReal()}
                 </TextDefault>
               </Box>
             </ChartsWrapper>
           </Box>
-
-
         </Box>
-
 
         <Box
           direction={'row'}
@@ -429,31 +504,62 @@ const Dashboard = () => {
           align={'center'}
         >
 
-          <Box direction={'column'} height={'400px'} flex={'0.4'}>
+          <Box direction={'column'} height={'400px'} flex={'0.5'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
-                Empresas por Regiões:
+                Infrações por tipo (Gravíssima, Grave, Média, Leve):
               </TextDefault>
-              <Box width={'100%'} height={'100%'} justify={'center'} align={'flex-end'}>
-                <ResponsiveContainer width="100%" height="90%">
+              <Box height={'100%'} width={'100%'} justify={'center'} align={'center'} style={{ position: 'relative' }}>
+                <ResponsiveContainer width="90%" height="100%">
                   <PieChart>
                     <Pie
-                      data={pieData}
-                      dataKey="value"
+                      data={multasPorGravidade}
+                      dataKey="qtd"
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      outerRadius="80%"
-                      label
+                      innerRadius="60%"
+                      outerRadius="90%"
                     >
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                      ))}
+                      {multasPorGravidade.map((entry, index) => {
+                        let color = '#ccc';
+                        switch (entry.name) {
+                          case 'Gravíssima':
+                            color = '#FF0000';
+                            break;
+                          case 'Grave':
+                            color = '#FFA500';
+                            break;
+                          case 'Média':
+                            color = '#FFD700';
+                            break;
+                          case 'Leve':
+                            color = '#87CEFA';
+                            break;
+                          default:
+                            color = '#ccc';
+                        }
+                        return <Cell key={`cell-${index}`} fill={color} />;
+                      })}
                     </Pie>
                     <Tooltip />
-                    <Legend layout="vertical" verticalAlign="middle" align="right" />
                   </PieChart>
                 </ResponsiveContainer>
+
+                {/* Valor total ao centro da rosca */}
+                <Box
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center',
+                  }}
+                >
+                  <TextDefault size="45px" weight="bold" color={colors.black}>
+                    {multasPorGravidade.reduce((acc, cur) => acc + cur.qtd, 0)}
+                  </TextDefault>
+                </Box>
               </Box>
             </ChartsWrapper>
           </Box>
@@ -466,17 +572,15 @@ const Dashboard = () => {
               <Box height={'100%'} width={'100%'} justify={'center'} align={'flex-end'}>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={statusMultasData}>
-                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="qtd" fill={colors.yellow} radius={[10, 10, 0, 0]} />
+                    <Bar dataKey="qtd" fill={'#B6B09F'} radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
             </ChartsWrapper>
           </Box>
-
         </Box>
 
         <Box
@@ -485,7 +589,46 @@ const Dashboard = () => {
           width={'98%'}
           align={'center'}
         >
-          <Box direction={'column'} height={'400px'} flex={'0.6'}>
+          <Box direction={'column'} height={'500px'} flex={'1'}>
+            <ChartsWrapper flex={'1'} height={'100%'}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+                Evolução do número de multas por mês - Por Empresa
+              </TextDefault>
+              <Box height={'100%'} width={'100%'} align={'flex-end'}>
+                <ResponsiveContainer width="100%" height="90%">
+                  <LineChart
+                    data={multasPorMesEmpresa}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                  >
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+                    {Object.values(empresas).map((empresa, index) => (
+                      <Line
+                        key={empresa.nome}
+                        type="monotone"
+                        dataKey={empresa.nome}
+                        stroke={COLORS[index % COLORS.length]}
+                        strokeWidth={2}
+                        dot={{ r: 5 }}
+                        activeDot={{ r: 8 }}
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </Box>
+            </ChartsWrapper>
+          </Box>
+        </Box>
+
+        <Box
+          direction={'row'}
+          justify={'flex-start'}
+          width={'98%'}
+          align={'center'}
+        >
+          <Box direction={'column'} height={'400px'} flex={'0.25'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
                 Licenciamento dos Veículos (Ano):
@@ -500,7 +643,7 @@ const Dashboard = () => {
                       cx="50%"
                       cy="50%"
                       outerRadius="80%"
-                      label
+
                     >
                       {licenciamentoPorAno.map((entry, index) => {
                         const anoAtual = new Date().getFullYear();
@@ -522,61 +665,13 @@ const Dashboard = () => {
                       })}
                     </Pie>
                     <Tooltip />
-                    <Legend layout="vertical" verticalAlign="middle" align="right" />
                   </PieChart>
                 </ResponsiveContainer>
               </Box>
             </ChartsWrapper>
           </Box>
 
-
-
-
           <Box direction={'column'} height={'400px'} flex={'1'}>
-            <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
-                Quantidade de infrações por tipo (Gravíssima, Grave, Média, Leve):
-              </TextDefault>
-              <Box height={'100%'} width={'100%'} justify={'center'} align={'flex-end'}>
-                <ResponsiveContainer width="100%" height="90%">
-                  <BarChart data={multasPorGravidade}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="qtd" radius={[10, 10, 0, 0]}>
-                      {multasPorGravidade.map((entry, index) => {
-                        let color = '#ccc';
-
-                        switch (entry.name) {
-                          case 'Gravíssima':
-                            color = '#FF0000';
-                            break;
-                          case 'Grave':
-                            color = '#FFA500';
-                            break;
-                          case 'Média':
-                            color = '#FFD700';
-                            break;
-                          case 'Leve':
-                            color = '#87CEFA';
-                            break;
-                          default:
-                            color = '#ccc';
-                        }
-
-                        return <Cell key={`cell-${index}`} fill={color} />;
-                      })}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </Box>
-            </ChartsWrapper>
-          </Box>
-
-
-
-          <Box direction={'column'} height={'400px'} flex={'0.7'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
               <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>Opções:</TextDefault>
               <Box direction={'column'} height={'100%'} justify={'space-around'} align={'space-around'}>
@@ -602,49 +697,13 @@ const Dashboard = () => {
           </Box>
         </Box>
 
-        <Box
-          direction={'row'}
-          justify={'flex-start'}
-          width={'98%'}
-          align={'center'}
-        >
 
-          <Box direction={'column'} height={'500px'} flex={'1'}>
-            <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
-                Evolução do número de multas por mês - Por Empresa
-              </TextDefault>
-              <Box height={'100%'} width={'100%'} align={'flex-end'}>
-                <ResponsiveContainer width="100%" height="90%">
-                  <LineChart
-                    data={multasPorMesEmpresa}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-
-                    {Object.values(empresas).map((empresa, index) => (
-                      <Line
-                        key={empresa.nome}
-                        type="monotone"
-                        dataKey={empresa.nome}
-                        stroke={COLORS[index % COLORS.length]}
-                        strokeWidth={2}
-                        dot={{ r: 5 }}
-                        activeDot={{ r: 8 }}
-                      />
-                    ))}
-                  </LineChart>
-
-                </ResponsiveContainer>
-              </Box>
-            </ChartsWrapper>
-          </Box>
-
-        </Box>
+        {areaNotifications && (
+          <ModalNotifications
+            closeModalNotifications={() => setAreaNotifications(false)}
+            notificacoes={notificacoesPrazos}
+          />
+        )}
 
       </ListaEmpresasWrapper>
     </Container>

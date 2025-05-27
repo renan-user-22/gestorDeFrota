@@ -442,8 +442,8 @@ const Dashboard = () => {
                 Previsão de Economia (R$):
               </TextDefault>
               <Box width={'100%'} height={'100%'} justify={'flex-start'} align={'flex-end'}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={economiaPorEmpresa}>
+                <ResponsiveContainer width="100%" height="90%">
+                  <BarChart data={economiaPorEmpresa} margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
                     <XAxis dataKey="name" tick={false} />
                     <Tooltip content={<CustomTooltip />} />
                     <Bar

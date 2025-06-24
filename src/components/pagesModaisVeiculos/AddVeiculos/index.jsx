@@ -38,6 +38,8 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   const [renavam, setRenavam] = useState('');
   const [licenciamento, setLicenciamento] = useState('');
   const [tipo, setTipo] = useState('');
+  const [status, setStatus] = useState('');
+
 
   const [isTerceirizado, setIsTerceirizado] = useState(false);
   const [nomeProprietario, setNomeProprietario] = useState('');
@@ -74,12 +76,25 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
       }
     }
 
+    // Validação para o preenchimento do Status
+    if (!status) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Campo obrigatório',
+        text: 'Por favor, selecione o status operacional do veículo.',
+        confirmButtonColor: '#f27474'
+      });
+      return;
+    }
+
+
     try {
       const veiculoRef = push(ref(db, `empresas/${empresaIdProp}/veiculos`));
       const veiculoData = {
         modelo,
         marca,
         placa,
+        status,
         licenciamento,
         chassi,
         ano,
@@ -233,12 +248,43 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
             </select>
           </Box>
 
+          <Box flex={'0.8'} direction="column" paddingLeft="10px">
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Status Operacional</TextDefault>
+            <select
+              value={status}
+              onChange={e => setStatus(e.target.value)}
+              style={{
+                height: '44px',
+                borderRadius: '8px',
+                border: `1px solid ${colors.silver}`,
+                padding: '0 10px',
+                backgroundColor: '#fff',
+                color: colors.black,
+                fontSize: '14px'
+              }}
+            >
+              <option value="">Selecione o status</option>
+              <option value="Ativo">Ativo</option>
+              <option value="Parado">Parado</option>
+              <option value="Manutenção Preventiva">Manutenção Preventiva</option>
+              <option value="Manutenção Corretiva">Manutenção Corretiva</option>
+              <option value="Sinistrado">Sinistrado</option>
+              <option value="Reserva">Reserva</option>
+              <option value="Documentação Pendente">Documentação Pendente</option>
+              <option value="Vendido / Desativado">Vendido / Desativado</option>
+              <option value="Terceirizado Ativo">Terceirizado Ativo</option>
+            </select>
+          </Box>
+
 
           <Box flex={'1'} direction="column" paddingLeft="10px">
             <TextDefault size="12px" color={colors.silver} bottom="5px">Renavam</TextDefault>
             <Input value={renavam} onChange={e => setRenavam(e.target.value)} placeholder="Número do Renavam" />
           </Box>
         </Box>
+
+
+
 
         {isTerceirizado && (
           <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">

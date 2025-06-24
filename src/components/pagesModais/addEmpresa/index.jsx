@@ -8,6 +8,7 @@ import { GoOrganization } from 'react-icons/go';
 import { LuSave } from "react-icons/lu";
 import { TbCancel } from "react-icons/tb";
 import { FaWindowClose } from "react-icons/fa";
+import { FaDeleteLeft } from "react-icons/fa6";
 
 //Banco de dados conexões:
 import { db } from '../../../firebaseConnection';
@@ -36,31 +37,55 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
     const [numero, setNumero] = useState('');
     const [bairro, setBairro] = useState('');
     const [complemento, setComplemento] = useState('');
-    const [responsavelEmpresa, setResponsavelEmpresa] = useState('');
-    const [telefoneEmpresa, setTelefoneEmpresa] = useState('');
-    const [responsavelFrota, setResponsavelFrota] = useState('');
-    const [telefoneFrota, setTelefoneFrota] = useState('');
-    const [senha, setSenha] = useState('');
+
+    const [usuarios, setUsuarios] = useState([
+        { nome: '', senha: '', cargo: '', telefone: '' }
+    ]);
+
+    const handleUsuarioChange = (index, field, value) => {
+        const updatedUsuarios = [...usuarios];
+        updatedUsuarios[index][field] = value;
+        setUsuarios(updatedUsuarios);
+    };
+
+    const handleAdicionarUsuario = () => {
+        setUsuarios([...usuarios, { nome: '', senha: '', cargo: '', telefone: '' }]);
+    };
+
+    const handleRemoverUsuario = (index) => {
+        if (usuarios.length === 1) return; // Impede remover o último usuário
+        const updatedUsuarios = usuarios.filter((_, i) => i !== index);
+        setUsuarios(updatedUsuarios);
+    };
 
     const handleSalvarEmpresa = async () => {
-        // Validação dos campos
+        // Validação dos campos obrigatórios
+
+        usuarios.some(
+            (u) =>
+                !u.nome ||
+                !u.senha ||
+                !u.cargo ||
+                !u.telefone ||
+                /\s/.test(u.nome) ||               // se contém espaço
+                u.nome !== u.nome.toLowerCase()    // se tem letra maiúscula
+        )
+
         if (
             !nomeEmpresa ||
             !cnpj ||
-            !senha ||
             !logradouro ||
             !numero ||
             !bairro ||
             !complemento ||
-            !responsavelEmpresa ||
-            !telefoneEmpresa ||
-            !responsavelFrota ||
-            !telefoneFrota
+            usuarios.some(
+                (u) => !u.nome || !u.senha || !u.cargo || !u.telefone
+            )
         ) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Campos obrigatórios',
-                text: 'Preencha todos os campos para continuar.',
+                text: 'Preencha todos os campos da empresa e dos usuários para continuar.',
                 confirmButtonColor: '#f27474'
             });
             return;
@@ -69,12 +94,8 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
         const newCompany = {
             nome: nomeEmpresa,
             cnpj,
-            senha,
             address: { logradouro, numero, bairro, complemento },
-            responsavelEmpresa,
-            telefoneEmpresa,
-            responsavelFrota,
-            telefoneFrota,
+            usuarios, // novo array de usuários
             createdAt: Date.now()
         };
 
@@ -89,18 +110,14 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
 
             closeModalAddEmpresa();
 
-            // Limpa formulário
+            // Limpa o formulário
             setNomeEmpresa('');
             setCnpj('');
-            setSenha('');
             setLogradouro('');
             setNumero('');
             setBairro('');
             setComplemento('');
-            setResponsavelEmpresa('');
-            setTelefoneEmpresa('');
-            setResponsavelFrota('');
-            setTelefoneFrota('');
+            setUsuarios([{ nome: '', senha: '', cargo: '', telefone: '' }]);
         } catch (error) {
             console.error('Erro ao salvar empresa:', error);
             Swal.fire({
@@ -111,8 +128,6 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
             });
         }
     };
-
-
 
     return (
         <ModalAreaTotalDisplay>
@@ -193,54 +208,85 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                     </Box>
                 </Box>
 
-                <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
-
-                    <Box flex={'2'} direction="column">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Responsável da Empresa
-                        </TextDefault>
-                        <Input placeholder="Responsável da Empresa" value={responsavelEmpresa} onChange={e => setResponsavelEmpresa(e.target.value)} />
-                    </Box>
-
-                    <Box flex={'1'} direction="column" leftSpace={'30px'}>
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Telefone do Responsável da Empresa
-                        </TextDefault>
-                        <InputTelefone value={telefoneEmpresa} onChange={setTelefoneEmpresa} /> {/* Atualizando o telefone */}
-                    </Box>
+                {/* Botão para adicionar novo usuário */}
+                <Box width="94.5%" bottomSpace="10px">
+                    <Button onClick={handleAdicionarUsuario}>
+                        + Adicionar Usuário
+                    </Button>
                 </Box>
 
-                {/* Linha 4: Responsável da Frota / Telefone Frota */}
-                <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
-                    <Box flex={'2'} direction="column">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Responsável da Frota
-                        </TextDefault>
-                        <Input placeholder="Responsável da Frota" value={responsavelFrota} onChange={e => setResponsavelFrota(e.target.value)} />
-                    </Box>
+                {/* Bloco Dinâmico de Usuários */}
+                {usuarios.map((usuario, index) => (
+                    <Box key={index} direction="row" justify="space-between" align="center" bottomSpace="10px" width="94.5%">
 
-                    <Box flex={'1'} direction="column" leftSpace={'30px'}>
-                        <TextDefault size="12px" color={colors.silver} bottom="5px" >
-                            Telefone do Responsável da Frota
-                        </TextDefault>
-                        <InputTelefone value={telefoneFrota} onChange={setTelefoneFrota} /> {/* Atualizando o telefone */}
-                    </Box>
-                </Box>
+                        <Box flex={'1'} direction="column">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Nome de Usuário
+                            </TextDefault>
+                            <Input
+                                placeholder="Nome do Usuário"
+                                value={usuario.nome}
+                                onChange={(e) => {
+                                    const input = e.target.value
+                                        .toLowerCase()         // converte para minúsculo
+                                        .replace(/\s/g, '');   // remove espaços
+                                    handleUsuarioChange(index, 'nome', input);
+                                }}
+                            />
 
-                {/* Linha 2: Senha */}
-                <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="40%">
-                    <Box flex={'1'} direction="column">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Senha
-                        </TextDefault>
-                        <Input
-                            type="password"  // Definindo o campo como tipo "password"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}  // Atualizando a senha
-                            placeholder="Digite a senha"
-                        />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace="20px">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Senha
+                            </TextDefault>
+                            <Input
+                                placeholder="Senha"
+                                type="password"
+                                value={usuario.senha}
+                                onChange={(e) => handleUsuarioChange(index, 'senha', e.target.value)}
+                            />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace="20px">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Cargo
+                            </TextDefault>
+                            <Input
+                                placeholder="Cargo (Ex: Dono, Gestor...)"
+                                value={usuario.cargo}
+                                onChange={(e) => handleUsuarioChange(index, 'cargo', e.target.value)}
+                            />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace="20px">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Telefone
+                            </TextDefault>
+                            <InputTelefone
+                                value={usuario.telefone}
+                                onChange={(value) => handleUsuarioChange(index, 'telefone', value)}
+                            />
+                        </Box>
+
+                        {usuarios.length > 1 && (
+                            <Box direction="column" leftSpace="20px" justify="flex-end">
+                                <Button
+                                    top={'10px'}
+                                    color={colors.orange}
+                                    onClick={() => handleRemoverUsuario(index)}
+                                >
+                                    <FaDeleteLeft color={colors.silver} size={'20px'} />
+                                    <TextDefault color={colors.silver} left={'10px'}>
+                                        Remover
+                                    </TextDefault>
+                                </Button>
+                            </Box>
+                        )}
+
                     </Box>
-                </Box>
+                ))}
+
 
                 {/* Ações */}
                 <Box direction="row" justify="flex-start" align="center" width="100%" topSpace="0px">
@@ -254,7 +300,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                     <Button onClick={handleSalvarEmpresa}>
                         <LuSave color={colors.silver} size={'20px'} />
                         <TextDefault color={colors.silver} left={'10px'}>
-                            Adicionar
+                            Salvar
                         </TextDefault>
                     </Button>
                 </Box>

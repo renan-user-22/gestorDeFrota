@@ -27,11 +27,36 @@ export const ModalAreaTotalDisplay = styled.div`
 
 export const ModalAreaInfo = styled.div`
   background-color: ${colors.darkGray};
-  padding: 30px;
+  padding: 0; /* padding será no conteúdo interno */
   border-radius: 20px;
   width: 90%;
   height: 80%;
+  overflow: hidden; /* evita scroll colado na borda */
+  display: flex;
+  flex-direction: column;
 `;
+
+export const ModalContentScroll = styled.div`
+  padding: 30px;
+  overflow-y: auto;
+  flex: 1;
+
+  /* Scrollbar personalizada */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #f63b2a;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+`;
+
 
 export const Input = styled.input`
   width:${props => props.width || '100%'};
@@ -46,12 +71,13 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: auto;
+  width: ${(props) => props.width || 'auto'};
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.color || colors.orange};
   padding: 10px;
+  margin-top: ${(props) => props.top || '0px'};
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
   color: ${colors.silver};

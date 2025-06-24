@@ -95,7 +95,7 @@ const Dashboard = () => {
       });
 
       return (
-        <div style={{ background: '#fff', padding: 10, border: '1px solid #ccc' }}>
+        <div style={{ fontFamily: "'Octosquares Extra Light'", background: colors.silver, color: colors.darkGray, padding: 15, borderRadius: '10px' }}>
           <strong style={{ display: 'block', marginBottom: 5 }}>{nomePrincipal}</strong>
           {infosSecundarias}
         </div>
@@ -394,20 +394,20 @@ const Dashboard = () => {
 
         <InfoGrid>
           <InfoCard>
-            <TextDefault color={colors.black} weight="bold">Empresas</TextDefault>
-            <TextDefault color={colors.black} size={'20px'}>{metrics.totalEmpresas}</TextDefault>
+            <TextDefault color={colors.silver} weight="bold">Empresas</TextDefault>
+            <TextDefault color={colors.silver} size={'20px'}>{metrics.totalEmpresas}</TextDefault>
           </InfoCard>
           <InfoCard>
-            <TextDefault color={colors.black} weight="bold">Veículos</TextDefault>
-            <TextDefault color={colors.black} size={'20px'}>{metrics.totalVeiculos}</TextDefault>
+            <TextDefault color={colors.silver} weight="bold">Veículos</TextDefault>
+            <TextDefault color={colors.silver} size={'20px'}>{metrics.totalVeiculos}</TextDefault>
           </InfoCard>
           <InfoCard>
-            <TextDefault color={colors.black} weight="bold">Motoristas</TextDefault>
-            <TextDefault color={colors.black} size={'20px'}>{metrics.totalMotoristas}</TextDefault>
+            <TextDefault color={colors.silver} weight="bold">Motoristas</TextDefault>
+            <TextDefault color={colors.silver} size={'20px'}>{metrics.totalMotoristas}</TextDefault>
           </InfoCard>
           <InfoCard>
-            <TextDefault color={colors.black} weight="bold">Multas</TextDefault>
-            <TextDefault color={colors.black} size={'20px'}>{metrics.totalMultas}</TextDefault>
+            <TextDefault color={colors.silver} weight="bold">Multas</TextDefault>
+            <TextDefault color={colors.silver} size={'20px'}>{metrics.totalMultas}</TextDefault>
           </InfoCard>
         </InfoGrid>
 
@@ -421,15 +421,23 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault weight="bold" align="center" color={colors.black}>
+              <TextDefault weight="bold" align="center" color={colors.silver}>
                 Tipo de Veículo:
               </TextDefault>
               <Box width={'100%'} height={'100%'} justify={'flex-start'} align={'flex-end'}>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={tipoVeiculoTotal}>
-                    <XAxis dataKey="name" tick={false} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="qtd" fill={colors.darkGray} radius={[10, 10, 0, 0]} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fill: colors.silver,
+                        fontFamily: "'Octosquares Extra Light'", // <-- Coloque entre aspas simples
+                        fontSize: 17,
+                      }}
+                    />
+
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="qtd" fill={colors.yellow} radius={[5, 5, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
@@ -438,19 +446,19 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Previsão de Economia (R$):
               </TextDefault>
               <Box width={'100%'} height={'100%'} justify={'flex-start'} align={'flex-end'}>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={economiaPorEmpresa} margin={{ top: 30, right: 20, left: 20, bottom: 5 }}>
                     <XAxis dataKey="name" tick={false} />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
                     <Bar
                       dataKey="economia"
                       fill="blue"
-                      radius={[10, 10, 0, 0]}
-                      label={{ position: 'top', formatter: (v) => `R$ ${v.toFixed(2)}` }}
+                      radius={[5, 5, 0, 0]}
+
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -460,7 +468,7 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'1.2'}>
             <ChartsWrapper flex={'1'} height={'80%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Economia Real (R$):
               </TextDefault>
               <Box height={'100%'} width={'100%'} justify={'center'} align={'flex-end'}>
@@ -468,28 +476,46 @@ const Dashboard = () => {
                   <BarChart
                     layout="vertical"
                     data={economiaReal}
-                    margin={{ top: 5, right: 20, left: -30, bottom: 5 }}
+                    margin={{ top: 5, right: 100, left: 5, bottom: 5 }}
                   >
-                    <XAxis type="number" />
+                    <XAxis type="number"
+                      tick={{
+                        fill: colors.silver,
+                        fontFamily: "'Octosquares Extra Light'",
+                        fontSize: 12,
+                      }}
+                    />
                     <YAxis
                       dataKey="name"
                       type="category"
-                      tick={false} // 👉 Remove os nomes do eixo Y
-                      axisLine={false} // 👉 Remove a linha do eixo (opcional)
+                      tick={false}
+                      width={0}           // 🔥 Remove espaço
+                      axisLine={false}
                     />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="economia" fill="green" radius={[0, 10, 10, 0]} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                    <Bar
+                      dataKey="economia"
+                      fill="#89fd56"
+                      radius={[0, 5, 5, 0]}
+                      label={{
+                        position: 'right',
+                        fill: colors.silver,
+                        fontFamily: "'Octosquares Extra Light'",
+                        fontSize: 14,
+                        formatter: (value) => `R$ ${value.toLocaleString('pt-BR')}`
+                      }}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
             </ChartsWrapper>
 
             <ChartsWrapper flex={'0.1'} height={'15%'}>
-              <TextDefault bottom={'5px'}  color={colors.black}>
+              <TextDefault bottom={'5px'} color={colors.silver} weight={'bold'}>
                 Nossos clientes já economizaram:
               </TextDefault>
               <Box>
-                <TextDefault size={'30px'} weight={'bold'} color={'green'}>
+                <TextDefault size={'30px'} weight={'bold'} color={'#89fd56'}>
                   {getTotalEconomiaReal()}
                 </TextDefault>
               </Box>
@@ -506,7 +532,7 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'0.5'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Infrações por tipo (Gravíssima, Grave, Média, Leve):
               </TextDefault>
               <Box height={'100%'} width={'100%'} justify={'center'} align={'center'} style={{ position: 'relative' }}>
@@ -556,7 +582,7 @@ const Dashboard = () => {
                     textAlign: 'center',
                   }}
                 >
-                  <TextDefault size="45px" weight="bold" color={colors.black}>
+                  <TextDefault size="45px" weight="bold" color={colors.silver}>
                     {multasPorGravidade.reduce((acc, cur) => acc + cur.qtd, 0)}
                   </TextDefault>
                 </Box>
@@ -566,16 +592,22 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Multas por Status:
               </TextDefault>
               <Box height={'100%'} width={'100%'} justify={'center'} align={'flex-end'}>
                 <ResponsiveContainer width="100%" height="90%">
                   <BarChart data={statusMultasData}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="qtd" fill={'#B6B09F'} radius={[10, 10, 0, 0]} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fill: colors.silver,
+                        fontFamily: "'Octosquares Extra Light'", // <-- Coloque entre aspas simples
+                        fontSize: 17,
+                      }}
+                    />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="qtd" fill={'#f0952c'} radius={[10, 10, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Box>
@@ -591,7 +623,7 @@ const Dashboard = () => {
         >
           <Box direction={'column'} height={'500px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Evolução do número de multas por mês - Por Empresa
               </TextDefault>
               <Box height={'100%'} width={'100%'} align={'flex-end'}>
@@ -630,7 +662,7 @@ const Dashboard = () => {
         >
           <Box direction={'column'} height={'400px'} flex={'0.25'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>
                 Licenciamento dos Veículos (Ano):
               </TextDefault>
               <Box height={'100%'} width={'100%'} justify={'center'} align={'center'}>
@@ -673,7 +705,7 @@ const Dashboard = () => {
 
           <Box direction={'column'} height={'400px'} flex={'1'}>
             <ChartsWrapper flex={'1'} height={'100%'}>
-              <TextDefault bottom={'15px'} weight={'bold'} color={colors.black}>Opções:</TextDefault>
+              <TextDefault bottom={'15px'} weight={'bold'} color={colors.silver}>Opções:</TextDefault>
               <Box direction={'column'} height={'100%'} justify={'space-around'} align={'space-around'}>
                 <Button>
                   <TextDefault align={'center'} color={colors.darkGray}>

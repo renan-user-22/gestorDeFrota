@@ -1,36 +1,6 @@
 import styled, { keyframes, css } from 'styled-components';
 import { colors } from '../../../theme'; // Lembrando de importar o tema para usar as cores
 
-export const Container = styled.div`
-  display: flex;
-  width: 80vw;
-  flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  background-color: ${colors.darkGray};
-  overflow: hidden;
-`;
-
-export const ListaScrollContainer = styled.div`
-  max-height: 450px;
-  width: 100%;
-  overflow-y: auto;
-
-  /* Opcional: customização da barra de rolagem */
-  //scrollbar-width: thin;
-  scrollbar-color: ${colors.orange};
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${colors.yellow};
-    border-radius: 4px;
-  }
-`;
-
-
 export const DefaultButton = styled.button`
   display: flex;
   background-color: transparent;
@@ -76,7 +46,7 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: 90px;
+  width: auto;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;

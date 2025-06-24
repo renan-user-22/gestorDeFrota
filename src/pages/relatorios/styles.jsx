@@ -109,7 +109,7 @@ export const InfoGrid = styled.div`
 `;
 
 export const InfoCard = styled.div`
-  background-color: #eee;
+  background-color:${(props) => props.color || colors.darkGrayTwo};
   border-radius: 7px;
   padding: 15px;
   text-align: center;
@@ -119,7 +119,7 @@ export const ChartsWrapper = styled.div`
   display: flex;
   flex: ${(props) => props.flex || 'none'};;
   flex-direction: column;
-  background-color: #eee;
+  background-color: ${(props) => props.color || colors.darkGrayTwo};
   border-radius: 7px;
   margin: 10px;
   padding: 15px;

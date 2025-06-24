@@ -10,9 +10,13 @@ import { MdAddBox } from "react-icons/md";
 import { FaChevronDown } from 'react-icons/fa';
 import { FaTruckFront } from "react-icons/fa6";
 import { FaFilePdf } from "react-icons/fa6";
+import { TbStatusChange } from "react-icons/tb";
+import { FaUserEdit } from "react-icons/fa";
 
 import AddVeiculos from '../AddVeiculos';
-import EditAnoLicenciamento from '../EditAnoLicenciamento'
+import EditAnoLicenciamento from '../EditAnoLicenciamento';
+import ModalAtualizarStatus from '../ModalAtualizarStatus';
+import ModalAtualizarProprietario from '../ModalAtualizarProprietario';
 
 import { db } from '../../../firebaseConnection';
 import { ref, onValue, remove } from 'firebase/database';
@@ -35,6 +39,10 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
 
     const [modalAddVeiculosForm, setModalAddVeiculosForm] = useState(false);
     const [modalEditLicenciamentoVeiculo, setModalEditLicenciamentoVeiculo] = useState(false);
+    const [modalAtualizarStatus, setModalAtualizarStatus] = useState(false);
+    const [modalAtualizarProprietario, setModalAtualizarProprietario] = useState(false);
+
+
 
     const [veiculoSelecionado, setVeiculoSelecionado] = useState(null);
     const [veiculoModelo, setVeiculoModelo] = useState('');
@@ -43,6 +51,20 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
         const veiculo = listaVeiculos.find((item) => item.id === id);
         setVeiculoSelecionado(veiculo);
         setModalEditLicenciamentoVeiculo(true);
+        setVeiculoModelo(modelo);
+    };
+
+    const editarStatus = (id, modelo) => {
+        const veiculo = listaVeiculos.find((item) => item.id === id);
+        setVeiculoSelecionado(veiculo);
+        setModalAtualizarStatus(true);
+        setVeiculoModelo(modelo);
+    };
+
+    const editarProprietario = (id, modelo) => {
+        const veiculo = listaVeiculos.find((item) => item.id === id);
+        setVeiculoSelecionado(veiculo);
+        setModalAtualizarProprietario(true);
         setVeiculoModelo(modelo);
     };
 
@@ -67,17 +89,35 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
             doc.setFontSize(10);
             doc.text('Relação de Veículo(s) da Frota:', 10, 36);
 
-            const headers = [['Modelo', 'Placa', 'Renavam', 'Chassi', 'Ano', 'Tipo', 'Último licenciamento']];
+            // Cabeçalhos da tabela
+            const headers = [
+                [
+                    'Modelo',
+                    'Placa',
+                    'Renavam',
+                    'Chassi',
+                    'Ano',
+                    'Tipo',
+                    'Licenciamento',
+                    'Status',
+                    'Terceirizado'
+                ]
+            ];
+
+            // Dados da tabela
             const data = listaVeiculos.map((veiculo) => [
-                veiculo.modelo,
-                veiculo.placa,
-                veiculo.renavam,
-                veiculo.chassi,
-                veiculo.ano,
-                veiculo.tipo,
-                veiculo.licenciamento,
+                veiculo.modelo || '',
+                veiculo.placa || '',
+                veiculo.renavam || '',
+                veiculo.chassi || '',
+                veiculo.ano || '',
+                veiculo.tipo || '',
+                veiculo.licenciamento || '',
+                veiculo.status || 'Não informado',
+                veiculo.terceirizado ? 'Sim' : 'Não'
             ]);
 
+            // Gerar tabela no PDF
             autoTable(doc, {
                 startY: 40,
                 head: headers,
@@ -86,9 +126,11 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                 headStyles: { fillColor: [255, 102, 0] },
             });
 
+            // Salvar PDF
             doc.save(`Lista_Veiculos_${empresaNome}.pdf`);
         };
     };
+
 
 
     useEffect(() => {
@@ -194,6 +236,9 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                         <TextDefault color={colors.black} size="12px">
                                             Último licenciamento: {veiculo.licenciamento}
                                         </TextDefault>
+                                        <TextDefault color={colors.black} size="12px">
+                                            Status Operacional: <strong>{veiculo.status}</strong>
+                                        </TextDefault>
                                     </Box>
 
                                     <FaChevronDown
@@ -234,13 +279,36 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                             )}
 
                                             <Box width="30%" topSpace="10px">
-                                                <Button color={colors.black} onClick={() => excluirVeiculo(veiculo.id)}>
-                                                    <FaWindowClose size={'20px'} color={colors.silver} />
+
+                                                <Button direction={'column'} color={colors.black} onClick={() => excluirVeiculo(veiculo.id)} right={'20px'}>
+                                                    <FaWindowClose size={'19px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Excluir
+                                                    </TextDefault>
                                                 </Button>
 
-                                                <Button color={colors.orange} onClick={() => editarLicenciamento(veiculo.id, veiculo.modelo)} left={'10px'}>
-                                                    <BsCardHeading size={'20px'} color={colors.silver} />
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarLicenciamento(veiculo.id, veiculo.modelo)} right={'20px'}>
+                                                    <BsCardHeading size={'19px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Licenciamento
+                                                    </TextDefault>
                                                 </Button>
+
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarStatus(veiculo.id, veiculo.modelo)} right={'20px'}>
+                                                    <TbStatusChange size={'19px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Status
+                                                    </TextDefault>
+                                                </Button>
+
+
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarProprietario(veiculo.id, veiculo.modelo)} right={'20px'}>
+                                                    <FaUserEdit size={'19px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Proprietário
+                                                    </TextDefault>
+                                                </Button>
+
 
                                             </Box>
                                         </motion.div>
@@ -262,6 +330,24 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                 {modalEditLicenciamentoVeiculo && (
                     <EditAnoLicenciamento
                         closeModalEditLicenciamento={() => setModalEditLicenciamentoVeiculo(false)}
+                        empresaIdProp={empresaId}
+                        veiculoSelecionado={veiculoSelecionado}
+                        veiculoModelo={veiculoModelo}
+                    />
+                )}
+
+                {modalAtualizarStatus && (
+                    <ModalAtualizarStatus
+                        closeModalAtualizarStatus={() => setModalAtualizarStatus(false)}
+                        empresaIdProp={empresaId}
+                        veiculoSelecionado={veiculoSelecionado}
+                        veiculoModelo={veiculoModelo}
+                    />
+                )}
+
+                {modalAtualizarProprietario && (
+                    <ModalAtualizarProprietario
+                        closeModalAtualizarProprietario={() => setModalAtualizarProprietario(false)}
                         empresaIdProp={empresaId}
                         veiculoSelecionado={veiculoSelecionado}
                         veiculoModelo={veiculoModelo}

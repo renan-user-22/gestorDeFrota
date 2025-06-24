@@ -5,10 +5,11 @@ import ModalAddEmpresa from '../../components/pagesModais/addEmpresa';
 import ModalListaMotoristas from '../../components/pagesModais/listaMotoristas';
 import ModalListaVeiculos from '../../components/pagesModaisVeiculos/ModalListaVeiculos';
 import ModalEditEmpresa from '../../components/pagesModais/ModalEditEmpresa';
+import ModalCheckList from '../../components/pagesModais/ModalCheckList';
 
 //Banco de dados conexões:
 import { db } from '../../firebaseConnection';
-import { ref, onValue, remove  } from 'firebase/database';
+import { ref, onValue, remove } from 'firebase/database';
 
 //Bibliotecas:
 import Swal from 'sweetalert2';
@@ -48,6 +49,7 @@ const Empresas = () => {
   const [areaModalListMotoristaInfo, setAreaModalListMotoristaInfo] = useState(false);
   const [areaModalListVeiculosInfo, setAreaModalListVeiculosInfo] = useState(false);
   const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
+  const [areaModalChecklist, setAreaModalChecklist] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
 
   const openModalAdd = () => {
@@ -84,6 +86,14 @@ const Empresas = () => {
     setAreaModalListMotoristaInfo(false);
     setAreaModalEditEmpresa(true);
   }
+
+  const abrirModalChecklist = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
+    setAreaModalChecklist(true);
+    setAreaModalListVeiculosInfo(false);
+    setAreaModalListMotoristaInfo(false);
+    setAreaModalEditEmpresa(false);
+  };
 
   const areaModalDeleteEmpresa = async (empresaId, empresaNome) => {
     const confirm = await Swal.fire({
@@ -153,7 +163,7 @@ const Empresas = () => {
         </Box>
 
         <DefaultButton onClick={openModalAdd}>
-          <MdAddBox size={'30px'} color={colors.silver} />
+          <MdAddBox size={'40px'} color={colors.orange} />
         </DefaultButton>
       </Box>
 
@@ -208,19 +218,31 @@ const Empresas = () => {
                     >
                       <InfoBox direction={'column'} open={true}>
                         <TextDefault color={colors.darkGray} size={'12px'} bottom={'5px'} weight={'bold'}>
-                          DADOS:
-                        </TextDefault>
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'10px'}>
-                          Responsável da Empresa: {empresa.responsavelEmpresa} - Contato: {empresa.telefoneEmpresa}
-                        </TextDefault>
-
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'10px'}>
-                          Responsável da Frota: {empresa.responsavelFrota} - Contato: {empresa.telefoneFrota}
+                          Endereço:
                         </TextDefault>
 
                         <TextDefault color={colors.darkGray} size={'12px'} bottom={'20px'}>
-                          Endereço: {empresa.address?.logradouro}, Nº {empresa.address?.numero}, {empresa.address?.bairro} - {empresa.address?.complemento}
+                          {empresa.address?.logradouro}, Nº {empresa.address?.numero}, {empresa.address?.bairro} - {empresa.address?.complemento}
                         </TextDefault>
+
+                        {Array.isArray(empresa.usuarios) && empresa.usuarios.length > 0 && (
+                          <>
+                            <TextDefault color={colors.darkGray} size={'12px'} bottom={'5px'} weight={'bold'}>
+                              Usuários:
+                            </TextDefault>
+
+                            {empresa.usuarios.map((usuario, i) => (
+                              <TextDefault
+                                key={i}
+                                color={colors.darkGray}
+                                size={'12px'}
+                                bottom={'8px'}
+                              >
+                                {i + 1}. <strong>{usuario.nome}</strong> - Senha: {usuario.senha} - Cargo: {usuario.cargo} - Tel: {usuario.telefone}
+                              </TextDefault>
+                            ))}
+                          </>
+                        )}
 
                         <Box
                           direction={'row'}
@@ -258,7 +280,7 @@ const Empresas = () => {
                             </TextDefault>
                           </Button>
 
-                          <Button direction={'column'} color={colors.orange} onClick={() => { }} right={'20px'}>
+                          <Button direction={'column'} color={colors.orange} onClick={() => abrirModalChecklist(empresa.id, empresa.nome)} right={'20px'}>
                             <PiListBulletsFill size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
                               CheckList
@@ -325,6 +347,15 @@ const Empresas = () => {
 
         />
       )}
+
+      {areaModalChecklist && empresaSelecionada && (
+        <ModalCheckList
+          closeModalChecklist={() => setAreaModalChecklist(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
+      )}
+
 
     </Container>
   );

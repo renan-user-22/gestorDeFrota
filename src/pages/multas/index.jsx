@@ -121,17 +121,20 @@ const Multas = () => {
               justify={'space-between'}
               paddingTop={'10px'}
               paddingLeft={'10px'}
-              color={colors.silver}
+              color={colors.darkGrayTwo}
               onClick={() => toggleInfoEmpresa(empresa.id)}
               style={{ cursor: 'pointer' }}
             >
               <Box direction={'column'} flex={'1'} >
                 <Box direction={'column'} width={'100%'}>
-                  <TextDefault color={colors.darkGray} size={'18px'} weight={'bold'} bottom={'5px'}>
+                  <TextDefault color={colors.silver} size={'18px'} weight={'bold'} bottom={'5px'}>
                     {empresa.nome}
                   </TextDefault>
-                  <TextDefault color={colors.darkGray} size={'12px'} bottom={'20px'}>
+                  <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
                     CNPJ: {empresa.cnpj}
+                  </TextDefault>
+                  <TextDefault color={colors.silver} size={'12px'} bottom={'20px'}>
+                    Endereço: {empresa.address?.logradouro}, Nº {empresa.address?.numero}, {empresa.address?.bairro} - {empresa.address?.complemento}
                   </TextDefault>
                 </Box>
 
@@ -145,20 +148,25 @@ const Multas = () => {
                       style={{ overflow: "hidden" }}
                     >
                       <InfoBox direction={'column'} open={true}>
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'5px'} weight={'bold'}>
-                          DADOS:
-                        </TextDefault>
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'10px'}>
-                          Responsável da Empresa: {empresa.responsavelEmpresa} - Contato: {empresa.telefoneEmpresa}
-                        </TextDefault>
 
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'10px'}>
-                          Responsável da Frota: {empresa.responsavelFrota} - Contato: {empresa.telefoneFrota}
-                        </TextDefault>
+                        {Array.isArray(empresa.usuarios) && empresa.usuarios.length > 0 && (
+                          <>
+                            <TextDefault color={colors.silver} size={'12px'} bottom={'5px'} weight={'bold'}>
+                              Usuários:
+                            </TextDefault>
 
-                        <TextDefault color={colors.darkGray} size={'12px'} bottom={'20px'}>
-                          Endereço: {empresa.address?.logradouro}, Nº {empresa.address?.numero}, {empresa.address?.bairro} - {empresa.address?.complemento}
-                        </TextDefault>
+                            {empresa.usuarios.map((usuario, i) => (
+                              <TextDefault
+                                key={i}
+                                color={colors.silver}
+                                size={'12px'}
+                                bottom={'8px'}
+                              >
+                                {i + 1}.<strong>{usuario.user}</strong> - Usuário: {usuario.nome} - Senha: {usuario.senha} - Cargo: {usuario.cargo} - Tel: {usuario.telefone}
+                              </TextDefault>
+                            ))}
+                          </>
+                        )}
 
                         <Box
                           direction={'row'}

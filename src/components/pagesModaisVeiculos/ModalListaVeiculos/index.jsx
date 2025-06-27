@@ -211,13 +211,13 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                 key={veiculo.id}
                                 width="98%"
                                 radius="10px"
-                                color={colors.silver}
+                                color={colors.darkGrayTwo}
                                 paddingLeft="10px"
                                 paddingTop="10px"
                                 paddingBottom="10px"
                                 topSpace="10px"
                                 direction="column"
-                                style={{ border: `1px solid ${colors.silver}` }}
+                                style={{ border: `1px solid ${colors.darkGrayTwo}` }}
                             >
                                 <Box
                                     width="100%"
@@ -227,16 +227,16 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                     style={{ cursor: 'pointer' }}
                                 >
                                     <Box direction="column">
-                                        <TextDefault color={colors.black} weight="bold">
+                                        <TextDefault color={colors.silver} weight="bold">
                                             Placa: {veiculo.placa}
                                         </TextDefault>
-                                        <TextDefault color={colors.black} size="12px">
+                                        <TextDefault color={colors.silver} size="12px">
                                             Modelo: {veiculo.modelo}
                                         </TextDefault>
-                                        <TextDefault color={colors.black} size="12px">
+                                        <TextDefault color={colors.silver} size="12px">
                                             Último licenciamento: {veiculo.licenciamento}
                                         </TextDefault>
-                                        <TextDefault color={colors.black} size="12px">
+                                        <TextDefault color={colors.silver} size="12px">
                                             Status Operacional: <strong>{veiculo.status}</strong>
                                         </TextDefault>
                                     </Box>
@@ -262,19 +262,19 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                             style={{ overflow: 'hidden' }}
                                         >
                                             <Box direction="column" paddingTop="10px">
-                                                <TextDefault color={colors.black} size="12px">Ano: {veiculo.ano}</TextDefault>
-                                                <TextDefault color={colors.black} size="12px">Tipo: {veiculo.tipo}</TextDefault>
-                                                <TextDefault color={colors.black} size="12px">Renavam: {veiculo.renavam}</TextDefault>
-                                                <TextDefault color={colors.black} size="12px">Chassi: {veiculo.chassi}</TextDefault>
+                                                <TextDefault color={colors.silver} size="12px">Ano: {veiculo.ano}</TextDefault>
+                                                <TextDefault color={colors.silver} size="12px">Tipo: {veiculo.tipo}</TextDefault>
+                                                <TextDefault color={colors.silver} size="12px">Renavam: {veiculo.renavam}</TextDefault>
+                                                <TextDefault color={colors.silver} size="12px">Chassi: {veiculo.chassi}</TextDefault>
                                             </Box>
 
                                             {veiculo.terceirizado && veiculo.proprietario && (
                                                 <>
-                                                    <TextDefault color={colors.black} size="12px" top={'10px'} weight={'bold'}>Proprietário:</TextDefault>
-                                                    <TextDefault color={colors.black} size="12px">Nome: {veiculo.proprietario.nome}</TextDefault>
+                                                    <TextDefault color={colors.silver} size="12px" top={'10px'} weight={'bold'}>Proprietário:</TextDefault>
+                                                    <TextDefault color={colors.silver} size="12px">Nome: {veiculo.proprietario.nome}</TextDefault>
                                                     {veiculo.proprietario.cpf && <TextDefault color={colors.black} size="12px">CPF: {veiculo.proprietario.cpf}</TextDefault>}
                                                     {veiculo.proprietario.cnpj && <TextDefault color={colors.black} size="12px">CNPJ: {veiculo.proprietario.cnpj}</TextDefault>}
-                                                    <TextDefault color={colors.black} size="12px">Contato: {veiculo.proprietario.contato}</TextDefault>
+                                                    <TextDefault color={colors.silver} size="12px">Contato: {veiculo.proprietario.contato}</TextDefault>
                                                 </>
                                             )}
 

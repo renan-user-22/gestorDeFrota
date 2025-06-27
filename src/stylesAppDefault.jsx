@@ -21,6 +21,7 @@ export const Box = styled.div`
   margin-bottom: ${props => props.bottomSpace || '0px'};
   margin-top: ${props => props.topSpace || '0px'};
   margin-left: ${props => props.leftSpace || '0px'};
+  margin-right: ${props => props.rightSpace || '0px'};
   border-radius: ${props => props.radius || '0px'};
   padding-left: ${props => props.paddingLeft || '0px'};
   padding-right: ${props => props.paddingRight || '0px'};

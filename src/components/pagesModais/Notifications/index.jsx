@@ -64,7 +64,7 @@ const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
               notificacoes.map((item, index) => (
                 <Box
                   key={index}
-                  color={colors.orange}
+                  color={colors.darkGrayTwo}
                   direction={'column'}
                   width={'95%'}
                   bottomSpace={'10px'}
@@ -78,7 +78,7 @@ const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
                       <TextDefault weight="bold" color={colors.silver}>
                         Multa com prazo próximo
                       </TextDefault>
-                      <TextDefault color={colors.silver} weight="bold">
+                      <TextDefault color={colors.orange} weight="bold">
                         Prazo: {item.prazos} ({item.diasRestantes} dias restantes)
                       </TextDefault>
                       <TextDefault color={colors.silver}>
@@ -96,7 +96,7 @@ const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
                       <TextDefault weight="bold" color={colors.silver}>
                         CNH com vencimento próximo
                       </TextDefault>
-                      <TextDefault color={colors.silver} weight="bold">
+                      <TextDefault color={colors.orange} weight="bold">
                         Validade: {item.cnhValidade} ({item.diasRestantes} dias restantes)
                       </TextDefault>
                       <TextDefault color={colors.silver}>

@@ -17,6 +17,7 @@ import { ref, onValue, push, set, getDatabase, remove, update } from 'firebase/d
 //Importação de components de Inputs:
 import InputTelefone from '../../inputs/InputTelefone';
 import InputCNPJ from '../../inputs/InputCNPJ';
+import InputCPF from '../../inputs/formatCPF';
 
 //Importações de estilos:
 import { Box, TextDefault } from '../../../stylesAppDefault';
@@ -39,7 +40,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
     const [complemento, setComplemento] = useState('');
 
     const [usuarios, setUsuarios] = useState([
-        { nome: '', senha: '', cargo: '', telefone: '' }
+        { nome: '', user: '', senha: '', cargo: '', telefone: '' }
     ]);
 
     const handleUsuarioChange = (index, field, value) => {
@@ -49,7 +50,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
     };
 
     const handleAdicionarUsuario = () => {
-        setUsuarios([...usuarios, { nome: '', senha: '', cargo: '', telefone: '' }]);
+        setUsuarios([...usuarios, { nome: '', user: '', senha: '', cargo: '', telefone: '' }]);
     };
 
     const handleRemoverUsuario = (index) => {
@@ -64,6 +65,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
         usuarios.some(
             (u) =>
                 !u.nome ||
+                !u.user ||
                 !u.senha ||
                 !u.cargo ||
                 !u.telefone ||
@@ -79,7 +81,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
             !bairro ||
             !complemento ||
             usuarios.some(
-                (u) => !u.nome || !u.senha || !u.cargo || !u.telefone
+                (u) => !u.nome || !u.senha || !u.cargo || !u.telefone || !u.user
             )
         ) {
             Swal.fire({
@@ -219,26 +221,58 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                 {usuarios.map((usuario, index) => (
                     <Box key={index} direction="row" justify="space-between" align="center" bottomSpace="10px" width="94.5%">
 
-                        <Box flex={'1'} direction="column">
+                        <Box flex={'1.5'} direction="column" rightSpace="20px">
                             <TextDefault size="12px" color={colors.silver} bottom="5px">
-                                Nome de Usuário
+                                Nome:
                             </TextDefault>
                             <Input
-                                placeholder="Nome do Usuário"
+                                placeholder="Nome"
+                                type="text"
+                                value={usuario.user}
+                                onChange={(e) => handleUsuarioChange(index, 'user', e.target.value)}
+                            />
+                        </Box>
+
+                        <Box flex={'1'} direction="column">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Usuário:
+                            </TextDefault>
+                            <Input
+                                placeholder="CPF ou CNPJ"
                                 value={usuario.nome}
                                 onChange={(e) => {
-                                    const input = e.target.value
-                                        .toLowerCase()         // converte para minúsculo
-                                        .replace(/\s/g, '');   // remove espaços
-                                    handleUsuarioChange(index, 'nome', input);
+                                    let input = e.target.value.replace(/\D/g, '');
+                                    let tipo = '';
+                                    let formatado = input;
+
+                                    if (input.length <= 11) {
+                                        // CPF
+                                        tipo = 'Funcionário';
+                                        formatado = input
+                                            .replace(/^(\d{3})(\d)/, '$1.$2')
+                                            .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+                                            .replace(/\.(\d{3})(\d)/, '.$1-$2');
+                                    } else {
+                                        // CNPJ
+                                        tipo = 'Dono';
+                                        formatado = input
+                                            .replace(/^(\d{2})(\d)/, '$1.$2')
+                                            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                                            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+                                            .replace(/(\d{4})(\d)/, '$1-$2');
+                                    }
+
+                                    handleUsuarioChange(index, 'nome', formatado);
+                                    handleUsuarioChange(index, 'cargo', tipo);
                                 }}
+                                maxLength={18}
                             />
 
                         </Box>
 
                         <Box flex={'1'} direction="column" leftSpace="20px">
                             <TextDefault size="12px" color={colors.silver} bottom="5px">
-                                Senha
+                                Senha:
                             </TextDefault>
                             <Input
                                 placeholder="Senha"
@@ -248,9 +282,9 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
                             />
                         </Box>
 
-                        <Box flex={'1'} direction="column" leftSpace="20px">
+                        <Box flex={'0.5'} direction="column" leftSpace="20px">
                             <TextDefault size="12px" color={colors.silver} bottom="5px">
-                                Cargo
+                                Cargo:
                             </TextDefault>
                             <Input
                                 placeholder="Cargo (Ex: Dono, Gestor...)"
@@ -261,7 +295,7 @@ const AddEmpresa = ({ closeModalAddEmpresa }) => {
 
                         <Box flex={'1'} direction="column" leftSpace="20px">
                             <TextDefault size="12px" color={colors.silver} bottom="5px">
-                                Telefone
+                                Telefone:
                             </TextDefault>
                             <InputTelefone
                                 value={usuario.telefone}

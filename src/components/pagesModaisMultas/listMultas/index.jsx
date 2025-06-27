@@ -328,13 +328,13 @@ const ListaMultas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfC
                   key={multa.id}
                   width="98%"
                   radius="10px"
-                  color={colors.silver}
+                  color={colors.darkGrayTwo}
                   paddingLeft="10px"
                   paddingTop="10px"
                   paddingBottom="10px"
                   topSpace="10px"
                   direction="column"
-                  style={{ border: `1px solid ${colors.silver}` }}
+                  style={{ border: `1px solid ${colors.darkGrayTwo}` }}
                 >
                   <Box
                     width="100%"
@@ -344,16 +344,16 @@ const ListaMultas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfC
                     style={{ cursor: 'pointer' }}
                   >
                     <Box direction="column">
-                      <TextDefault color={colors.black} size="18px" >
+                      <TextDefault color={colors.silver} size="18px" >
                         Placa: {multa.placaVeiculo}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="16px">
+                      <TextDefault color={colors.silver} size="16px">
                         Veículo: {multa.modeloVeiculo} - Renavam: {multa.renavam}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="16px" >
+                      <TextDefault color={colors.silver} size="16px" >
                         Proprietário: {multa.nomeProprietario} - CPF/CNPJ: {multa.cpfCnpjProprietario}
                       </TextDefault>
-                      <TextDefault color={colors.black} size="15px" weight="bold">
+                      <TextDefault color={colors.silver} size="15px" weight="bold">
                         Status: {multa.status} - Prazo: {multa.prazos}, {multa.flagStatus}
                       </TextDefault>
                     </Box>
@@ -378,40 +378,40 @@ const ListaMultas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfC
                         transition={{ duration: 0.3 }}
                       >
                         <Box direction="column" topSpace="10px">
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'} weight="bold">
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'} weight="bold">
                             DADOS:
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Número AIT: {multa.numeroAIT || 'Não informado'}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Artigo: {multa.artigo}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Motorista Infrator: {multa.nomeMotorista || 'Não indentificado'} - CPF: {multa.cpfCondutor || 'Não indentificado'}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Data da Infração:{multa.dataInfracao} - Data de Emissão: {multa.dataEmissao}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Protocolado Dia: {multa.dataProtocolo || 'Não informado'}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Gravidade: {multa.gravidade} - {multa.pontuacao} Pontos
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Local da Infração: {multa.cidade}, {multa.logradouro} - {multa.numeroLocal}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Órgão Autuador: {multa.orgaoAutuador}
                           </TextDefault>
-                          <TextDefault color={'red'} size="12px" bottom={'5px'} weight={'bold'}>
+                          <TextDefault color={colors.orange} size="12px" bottom={'5px'}>
                             Valor da Multa: {multa.valorMulta?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                           </TextDefault>
-                          <TextDefault color={'blue'} size="12px" bottom={'5px'} weight={'bold'}>
+                          <TextDefault color={'#5c8fb7'} size="12px" bottom={'5px'} >
                             Valor Pago ou Previsto: {multa.valorPago?.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                           </TextDefault>
-                          <TextDefault color={'green'} size="12px" bottom={'5px'} weight={'bold'}>
+                          <TextDefault color={'#5cb760'} size="12px" bottom={'5px'} >
                             Economia Realizada ou Projetada: {
                               multa.valorMulta != null && multa.valorPago != null
                                 ? (multa.valorMulta - multa.valorPago).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -419,10 +419,10 @@ const ListaMultas = ({ closeModalListMultas, empresaId, empresaNome, empresaCpfC
                             }
                           </TextDefault>
 
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Informações Adicionais: {multa.informacoesGerais || 'Não informado'}
                           </TextDefault>
-                          <TextDefault color={colors.black} size="12px" bottom={'5px'}>
+                          <TextDefault color={colors.silver} size="12px" bottom={'5px'}>
                             Registro no Sistema:  {multa.criadoEm ? format(new Date(multa.criadoEm), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR }) : 'Data inválida'}
                           </TextDefault>
 

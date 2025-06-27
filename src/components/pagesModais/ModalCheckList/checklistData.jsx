@@ -19,6 +19,22 @@ const checklistPorTipo = {
   ],
 
   "Utilitário": [
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina",
     "Compartimento de carga (limpeza e fixação)",
     "Amarração de carga (fitas/catracas)",
     "Travas das portas traseiras"
@@ -30,13 +46,45 @@ const checklistPorTipo = {
     "Travamento das portas",
     "Abertura de emergência",
     "Iluminação interna/sinalização de saída",
-    "Condições da carroceria e vedação"
+    "Condições da carroceria e vedação",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Van de Carga": [
     "Piso e paredes internas (rachaduras, corrosão)",
     "Presença de divisórias (se exigido)",
-    "Estado do isolamento térmico (se aplicável)"
+    "Estado do isolamento térmico (se aplicável)",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Moto / Motocicleta": [
@@ -56,7 +104,23 @@ const checklistPorTipo = {
     "Altura e largura compatíveis com limites urbanos",
     "Estado da carroceria/baú",
     "Sistema de freio (hidráulico ou pneumático)",
-    "Itens específicos do tipo de baú, se aplicável"
+    "Itens específicos do tipo de baú, se aplicável",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Caminhão 3/4": [
@@ -67,7 +131,23 @@ const checklistPorTipo = {
     "Baú (fixação, portas, vedação)",
     "Espelhos extras (convexos)",
     "Amarração de carga",
-    "Disco do tacógrafo (se obrigatório)"
+    "Disco do tacógrafo (se obrigatório)",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Caminhão Toco": [
@@ -75,7 +155,23 @@ const checklistPorTipo = {
     "Fixação de para-lamas",
     "Estado das lonas/discos de freio",
     "Estrutura do baú/carroceria (parafusos, soldas)",
-    "Sistema de exaustão (vazamento e ruído)"
+    "Sistema de exaustão (vazamento e ruído)",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Caminhão Truck": [
@@ -83,7 +179,23 @@ const checklistPorTipo = {
     "Fixação de para-lamas",
     "Estado das lonas/discos de freio",
     "Estrutura do baú/carroceria (parafusos, soldas)",
-    "Sistema de exaustão (vazamento e ruído)"
+    "Sistema de exaustão (vazamento e ruído)",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Cavalo Mecânico": [
@@ -95,7 +207,23 @@ const checklistPorTipo = {
     "Tacógrafo obrigatório",
     "Manômetro de pressão",
     "Embreagem e transmissão (ruído e tranco)",
-    "Suspensão traseira e molas pneumáticas"
+    "Suspensão traseira e molas pneumáticas",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Carreta": [
@@ -110,11 +238,25 @@ const checklistPorTipo = {
   ],
 
   "Bitrem": [
-    "Todos os itens da Carreta"
+    "Pneus (estado dos pares)",
+    "Freios (válvulas, câmaras, regulagem)",
+    "Chicote elétrico (fixação, tomadas)",
+    "Amarração e distribuição da carga",
+    "Sinais reflexivos e faixas laterais",
+    "Fixação das tampas/portas",
+    "Tipo de baú (sider, refrigerado, etc.)",
+    "Estrutura inferior (rachaduras, trincas, ferrugem)"
   ],
 
   "Rodotrem": [
-    "Todos os itens da Carreta"
+    "Pneus (estado dos pares)",
+    "Freios (válvulas, câmaras, regulagem)",
+    "Chicote elétrico (fixação, tomadas)",
+    "Amarração e distribuição da carga",
+    "Sinais reflexivos e faixas laterais",
+    "Fixação das tampas/portas",
+    "Tipo de baú (sider, refrigerado, etc.)",
+    "Estrutura inferior (rachaduras, trincas, ferrugem)"
   ],
 
   "Micro-ônibus": [
@@ -125,7 +267,23 @@ const checklistPorTipo = {
     "Sinalização interna e saídas de emergência",
     "Iluminação do salão",
     "Acesso PCD (elevador/escada)",
-    "Vidros e cortinas"
+    "Vidros e cortinas",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Ônibus": [
@@ -136,7 +294,23 @@ const checklistPorTipo = {
     "Sinalização interna e saídas de emergência",
     "Iluminação do salão",
     "Acesso PCD (elevador/escada)",
-    "Vidros e cortinas"
+    "Vidros e cortinas",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ],
 
   "Caminhão-tanque": [
@@ -146,15 +320,23 @@ const checklistPorTipo = {
     "Equipamentos obrigatórios (calço, extintor extra, cones)",
     "Ausência de vazamento nas válvulas",
     "Fixação dos tubos e mangueiras",
-    "Compartimentos internos (separação de produto)"
-  ],
-
-  "Outros": [
-    "Motor (ruídos, vazamentos)",
-    "Chassi e estrutura (sem rachaduras ou corrosão)",
-    "Sistema elétrico (luzes, painel, conexões)",
-    "Itens obrigatórios conforme finalidade",
-    "Observações específicas da operação"
+    "Compartimentos internos (separação de produto)",
+    "Pneus (pressão, desgaste, trincas)",
+    "Rodas (porcas, trincas)",
+    "Freios (pastilhas, disco, pedal)",
+    "Nível de óleo do motor",
+    "Nível do fluido de freio",
+    "Nível de arrefecimento",
+    "Direção (folga, ruídos)",
+    "Iluminação externa (faróis, lanternas, ré, freio)",
+    "Iluminação interna",
+    "Limpadores e lavador",
+    "Cinto de segurança",
+    "Painel de instrumentos",
+    "Extintor (validade)",
+    "Triângulo, estepe, chave de roda, macaco",
+    "Vazamentos visíveis",
+    "Buzina"
   ]
 };
 

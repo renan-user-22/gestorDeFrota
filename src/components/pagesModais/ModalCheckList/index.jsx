@@ -41,6 +41,7 @@ const AreaModalCheckListEmpresa = ({ closeModalChecklist, empresaNome, empresaId
 
     const [tiposVeiculos, setTiposVeiculos] = useState([]);
     const [itensChecklist, setItensChecklist] = useState([]);
+    const [tiposAbertos, setTiposAbertos] = useState({});
 
     const handleToggleChecklist = (tipo, itemIndex) => {
         setItensChecklist(prev => {
@@ -51,6 +52,22 @@ const AreaModalCheckListEmpresa = ({ closeModalChecklist, empresaNome, empresaId
             );
         });
     };
+
+    const toggleTodos = (tipo, marcar) => {
+        setItensChecklist(prev =>
+            prev.map(entry =>
+                entry.tipo === tipo ? { ...entry, checked: marcar } : entry
+            )
+        );
+    };
+
+    const toggleTipo = (tipo) => {
+        setTiposAbertos(prev => ({
+            ...prev,
+            [tipo]: !prev[tipo]
+        }));
+    };
+
 
     const checklistAgrupado = itensChecklist.reduce((acc, curr) => {
         if (!acc[curr.tipo]) acc[curr.tipo] = [];
@@ -93,22 +110,19 @@ const AreaModalCheckListEmpresa = ({ closeModalChecklist, empresaNome, empresaId
                 const checklistSalvo = dados.checklist || {};
 
                 const tiposNaEmpresa = [...new Set(Object.values(veiculos).map(v => v.tipo))];
+                setTiposVeiculos(tiposNaEmpresa); // <- Exibir tipos cadastrados
 
                 const novaLista = [];
 
                 Object.entries(checklistPorTipo).forEach(([tipo, itens]) => {
                     itens.forEach(item => {
                         const itemId = slugify(item, tipo);
-
                         const itemSalvo = checklistSalvo[itemId];
 
                         novaLista.push({
                             tipo,
                             item,
-                            checked: itemSalvo
-                                ? itemSalvo.checked
-                                : Object.keys(checklistSalvo).length === 0 && tiposNaEmpresa.includes(tipo)
-
+                            checked: itemSalvo ? itemSalvo.checked : false // <- nunca marcar automático
                         });
                     });
                 });
@@ -126,61 +140,108 @@ const AreaModalCheckListEmpresa = ({ closeModalChecklist, empresaNome, empresaId
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
+
+
+                <Box
+                    width={'98%'}
+                    height={'65px'}
+                    radius={'10px'}
+                    direction={'row'}
+                    topSpace={'20px'}
+                    align={'center'}
+                    justify={'space-between'}
+                    leftSpace={'30px'}
+                >
+                    <Box>
+                        <PiListBulletsFill size={'30px'} color={colors.silver} />
+                        <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>
+                            Checklist da empresa: {empresaNome}
+                        </TextDefault>
+                    </Box>
+
+                    <DefaultButton onClick={closeModalChecklist}>
+                        <FaWindowClose size={'30px'} color={colors.silver} />
+                    </DefaultButton>
+                </Box>
+
+                <TextDefault size="16px" color={colors.silver} top="10px" bottom="10px" left={'30px'}>
+                    Tipos cadastrados: {tiposVeiculos.join(', ')}
+                </TextDefault>
+
+
+
+                <Box direction={'row'} width={'100%'} justify={'flex-start'} leftSpace={'30px'} bottomSpace={'20px'}>
+                    <Button onClick={() => handleSalvarChecklist()}>
+                        <LuSave color={colors.silver} size={'20px'} />
+                        <TextDefault color={colors.silver} left={'10px'}>
+                            Salvar Checklist
+                        </TextDefault>
+                    </Button>
+                </Box>
+
                 <ModalContentScroll>
 
-                    <Box
-                        width={'100%'}
-                        height={'65px'}
-                        radius={'10px'}
-                        direction={'row'}
-                        topSpace={'10px'}
-                        bottomSpace={'10px'}
-                        align={'center'}
-                        justify={'space-between'}
-                    >
-                        <Box>
-                            <PiListBulletsFill size={'30px'} color={colors.silver} />
-                            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>
-                                Checklist da empresa: {empresaNome}
-                            </TextDefault>
-                        </Box>
+                    {Object.entries(checklistAgrupado).map(([tipo, itens]) => {
+                        const todosMarcados = itens.every(i => i.checked);
+                        const aberto = tiposAbertos[tipo];
 
-                        <DefaultButton onClick={closeModalChecklist}>
-                            <FaWindowClose size={'30px'} color={colors.silver} />
-                        </DefaultButton>
-                    </Box>
-
-                    <Box direction={'row'} width={'100%'} justify={'flex-start'}>
-                        <Button onClick={() => handleSalvarChecklist()}>
-                            <LuSave color={colors.silver} size={'20px'} />
-                            <TextDefault color={colors.silver} left={'10px'}>
-                                Salvar Checklist
-                            </TextDefault>
-                        </Button>
-                    </Box>
-
-
-
-                    {Object.entries(checklistAgrupado).map(([tipo, itens]) => (
-                        <Box key={tipo} direction="column" topSpace="20px" bottomSpace="10px">
-                            <TextDefault size="20px" weight="bold" color={colors.silver} bottom="10px">
-                                {tipo}:
-                            </TextDefault>
-
-                            {itens.map((entry, index) => (
-                                <Box key={index} direction="row" align="center" bottomSpace="20px">
-                                    <CheckboxStyled
-                                        checked={entry.checked}
-                                        onChange={() => handleToggleChecklist(entry.tipo, index)}
-                                    />
-
-                                    <TextDefault size="14px" color={colors.silver} left="10px">
-                                        {entry.item}
+                        return (
+                            <Box key={tipo} direction="column" topSpace="10px" bottomSpace="10px">
+                                <Box
+                                    direction="row"
+                                    height={'60px'}
+                                    align={'center'}
+                                    justify={'space-between'}
+                                    bottomSpace="10px"
+                                    color={colors.darkGrayTwo}
+                                    paddingLeft={'20px'}
+                                    paddingRight={'20px'}
+                                    radius={'10px'}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => toggleTipo(tipo)}
+                                >
+                                    <TextDefault size="15px" weight="bold" color={colors.silver}>
+                                        {tipo}
                                     </TextDefault>
+
+                                    <Button onClick={(e) => {
+                                        e.stopPropagation(); // Impede que clique no botão feche o tipo
+                                        toggleTodos(tipo, !todosMarcados);
+                                    }}>
+                                        <TextDefault color={colors.silver}>
+                                            {todosMarcados ? 'Desmarcar todos' : 'Marcar todos'}
+                                        </TextDefault>
+                                    </Button>
                                 </Box>
-                            ))}
-                        </Box>
-                    ))}
+
+                                <div style={{
+                                    maxHeight: aberto ? '1000px' : '0px',
+                                    overflow: 'hidden',
+                                    transition: 'max-height 0.4s ease',
+                                }}>
+                                    {itens.map((entry, index) => (
+                                        <Box
+                                            leftSpace={'20px'}
+                                            key={index}
+                                            direction="row"
+                                            align="center"
+                                            bottomSpace="20px"
+                                        >
+                                            <CheckboxStyled
+                                                checked={entry.checked}
+                                                onChange={() => handleToggleChecklist(entry.tipo, index)}
+                                            />
+
+                                            <TextDefault size="14px" color={colors.silver} left="10px">
+                                                {entry.item}
+                                            </TextDefault>
+                                        </Box>
+                                    ))}
+                                </div>
+                            </Box>
+                        );
+                    })}
+
 
                 </ModalContentScroll>
             </ModalAreaInfo>

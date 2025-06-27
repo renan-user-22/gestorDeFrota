@@ -45,10 +45,12 @@ export const ModalAreaInfo = styled.div`
 
 export const Input = styled.input`
   width:${props => props.width || '100%'};
+  background-color: ${colors.silver};
   margin-left:${props => props.left || '0px'};
   height: 40px;
+  color: ${colors.black};
   padding-left: 10px;
-  border: 1px solid ${colors.silver};
+  border: 1px solid ${colors.darkGrayTwo};
   font-size: 14px;
   margin-bottom: 10px;
   border-radius: 7px;

@@ -27,36 +27,11 @@ export const ModalAreaTotalDisplay = styled.div`
 
 export const ModalAreaInfo = styled.div`
   background-color: ${colors.darkGray};
-  padding: 0; /* padding será no conteúdo interno */
-  border-radius: 20px;
-  width: 95%;
-  height: 95%;
-  overflow: hidden; /* evita scroll colado na borda */
-  display: flex;
-  flex-direction: column;
-`;
-
-export const ModalContentScroll = styled.div`
   padding: 30px;
-  overflow-y: auto;
-  flex: 1;
-
-  /* Scrollbar personalizada */
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: #f63b2a;
-    border-radius: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
-  }
+  border-radius: 20px;
+  width: 90%;
+  height: 80%;
 `;
-
 
 export const Input = styled.input`
   width:${props => props.width || '100%'};
@@ -71,13 +46,12 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: ${(props) => props.width || 'auto'};
+  width: auto;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.color || colors.orange};
   padding: 10px;
-  margin-top: ${(props) => props.top || '0px'};
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
   color: ${colors.silver};
@@ -108,33 +82,5 @@ export const ListaEmpresasWrapper = styled.div`
 
   &::-webkit-scrollbar-track {
     background-color: transparent;
-  }
-`;
-
-export const CheckboxStyled = styled.input.attrs({ type: 'checkbox' })`
-  width: 25px;
-  height: 25px;
-  appearance: none;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  background-color: ${colors.silver};
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  position: relative;
-  margin-right: ${(props) => props.right || '0px'};
-  margin-left: ${(props) => props.left || '0px'};
-
-  &:checked {
-    background-color: #00cc66;
-    border-color: #00cc66;
-  }
-
-  &:checked::after {
-    content: '✔';
-    color: white;
-    font-size: 14px;
-    position: absolute;
-    top: 0px;
-    left: 3px;
   }
 `;

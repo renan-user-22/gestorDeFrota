@@ -56,12 +56,12 @@ export const Input = styled.input`
 
 export const Button = styled.button`
   display: flex;
-  width: auto;
+  width: 70px;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.color || colors.orange};
-  padding: 7px;
+  padding: 10px;
   margin-right: ${(props) => props.right || '0px'};
   margin-left: ${(props) => props.left || '0px'};
   color: ${colors.silver};

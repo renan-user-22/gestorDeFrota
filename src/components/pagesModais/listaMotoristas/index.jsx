@@ -14,11 +14,14 @@ import { PiSteeringWheelFill } from "react-icons/pi";
 import { FaSquarePhone } from "react-icons/fa6";
 import { FaIdCard } from "react-icons/fa";
 import { FaFilePdf } from "react-icons/fa6";
+import { RiLockPasswordFill } from "react-icons/ri";
 
 //Importação de Modais Adjacentes: 
 import AddMotorista from '../addMotorista';
 import EditCnhMotorista from '../editCnhValidadeMotorista';
 import EditTelMotorista from '../editTelMotorista';
+import EditSenhaMotorista from '../EditSenhaMotorista';
+
 
 //Banco de dados conexões:
 import { db } from '../../../firebaseConnection';
@@ -43,6 +46,7 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
     const [modalAddMotoristaForm, setModalAddMotoristaForm] = useState(false);
     const [modalEditMotoristaTel, setModalEditMotoristaTel] = useState(false);
     const [modalEditMotoristaCnh, setModalEditMotoristaCnh] = useState(false);
+    const [modalEditMotoristaSenha, setModalEditMotoristaSenha] = useState(false);
     const [motoristaSelecionado, setMotoristaSelecionado] = useState(null);
     const [nomeMotorista, setNomeMotorista] = useState('');
 
@@ -154,6 +158,14 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
         setModalEditMotoristaCnh(true);
     }
 
+    const editarMotoristaSenha = (id, nome) => {
+        const motorista = listaMotoristas.find((item) => item.id === id);
+        setMotoristaSelecionado(motorista);
+        setNomeMotorista(nome);
+        setModalEditMotoristaSenha(true);
+    };
+
+
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
@@ -163,7 +175,6 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                     height={'65px'}
                     radius={'10px'}
                     direction={'row'}
-
                     topSpace={'10px'}
                     bottomSpace={'10px'}
                     align={'center'}
@@ -201,13 +212,13 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                             key={motorista.id}
                             width="100%"
                             radius="10px"
-                            color={colors.silver}
+                            color={colors.darkGrayTwo}
                             paddingLeft="10px"
                             paddingTop="10px"
                             paddingBottom="10px"
                             topSpace="10px"
                             direction="column"
-                            style={{ border: `1px solid ${colors.silver}` }}
+                            style={{ border: `1px solid ${colors.darkGrayTwo}` }}
                         >
                             <Box
                                 width="100%"
@@ -217,14 +228,17 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                                 style={{ cursor: 'pointer' }}
                             >
                                 <Box direction="column">
-                                    <TextDefault color={colors.black} weight="bold">
+                                    <TextDefault color={colors.silver} weight="bold">
                                         {motorista.nome}
                                     </TextDefault>
-                                    <TextDefault color={colors.black} size="12px">
-                                        CPF: {motorista.cpf}
+                                    <TextDefault color={colors.silver} size="12px">
+                                        <strong>CPF:</strong> {motorista.cpf}
                                     </TextDefault>
-                                    <TextDefault color={colors.black} size="12px">
-                                        TELEFONE: {motorista.telefone}
+                                    <TextDefault color={colors.silver} size="12px">
+                                        <strong>SENHA:</strong> {motorista.senhaMotorista}
+                                    </TextDefault>
+                                    <TextDefault color={colors.silver} size="12px">
+                                        <strong>TELEFONE:</strong> {motorista.telefone}
                                     </TextDefault>
                                 </Box>
 
@@ -248,38 +262,66 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                                         transition={{ duration: 0.3 }}
                                     >
                                         <Box direction="column" topSpace="10px">
-                                            <TextDefault color={colors.black} size="12px" weight="bold">
+                                            <TextDefault color={colors.silver} size="12px" weight="bold">
                                                 DADOS DA CNH:
                                             </TextDefault>
-                                            <TextDefault color={colors.black} size="12px">
-                                                Número de registro: {motorista.cnh}
+                                            <TextDefault color={colors.silver} size="12px">
+                                                <strong>Número de registro:</strong> {motorista.cnh}
                                             </TextDefault>
-                                            <TextDefault color={colors.black} size="12px">
-                                                Validade: {motorista.cnhValidade}
+                                            <TextDefault color={colors.silver} size="12px">
+                                                <strong>Validade:</strong> {motorista.cnhValidade}
                                             </TextDefault>
-                                            <TextDefault color={colors.black} size="12px">
-                                                Categoria: {motorista.cnhCat}
+                                            <TextDefault color={colors.silver} size="12px">
+                                                <strong>Categoria:</strong> {motorista.cnhCat}
                                             </TextDefault>
-                                            <TextDefault color={colors.black} size="12px">
-                                                Data 1ª Habilitação: {motorista.cnhDate}
+                                            <TextDefault color={colors.silver} size="12px">
+                                                <strong>Data 1ª Habilitação:</strong> {motorista.cnhDate}
                                             </TextDefault>
-                                            <TextDefault color={colors.black} size="12px">
-                                                Observações: {motorista.observacao ? motorista.observacao : 'Nenhuma'}
+                                            <TextDefault color={colors.silver} size="12px">
+                                                <strong>Observações:</strong> {motorista.observacao ? motorista.observacao : 'Nenhuma'}
                                             </TextDefault>
 
-                                            <Box width="30%" topSpace="10px">
-                                                <Button color={colors.black} onClick={() => excluirMotorista(motorista.id)}>
-                                                    <FaWindowClose size={'20px'} color={colors.silver} />
+
+                                            <Box
+                                                direction={'row'}
+                                                topSpace={'20px'}
+                                                width={'auto'}
+                                                bottomSpace={'5px'}
+                                                paddingTop={'5px'}
+                                                justify={'flex-start'}
+                                                paddingBottom={'5px'}
+                                            >
+                                                <Button direction={'column'} color={colors.darkGray} onClick={() => excluirMotorista(motorista.id)} right={'20px'}>
+                                                    <FaWindowClose size={'17px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Excluir
+                                                    </TextDefault>
                                                 </Button>
 
-                                                <Button color={colors.orange} onClick={() => editarMotoristaTel(motorista.id, motorista.nome)} left={'10px'}>
-                                                    <FaSquarePhone size={'20px'} color={colors.silver} />
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaTel(motorista.id, motorista.nome)} >
+                                                    <FaSquarePhone size={'17px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Tel.
+                                                    </TextDefault>
                                                 </Button>
 
-                                                <Button color={colors.orange} onClick={() => editarMotoristaCNH(motorista.id, motorista.nome)} left={'10px'}>
-                                                    <FaIdCard size={'20px'} color={colors.silver} />
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaCNH(motorista.id, motorista.nome)} left={'20px'} right={'20px'}>
+                                                    <FaIdCard size={'17px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        CNH
+                                                    </TextDefault>
                                                 </Button>
+
+                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaSenha(motorista.id, motorista.nome)}>
+                                                    <RiLockPasswordFill size={'17px'} />
+                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
+                                                        Senha
+                                                    </TextDefault>
+                                                </Button>
+
+
                                             </Box>
+
                                         </Box>
                                     </motion.div>
                                 )}
@@ -312,6 +354,16 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                         empresaIdProp={empresaId}
                     />
                 )}
+
+                {modalEditMotoristaSenha && (
+                    <EditSenhaMotorista
+                        closeModalSenhaEditMotorista={() => setModalEditMotoristaSenha(false)}
+                        empresaIdProp={empresaId}
+                        motoristaSelecionado={motoristaSelecionado}
+                        nomeMotorista={nomeMotorista}
+                    />
+                )}
+
 
             </ModalAreaInfo>
         </ModalAreaTotalDisplay>

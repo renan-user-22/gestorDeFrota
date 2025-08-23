@@ -1,5 +1,42 @@
-import styled, { keyframes, css } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
+
+export const SwalCustomStyles = createGlobalStyle`
+  .swal-custom-popup {
+    background-color: ${colors.darkGrayTwo};
+    font-family: 'Octosquares Extra Light';
+    border-radius: 5px;
+  }
+
+  .swal-custom-title {
+    font-size: 25px;
+    color: ${colors.silver} !important;
+  }
+  .swal-custom-text {
+    color: ${colors.silver};
+    font-family: 'Octosquares Extra Light';
+  }
+
+  .swal-custom-confirm {
+    background-color: ${colors.orange} !important;
+    color: ${colors.silver} !important;
+    font-family: 'Octosquares Extra Light';
+    border-radius: 5px;
+  }
+
+  .swal-custom-cancel {
+    background-color: ${colors.black} !important;
+    color: ${colors.silver} !important;
+    font-family: 'Octosquares Extra Light';
+    border-radius: 5px;
+  }
+
+  /* Ícone de warning */
+  .swal2-icon.swal2-warning {
+    border-color: ${colors.orange} !important;
+    color: ${colors.orange} !important;
+  }
+`;
 
 export const Container = styled.div`
   display: flex;
@@ -13,11 +50,16 @@ export const Container = styled.div`
 
 export const DefaultButton = styled.button`
   display: flex;
-  background-color: transparent;
+  width: ${props => props.width || '150px'};
+  height: ${props => props.height || '35px'};
+  background-color: ${colors.orange};
+  border-radius: 5px;
+  margin-top: 15px;
+  margin-bottom: 15px;
   align-items: center;
-  height: auto;
-  padding: 10px;
-  margin-right: 20px;
+  justify-content: center;
+  padding: 5px;
+  margin-right: ${props => props.right || '20px'};
   border: none;
   cursor: pointer;
 `;
@@ -44,44 +86,52 @@ export const ModalAreaInfo = styled.div`
 `;
 
 export const Input = styled.input`
-  width:${props => props.width || '100%'};
+  width:${props => props.width || '250px'};
   background-color: ${colors.silver};
   margin-left:${props => props.left || '0px'};
-  height: 40px;
+  height: 30px;
   color: ${colors.black};
   padding-left: 10px;
   border: 1px solid ${colors.darkGrayTwo};
-  font-size: 14px;
-  margin-bottom: 10px;
-  border-radius: 7px;
+  font-size: 13px;
+  border-radius: 5px;
+  font-family: ${(props) => props.family || 'Octosquares Extra Light'};
 `;
 
 export const Button = styled.button`
   display: flex;
-  width: 70px;
+  flex: 1;
+  height: 40px;
   flex-direction: ${(props) => props.direction || 'row'};
   justify-content: center;
   align-items: center;
   background-color: ${(props) => props.color || colors.orange};
-  padding: 10px;
-  margin-right: ${(props) => props.right || '0px'};
-  margin-left: ${(props) => props.left || '0px'};
   color: ${colors.silver};
   border: none;
-  border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
   box-sizing: border-box;
+
+  /* remove margens para os botões se encostarem */
+  margin: 0;
+
+  /* transição suave ao passar o mouse */
+  transition: background 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
 `;
 
 export const ListaEmpresasWrapper = styled.div`
- display: flex;
- flex-direction: column;
+  display: flex;
+  flex-direction: column;
   width: 95%;
   margin-top: 20px;
   margin-bottom: 20px;
   overflow-y: auto;
   padding-right: 10px;
+  margin-left: 10px; // para garantir o alinhamento entre o Header e o componente que com as informações da empresa
 
   /* Scrollbar personalizada */
   &::-webkit-scrollbar {

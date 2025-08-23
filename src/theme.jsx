@@ -2,11 +2,9 @@
 export const colors = {
     orange: '#f63b2a',
     yellow: '#eebe2c',
-    black: '#171010',
-    darkGray: '#423F3E',
-    darkGrayTwo: '#2B2B2B',
+    black: '#000000',
+    darkGrayTwo: '#444444',
+    darkGray: '#2C2C2C',
     silver: '#FFFFFF',
   };
   
-  // Paleta de cores:
-  //#000000 #f63b2a #FFFFFF

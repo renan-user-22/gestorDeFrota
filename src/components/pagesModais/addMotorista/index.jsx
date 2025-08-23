@@ -104,7 +104,6 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
         }
     };
 
-
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>

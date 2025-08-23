@@ -36,6 +36,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   const [chassi, setChassi] = useState('');
   const [ano, setAno] = useState('');
   const [renavam, setRenavam] = useState('');
+  const [quilometragem, setQuilometragem] = useState('');
   const [licenciamento, setLicenciamento] = useState('');
   const [tipo, setTipo] = useState('');
   const [status, setStatus] = useState('');
@@ -53,7 +54,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
 
   const salvarVeiculo = async () => {
     // Verificações de campos obrigatórios
-    if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento) {
+    if (!modelo || !marca || !placa || !chassi || !ano || !renavam || !tipo || !licenciamento || !quilometragem) {
       Swal.fire({
         icon: 'warning',
         title: 'Campos obrigatórios',
@@ -99,6 +100,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
         chassi,
         ano,
         renavam,
+        quilometragem,
         tipo,
         terceirizado: isTerceirizado || false
       };
@@ -129,6 +131,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
       setChassi('');
       setAno('');
       setRenavam('');
+      setQuilometragem('');
       setLicenciamento('');
       setTipo('');
 
@@ -283,8 +286,10 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
           </Box>
         </Box>
 
-
-
+        <Box flex={'1'} direction="column">
+          <TextDefault size="12px" color={colors.silver} bottom="5px">Quilometragem Atual:</TextDefault>
+          <Input type='number' width={'250px'} value={quilometragem} onChange={e => setQuilometragem(e.target.value)} placeholder="30.000" />
+        </Box>
 
         {isTerceirizado && (
           <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
@@ -309,7 +314,6 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
             </Box>
           </Box>
         )}
-
 
         {/* Linha 3: Cor / Ano / Tipo / Renavam */}
         <Box direction="row" align="center" topSpace="20px" bottomSpace="10px" width="97%">

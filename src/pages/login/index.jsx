@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
 import { TextDefault, Box } from '../../stylesAppDefault';
-import { Container, Input, Button, LogoImg, ButtonVisibility } from './styles';
+import { Container, Input, Button, LogoImg, ButtonVisibility, SwalCustomStyles } from './styles';
 import { db } from '../../firebaseConnection';
 import { ref, onValue } from "firebase/database"; // importe isso no topo
 import Swal from 'sweetalert2';
@@ -27,36 +27,61 @@ const Login = ({ nextHome }) => {
   };
 
   const handleLogin = () => {
+    // Impede o scroll
+    document.body.classList.add('no-scroll');
+
     Swal.fire({
-      title: 'Verificando...',
+      title: `Verificando...`,
       text: 'Aguarde um instante',
       allowOutsideClick: false,
       showConfirmButton: false,
+
       didOpen: () => {
         Swal.showLoading();
 
         setTimeout(() => {
           Swal.close();
 
-          // Garantir que ambas as variáveis sejam strings
+          // Reativa o scroll
+          document.body.classList.remove('no-scroll');
+
           const accessKeyTrimmed = String(accessKey).trim();
           const passwordDataBaseTrimmed = String(passwordDataBase).trim();
 
           if (accessKeyTrimmed === passwordDataBaseTrimmed) {
             nextHome();
           } else {
-            // Erro
             Swal.fire({
               title: 'Ops!',
               text: 'Chave de acesso inválida!',
               icon: 'error',
               showConfirmButton: false,
-              timer: 2000
+              timer: 2000,
+
+              // Classes customizadas para título, texto e popup
+              customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title',
+                htmlContainer: 'swal-custom-text',
+                confirmButton: 'swal-custom-confirm',
+                cancelButton: 'swal-custom-cancel',
+              }
             });
           }
-        }, 1500); // Tempo de “verificação”
+        }, 1500);
+      },
+
+      // Classes customizadas para título, texto e popup
+      customClass: {
+        popup: 'swal-custom-popup',
+        title: 'swal-custom-title',
+        htmlContainer: 'swal-custom-text',
+        confirmButton: 'swal-custom-confirm',
+        cancelButton: 'swal-custom-cancel',
       }
     });
+
+
   };
 
   useEffect(() => {
@@ -70,33 +95,58 @@ const Login = ({ nextHome }) => {
 
   return (
     <Container>
+
+      <SwalCustomStyles />
+
       <Box
         width={'500px'}
         height={'400px'}
-        radius={'20px'}
-        justify={'center'}
+        justify={'space-around'}
         align={'center'}
         direction={'column'}
-        color='#eebe2c'
+        color={colors.yellow}
       >
-        <LogoImg src={Logomarca} bottom={'20px'} />
+        <LogoImg
+          src={Logomarca}
+          bottom={'20px'}
+          width={'70%'}
+        />
 
-        <Box align={'center'} justify={'center'} height={'auto'} width={'100%'} direction={'row'} bottomSpace={'20px'}>
-          <Input
-            placeholder="Chave de Acesso"
-            value={accessKey}
-            type={showPassword ? "text" : "password"}
-            onChange={(e) => setAccessKey(e.target.value)}
-            onKeyDown={handleKeyPress}
-          />
+        <Box
+          width={'70%'}
+          direction={'column'}
+          justify={'center'}
+          align={'center'}
+        >
 
-          <ButtonVisibility onClick={togglePasswordVisibility}>
-            {showPassword ? <IoMdEye color={colors.orange} /> : <AiFillEyeInvisible color={colors.orange} />}
-          </ButtonVisibility>
+          <Box
+            align={'center'}
+            justify={'center'}
+            height={'auto'}
+            width={'100%'}
+            direction={'row'}
+            bottomSpace={'50px'}
+          >
+
+            <Input
+              placeholder="Chave de Acesso"
+              value={accessKey}
+              type={showPassword ? "text" : "password"}
+              onChange={(e) => setAccessKey(e.target.value)}
+              onKeyDown={handleKeyPress}
+            />
+
+            <ButtonVisibility onClick={togglePasswordVisibility}>
+              {showPassword ? <IoMdEye color={colors.orange} /> : <AiFillEyeInvisible color={colors.orange} />}
+            </ButtonVisibility>
+          </Box>
+
+          <Button color={colors.orange} onClick={() => handleLogin()}>
+            <TextDefault weight={'bold'}>Entrar</TextDefault>
+          </Button>
+
         </Box>
 
-
-        <Button color={colors.orange} onClick={() => handleLogin()}>Entrar</Button>
       </Box>
     </Container>
   );

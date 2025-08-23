@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { colors } from '../../theme';
 import { TextDefault, Box } from '../../stylesAppDefault';
-import { useMediaQuery } from 'react-responsive';
+
 import {
   Container,
   PageTransition,
+  ToggleMenuButton,
   LogoImg,
-  Drawer,
-  DrawerButton,
   IconDefaultButton,
 } from './styles';
 
-// Páginas (crie os componentes vazios/placeholder para cada uma)
 import EmpresasPage from '../empresas';
 import RelatoriosPage from '../relatorios';
 import ConfiguracoesPage from '../configuracoes';
@@ -19,47 +17,46 @@ import MultasPage from '../multas';
 import Ia from '../ia';
 import CheckListPage from '../CheckListPage';
 
-// Ícones
-import { GoOrganization } from 'react-icons/go';
-import { FaChartBar, FaFileInvoiceDollar, FaClipboardCheck } from 'react-icons/fa';
+import { FaFileInvoiceDollar, FaClipboardCheck } from 'react-icons/fa';
 import { IoSettingsSharp } from 'react-icons/io5';
 import { LuBrainCircuit } from "react-icons/lu";
-import { HiMiniUser } from "react-icons/hi2";
+import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowForward } from "react-icons/io";
+import { MdSpaceDashboard } from "react-icons/md";
+import { SiRustdesk } from "react-icons/si";
 
 import Logomarca from '../../images/logomarcaWhite.png';
+import IconLogo from '../../images/iconLogo.png';
 
 const Home = () => {
-  const isMobile = useMediaQuery({ maxWidth: 1100 });
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // estados de página
   const [empresasAction, setEmpresasAction] = useState(false);
-  //const [pessoaFisica, setPessoaFisica] = useState(false);
   const [relatoriosAction, setRelatoriosAction] = useState(false);
   const [multasAction, setMultasAction] = useState(false);
   const [checklistAction, setChecklistAction] = useState(false);
   const [iaAction, setIaAction] = useState(false);
   const [configuracoesAction, setConfiguracoesAction] = useState(false);
+  const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState('Dashboard');
 
-
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRelatoriosAction(true)
-    }, 500); // espera 0.5s, se quiser
-
-    return () => clearTimeout(timer);
-  }, []);
-
+  const handleButtonClick = (setter, name) => {
+    setEmpresasAction(false);
+    setRelatoriosAction(false);
+    setConfiguracoesAction(false);
+    setMultasAction(false);
+    setIaAction(false);
+    setChecklistAction(false);
+    setter(true);
+    setCurrentMenu(name);
+  };
 
   const iconMap = {
-    Empresas: GoOrganization,
-    Dashboard: FaChartBar,
+    Empresas: SiRustdesk,
+    Dashboard: MdSpaceDashboard,
     Configurações: IoSettingsSharp,
     Multas: FaFileInvoiceDollar,
     CheckList: FaClipboardCheck,
-    'Fleet IA': LuBrainCircuit, // ou outro ícone mais representativo
-    //'Pessoa Física': HiMiniUser, // ou outro ícone mais representativo
+    'Fleet IA': LuBrainCircuit,
   };
 
   const buttonData = [
@@ -73,11 +70,6 @@ const Home = () => {
       descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
       action: setEmpresasAction,
     },
-    /*{
-      titulo: 'Pessoa Física',
-      descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
-      action: setPessoaFisica,
-    },*/
     {
       titulo: 'Multas',
       descricao: 'Gerencie e visualize as multas das frotas cadastradas',
@@ -95,93 +87,120 @@ const Home = () => {
     },
   ];
 
-  const toggleDrawer = () => {
-    setIsDrawerOpen((o) => !o);
-  };
-
-  const handleButtonClick = (setter) => {
-    setEmpresasAction(false);
-    setRelatoriosAction(false);
-    setConfiguracoesAction(false);
-    setMultasAction(false);
-    setIaAction(false);
-    //setPessoaFisica(false);
-    setChecklistAction(false);
-    setter(true);
-    if (isMobile) setIsDrawerOpen(false);
-  };
-
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setRelatoriosAction(true);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <Container>
-      {/* SIDEBAR */}
+      {/* SIDEBAR FIXA */}
       <Box
-        width={isMobile ? '100%' : '15%'}
+        style={{
+          width: isMenuCollapsed ? '80px' : '300px',
+          transition: 'width 0.3s ease'
+        }}
+        direction={'column'}
+        height={'100%'}
+        radius={'none'}
         color={colors.black}
-        height="100%"
       >
-        {/* logo + drawer toggle no mobile */}
-        <Box width={'100%'} height={'100px'} justify={'center'} align={'center'}>
-          <LogoImg src={Logomarca} width={'95%'} height={'auto'} />
+
+        <Box
+          width={'100%'}
+          justify={'flex-end'}
+          align={'center'}
+        >
+          <ToggleMenuButton onClick={() => setIsMenuCollapsed(prev => !prev)}>
+            {isMenuCollapsed ? <IoIosArrowForward size={30} color={colors.orange} /> : <IoIosArrowBack size={30} color={colors.orange} />}
+          </ToggleMenuButton>
         </Box>
 
-        {isMobile && (
-          <DrawerButton onClick={toggleDrawer}>
-            {isDrawerOpen ? 'Fechar Menu' : 'Abrir Menu'}
-          </DrawerButton>
-        )}
-        <Drawer open={isDrawerOpen || !isMobile}>
-          {buttonData.map(({ titulo, descricao, action }) => {
+        <Box
+          width={'100%'}
+          height={'200px'}
+          justify={'center'}
+          align={'center'}
+        >
+          <LogoImg
+            src={isMenuCollapsed ? IconLogo : Logomarca}
+            width={isMenuCollapsed ? '50%' : '90%'} // tamanho menor quando colapsado
+            height={'auto'}
+            left={isMenuCollapsed ? '12px' : '0px'}
+            style={{
+              transition: 'width 0.3s ease', // transição suave
+            }}
+          />
+        </Box>
+
+        <Box
+          width={'100%'}
+          height={'100%'}
+          direction={'column'}
+          radius={'none'}
+        >
+          {buttonData.map(({ titulo, action }) => {
             const Icon = iconMap[titulo];
+            const isActive = currentMenu === titulo;
+
             return (
               <IconDefaultButton
                 key={titulo}
-                onClick={() => handleButtonClick(action)}
+                onClick={() => handleButtonClick(action, titulo)}
+                style={{ color: isActive ? colors.orange : colors.silver }}
               >
-                <Icon size={25} style={{ marginRight: '10px' }} color={colors.silver} />
-                <Box direction="column" align="flex-start">
-                  <TextDefault size="14px" weight="bold">
-                    {titulo}
-                  </TextDefault>
-                </Box>
+                <Icon
+                  size={isMenuCollapsed ? 32 : 25}
+                  style={{
+                    marginRight: isMenuCollapsed ? '0px' : '10px',
+                    transition: 'all 0.3s ease',
+                    color: isActive ? colors.orange : colors.silver
+                  }}
+                />
+                {!isMenuCollapsed && (
+                  <Box direction="column" align="flex-start">
+                    <TextDefault style={{ color: isActive ? colors.orange : colors.silver }}>
+                      {titulo}
+                    </TextDefault>
+                  </Box>
+                )}
               </IconDefaultButton>
             );
           })}
-        </Drawer>
+
+        </Box>
       </Box>
 
       {/* CONTEÚDO */}
       <Box
-        width={isMobile ? '100%' : '90%'}
-        height={'100vh'}
+        style={{
+          flexGrow: 1,
+          transition: 'all 0.3s ease',
+        }}
+        position={'relative'}
         direction={'column'}
-        style={{ overflowY: 'none', position: 'relative' }}
+        height={'100vh'}
       >
-
         <PageTransition visible={empresasAction}>
-          <EmpresasPage isMobile={isMobile} />
+          <EmpresasPage />
         </PageTransition>
-
         <PageTransition visible={relatoriosAction}>
-          <RelatoriosPage isMobile={isMobile} />
+          <RelatoriosPage />
         </PageTransition>
-
         <PageTransition visible={configuracoesAction}>
-          <ConfiguracoesPage isMobile={isMobile} />
+          <ConfiguracoesPage />
         </PageTransition>
-
         <PageTransition visible={iaAction}>
-          <Ia isMobile={isMobile} />
+          <Ia />
         </PageTransition>
-
         <PageTransition visible={multasAction}>
-          <MultasPage isMobile={isMobile} />
+          <MultasPage />
         </PageTransition>
-
         <PageTransition visible={checklistAction}>
-          <CheckListPage isMobile={isMobile} />
+          <CheckListPage />
         </PageTransition>
-
       </Box>
     </Container>
   );

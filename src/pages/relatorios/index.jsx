@@ -8,6 +8,7 @@ import ModalNotifications from '../../components/pagesModais/Notifications';
 //Icones
 import { FaChartBar } from 'react-icons/fa';
 import { IoMdNotifications } from "react-icons/io";
+import { MdSpaceDashboard } from "react-icons/md";
 
 // Recharts
 import {
@@ -362,8 +363,8 @@ const Dashboard = () => {
           paddingBottom={'20px'}
         >
           <Box leftSpace={'20px'}>
-            <FaChartBar size={'27px'} color={colors.silver} />
-            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Fleet Solutions - Dashboard</TextDefault>
+            <MdSpaceDashboard size={30} color={colors.silver} />
+            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Dashboard</TextDefault>
           </Box>
 
           <DefaultButton onClick={openAreaNotifications} style={{ position: 'relative' }}>

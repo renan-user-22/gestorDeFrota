@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from 'styled-components';
+import styled from 'styled-components';
 import { colors } from './theme';
 
 export const Container = styled.div`
@@ -9,6 +9,7 @@ export const Container = styled.div`
 
 export const Box = styled.div`
   display: flex;
+  position:  ${props => props.position || 'none'};
   flex-wrap: ${props => props.wrap || 'nowrap'};
   gap: ${props => props.gap || '0px'};
   flex: ${props => props.flex};
@@ -22,7 +23,7 @@ export const Box = styled.div`
   margin-top: ${props => props.topSpace || '0px'};
   margin-left: ${props => props.leftSpace || '0px'};
   margin-right: ${props => props.rightSpace || '0px'};
-  border-radius: ${props => props.radius || '0px'};
+  border-radius: ${props => props.radius || '5px'};
   padding-left: ${props => props.paddingLeft || '0px'};
   padding-right: ${props => props.paddingRight || '0px'};
   padding-top: ${props => props.paddingTop || '0px'};
@@ -32,6 +33,8 @@ export const Box = styled.div`
 export const InfoBox = styled.div`
   overflow: hidden;
   width: 100%;
+  align-items: center;
+  //margin-right: ${props => props.rightSpace || '-100px'};
   max-height: ${({ open }) => open ? '500px' : '0'};
   opacity: ${({ open }) => open ? 1 : 0};
   transition: max-height 1s ease, opacity 1s ease;
@@ -40,8 +43,8 @@ export const InfoBox = styled.div`
 `;
 
 export const TextDefault = styled.h1`
-  text-align: ${props => props.align || 'left'};;
-  font-size: ${props => props.size || '14px'};
+  text-align: ${props => props.align || 'left'};
+  font-size: ${props => props.size || '17px'}; // Padrões de tamanhos: 17px grande, 15px médio, 14px pequena, 12px minima.
   color: ${(props) => props.color || colors.silver};
   font-weight: ${props => props.weight || 'normal'};
   margin-left: ${props => props.left || '0px'};

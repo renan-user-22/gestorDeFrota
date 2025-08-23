@@ -4,12 +4,12 @@ import { colors } from '../../theme';
 
 const StyledInput = styled.input`
   width: ${props => props.width || '100%'};
-  height: 40px;
+  height: 30px;
   padding-left: 10px;
   border: 1px solid ${colors.silver};
   font-size: 14px;
   margin-bottom: 10px;
-  border-radius: 7px;
+  border-radius: 3px;
 `;
 
 /**

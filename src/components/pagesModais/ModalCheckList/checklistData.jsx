@@ -38,7 +38,6 @@ const checklistPorTipo = {
     "Compartimento de carga (limpeza e fixação)",
     "Amarração de carga (fitas/catracas)",
     "Travas das portas traseiras",
-    ""
   ],
 
   "Van de Passageiros": [

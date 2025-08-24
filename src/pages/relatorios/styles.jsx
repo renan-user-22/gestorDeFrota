@@ -11,6 +11,11 @@ export const Container = styled.div`
   overflow: hidden;
 `;
 
+export const Dev = styled.img`
+  width:  ${(props) => props.width || '60%'};
+  height: auto;
+`;
+
 export const DefaultButton = styled.button`
   display: flex;
   background-color: transparent;
@@ -76,11 +81,9 @@ export const Button = styled.button`
 export const ListaEmpresasWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  //justify-content: center;
   align-items: center;
   width: 99%;
-  //margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   overflow-y: auto;
   padding-right: 1px;
 
@@ -110,7 +113,7 @@ export const InfoGrid = styled.div`
 
 export const InfoCard = styled.div`
   background-color:${(props) => props.color || colors.darkGrayTwo};
-  border-radius: 7px;
+  border-radius: 5px;
   padding: 15px;
   text-align: center;
 `;
@@ -127,4 +130,42 @@ export const ChartsWrapper = styled.div`
   align-items: flex-start;
   width: ${(props) => props.width || 'auto'};
   height: ${(props) => props.height || 'auto'};
+`;
+
+export const TabButton = styled.button`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  position: relative;
+  background: transparent;
+  //background-color: ${({ isActive }) => (isActive ? colors.darkGrayTwo : colors.black)};
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: ${({ isActive }) => (isActive ? colors.orange : colors.silver)};
+  font-weight: ${({ isActive }) => (isActive ? 'bold' : 'normal')};
+  border-bottom: ${({ isActive }) => (isActive ? `2px solid ${colors.primary}` : 'none')};
+  transition: all 0.3s ease;
+`;
+
+export const Underline = styled.div`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background-color: ${colors.primary};
+  animation: underlineAnimation 0.3s ease-in-out forwards;
+
+  @keyframes underlineAnimation {
+    from {
+      width: 0%;
+    }
+    to {
+      width: 100%;
+    }
+  }
 `;

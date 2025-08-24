@@ -7,23 +7,22 @@ import Swal from 'sweetalert2';
 import { db } from '../../../firebaseConnection';
 import { ref, update } from 'firebase/database';
 
-//Importação de components de Inputs:
-import InputTelefone from '../../inputs/InputTelefone';
 
 //Icones: 
-import { FaWindowClose } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 import { IoMdNotifications } from "react-icons/io";
 
 
 //Estilos:
 import { Box, TextDefault } from '../../../stylesAppDefault';
+import Developer from '../../../images/dev.png';
 import { colors } from '../../../theme';
 import {
-    ModalAreaTotalDisplay,
-    ListaEmpresasWrapper,
-    ModalAreaInfo,
-    Button,
-    DefaultButton
+  ModalAreaTotalDisplay,
+  ListaEmpresasWrapper,
+  ModalAreaInfo,
+  Dev,
+  DefaultButton
 } from './styles';
 
 const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
@@ -36,24 +35,28 @@ const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
       <ModalAreaInfo>
         <ListaEmpresasWrapper>
           <Box
+            color={colors.black}
             width={'100%'}
-            height={'65px'}
-            radius={'10px'}
+            height={'80px'}
             direction={'row'}
-            topSpace={'10px'}
             bottomSpace={'10px'}
             align={'center'}
             justify={'space-between'}
           >
-            <Box>
-              <IoMdNotifications size={'30px'} color={colors.silver} />
-              <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>
-                Notificações
+            <Box leftSpace={'20px'} justify={'center'} direction={'column'}>
+              <Box>
+                <IoMdNotifications size={'20px'} color={colors.silver} />
+                <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'17px'}>
+                  Notificações
+                </TextDefault>
+              </Box>
+              <TextDefault color={colors.silver} size={'13px'} top={'5px'}>
+                Veículos com licenciamento pendente, CNH próximo do vencimento, Multas com Prazos próximos ao vencimento, a informação que deseja receber a notificação aparecerá aqui (Desenvolvido Sob Medida para a sua Frota)
               </TextDefault>
             </Box>
 
             <DefaultButton onClick={closeModal}>
-              <FaWindowClose size={'30px'} color={colors.silver} />
+              <IoClose size={'20px'} color={colors.silver} />
             </DefaultButton>
           </Box>
 
@@ -114,6 +117,10 @@ const Notifications = ({ closeModalNotifications, notificacoes = [] }) => {
               ))
             )}
           </Box>
+
+          <Dev src={Developer} width={'25%'} />
+
+
         </ListaEmpresasWrapper>
       </ModalAreaInfo>
     </ModalAreaTotalDisplay>

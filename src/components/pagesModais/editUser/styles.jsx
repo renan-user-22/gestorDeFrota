@@ -75,11 +75,14 @@ export const ModalAreaTotalDisplay = styled.div`
 `;
 
 export const ModalAreaInfo = styled.div`
+display: flex;
+flex-direction: column;
   background-color: ${colors.darkGray};
   padding: 30px;
   width: 100%;
   height: 100vh;
   overflow-y: auto;
+  align-items: center;
 
   /* Scrollbar personalizada */
   &::-webkit-scrollbar {
@@ -143,10 +146,10 @@ export const Button = styled.button`
 
 export const DefaultButton = styled.button`
   display: flex;
-  width: ${props => props.width || '150px'};
+  width: ${props => props.width || 'auto'};
   height: ${props => props.height || '35px'};
-  background-color: ${colors.orange};
-  border-radius: 3px;
+  background-color: transparent;
+  border-radius: 5px;
   margin-top: 15px;
   margin-bottom: 15px;
   align-items: center;
@@ -299,6 +302,11 @@ export const Switch = styled.label`
   input:checked + span:before {
     transform: translateX(18px);
   }
+`;
+
+export const Dev = styled.img`
+  width:  ${(props) => props.width || '60%'};
+  height: auto;
 `;
 
 export const TableWrapper = styled.div`

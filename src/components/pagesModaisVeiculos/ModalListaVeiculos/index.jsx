@@ -12,6 +12,11 @@ import { FaTruckFront } from "react-icons/fa6";
 import { FaFilePdf } from "react-icons/fa6";
 import { TbStatusChange } from "react-icons/tb";
 import { FaUserEdit } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
+
+import { MdAdd } from 'react-icons/md';
+import { BsFillFileEarmarkExcelFill } from "react-icons/bs";
+import { GrUpdate } from "react-icons/gr";
 
 import AddVeiculos from '../AddVeiculos';
 import EditAnoLicenciamento from '../EditAnoLicenciamento';
@@ -174,31 +179,69 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
         });
     };
 
+    const mensageeeee = () => {
+        alert("em desenvolvimento!");
+    }
+
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
-                <Box width={'100%'} height={'65px'} radius={'10px'} direction={'row'} topSpace={'10px'} bottomSpace={'10px'} align={'center'} justify={'space-between'}>
-                    <Box>
 
-                        <FaTruckFront size={'30px'} color={colors.silver} />
-                        <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>
-                            Veículo(s) da empresa {empresaNome}
-                        </TextDefault>
+                <Box color={colors.black} width={'100%'} topSpace={'10px'} direction={'column'} align={'center'}>
+                    <Box
+                        width={'95%'}
+                        justify={'space-between'}
+                        align={'center'}
+                        topSpace={'10px'}
+                        paddingTop={'10px'}
+                        paddingLeft={'20px'}
+                        paddingRight={'20px'}
+                    >
+                        <Box direction="row" align="center">
+                            <FaTruckFront size={'27px'} color={colors.silver} />
+                            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'17px'}>
+                               Veículo(s) da empresa {empresaNome}
+                            </TextDefault>
+                        </Box>
+
+                        <Button onClick={() => closeModalListVeiculos()} color={'transparent'}>
+                            <IoClose size={'30px'} color={colors.silver} />
+                        </Button>
                     </Box>
-                    <DefaultButton onClick={closeModalListVeiculos}>
-                        <FaWindowClose size={'30px'} color={colors.silver} />
-                    </DefaultButton>
-                </Box>
 
-                <Box>
-                    <Button color={colors.orange} onClick={() => setModalAddVeiculosForm(true)} right={'20px'}>
-                        <MdAddBox size={'30px'} color={colors.silver} />
-                    </Button>
+                    <Box width={'95%'} height={'1px'} radius={'1px'} color={colors.silver} topSpace={'20px'} />
 
-                    <Button color={colors.orange} onClick={gerarPdfVeiculos} right={'20px'}>
-                        <FaFilePdf size={'30px'} color={colors.silver} />
-                    </Button>
+                    <Box direction={'row'} align={'center'} width={'95%'}>
+                        <DefaultButton width="150px" onClick={() => setModalAddVeiculosForm(true)}>
+                            <MdAdd size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Cadastrar Veículo
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
+                            <FaFilePdf size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Gerar Pdf
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
+                            <BsFillFileEarmarkExcelFill size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Gerar Excel
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
+                            <GrUpdate size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Atualizar Lista
+                            </TextDefault>
+                        </DefaultButton>
+                    </Box>
                 </Box>
+               
 
                 <ListaScrollContainer>
                     {listaVeiculos.length === 0 ? (
@@ -209,15 +252,15 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                         listaVeiculos.map((veiculo) => (
                             <Box
                                 key={veiculo.id}
-                                width="98%"
-                                radius="10px"
-                                color={colors.darkGrayTwo}
+                                width="100%"
+                                radius="5px"
+                                color={colors.black}
                                 paddingLeft="10px"
                                 paddingTop="10px"
                                 paddingBottom="10px"
                                 topSpace="10px"
                                 direction="column"
-                                style={{ border: `1px solid ${colors.darkGrayTwo}` }}
+                                style={{ border: `1px solid ${colors.black}` }}
                             >
                                 <Box
                                     width="100%"
@@ -245,7 +288,7 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                         size={18}
                                         color={colors.orange}
                                         style={{
-                                            marginRight: '10px',
+                                            marginRight: '30px',
                                             transform: veiculoExpandido === veiculo.id ? 'rotate(180deg)' : 'rotate(0deg)',
                                             transition: 'transform 0.3s ease',
                                         }}
@@ -272,8 +315,8 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                                 <>
                                                     <TextDefault color={colors.silver} size="12px" top={'10px'} weight={'bold'}>Proprietário:</TextDefault>
                                                     <TextDefault color={colors.silver} size="12px">Nome: {veiculo.proprietario.nome}</TextDefault>
-                                                    {veiculo.proprietario.cpf && <TextDefault color={colors.black} size="12px">CPF: {veiculo.proprietario.cpf}</TextDefault>}
-                                                    {veiculo.proprietario.cnpj && <TextDefault color={colors.black} size="12px">CNPJ: {veiculo.proprietario.cnpj}</TextDefault>}
+                                                    {veiculo.proprietario.cpf && <TextDefault color={colors.silver} size="12px">CPF: {veiculo.proprietario.cpf}</TextDefault>}
+                                                    {veiculo.proprietario.cnpj && <TextDefault color={colors.silver} size="12px">CNPJ: {veiculo.proprietario.cnpj}</TextDefault>}
                                                     <TextDefault color={colors.silver} size="12px">Contato: {veiculo.proprietario.contato}</TextDefault>
                                                 </>
                                             )}

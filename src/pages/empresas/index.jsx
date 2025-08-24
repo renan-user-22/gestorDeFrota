@@ -169,22 +169,26 @@ const Empresas = () => {
               direction={'row'}
               align={'center'}
               justify={'flex-start'}
-              color={colors.darkGrayTwo}
+              color={colors.black}
               onClick={() => toggleInfoEmpresa(empresa.id)}
               style={{ cursor: 'pointer' }}
             >
               <Box direction={'column'} flex={'1'} justify={'flex-start'} align={'flex-start'} topSpace={'10px'}>
-                <Box direction={'row'} width={'100%'}>
-                  <Box leftSpace={'10px'} direction={'column'} width={'100%'} justify={'flex-start'} align={'flex-start'}>
+                <Box direction={'row'} width={'100%'} >
+                  <Box leftSpace={'10px'} direction={'column'} width={'100%'} justify={'flex-start'} align={'flex-start'} >
                     <TextDefault color={colors.silver} size={'18px'} weight={'bold'} bottom={'5px'}>
                       {empresa.nomeEmpresa}
                     </TextDefault>
                     <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
                       CNPJ: {empresa.cnpj}
                     </TextDefault>
-                    <TextDefault color={colors.silver} size={'12px'} bottom={'20px'}>
-                      Endereço: {empresa.endereco?.logradouro}, Nº {empresa.endereco?.numero}, {empresa.endereco?.bairro} - {empresa.endereco?.complemento}
+                    <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
+                      Categoria: {empresa.tipo}
                     </TextDefault>
+                    <TextDefault color={colors.silver} size={'12px'} bottom={'20px'}>
+                      Status: {empresa.extras?.status || 'Não informado'}
+                    </TextDefault>
+
                   </Box>
                   <Box direction={'column'}>
                     <IoIosArrowDown
@@ -208,20 +212,6 @@ const Empresas = () => {
                       transition={{ duration: 0.6 }}
                       style={{ overflow: 'hidden', width: '100%' }}
                     >
-                      <Box direction={'column'} leftSpace={'10px'} bottomSpace={'20px'}>
-                        {Array.isArray(empresa.usuarios) && empresa.usuarios.length > 0 && (
-                          <>
-                            <TextDefault color={colors.silver} size={'12px'} bottom={'5px'} weight={'bold'}>
-                              Usuários:
-                            </TextDefault>
-                            {empresa.usuarios.map((usuario, i) => (
-                              <TextDefault key={i} color={colors.silver} size={'12px'} bottom={'8px'}>
-                                {i + 1}. {usuario.nome} {usuario.sobrenome} - Cargo: {usuario.cargoNome} - Contato: {usuario.contato} - Status: {usuario.status}
-                              </TextDefault>
-                            ))}
-                          </>
-                        )}
-                      </Box>
 
                       <InfoBox direction={'column'} open={true}>
                         <Box
@@ -237,14 +227,14 @@ const Empresas = () => {
                           <Button direction={'row'} color={colors.orange} onClick={() => { }} right={'20px'}>
                             <FaArrowUpRightDots size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Relatórios
+                              Dashboard
                             </TextDefault>
                           </Button>
 
                           <Button direction={'row'} color={colors.orange} onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
                             <MdEditSquare size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Empresa
+                              Editar
                             </TextDefault>
                           </Button>
 
@@ -276,12 +266,7 @@ const Empresas = () => {
                             </TextDefault>
                           </Button>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <FaFileInvoiceDollar size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Multas
-                            </TextDefault>
-                          </Button>
+                          
 
                           <Button direction={'row'} color={colors.orange} onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
                             <FaWindowClose size={'17px'} />
@@ -301,15 +286,19 @@ const Empresas = () => {
       )}
 
       {areaModalAddEmpresa && <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />}
+
       {areaModalEditEmpresa && empresaSelecionada && (
         <ModalEditEmpresa closeModalEditEmpresa={() => setAreaModalEditEmpresa(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
       )}
+
       {areaModalListMotoristaInfo && empresaSelecionada && (
         <ModalListaMotoristas closeModalListMotorista={() => setAreaModalListMotoristaInfo(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
       )}
+
       {areaModalListVeiculosInfo && empresaSelecionada && (
         <ModalListaVeiculos closeModalListVeiculos={() => setAreaModalListVeiculosInfo(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
       )}
+
       {areaModalChecklist && empresaSelecionada && (
         <ModalCheckList closeModalChecklist={() => setAreaModalChecklist(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
       )}

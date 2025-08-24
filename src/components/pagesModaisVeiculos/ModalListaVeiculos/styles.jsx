@@ -24,26 +24,25 @@ export const ListaScrollContainer = styled.div`
     width: 6px;
   }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: ${colors.yellow};
-    border-radius: 4px;
-  }
 `;
 
 
 export const DefaultButton = styled.button`
   display: flex;
-  background-color: transparent;
+  border-radius: 3px;
+  background-color: ${colors.orange};
   align-items: center;
   height: auto;
-  padding: 10px;
+  padding: 5px;
   margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   border: none;
   cursor: pointer;
 `;
 
 export const ModalAreaTotalDisplay = styled.div`
-  position: fixed;
+  position: absolute;
   top: 0; 
   left: 0; 
   right: 0;
@@ -58,10 +57,26 @@ export const ModalAreaTotalDisplay = styled.div`
 export const ModalAreaInfo = styled.div`
   background-color: ${colors.darkGray};
   padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  height: 80%;
+  width: 100%;
+  height: 100vh;
+  overflow-y: auto;
+
+  /* Scrollbar personalizada */
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #f63b2a;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
 `;
+
 
 export const Input = styled.input`
   width:${props => props.width || '100%'};

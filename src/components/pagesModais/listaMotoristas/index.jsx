@@ -2,22 +2,23 @@ import React, { useState, useEffect } from 'react';
 
 //Bibliotecas:
 import Swal from 'sweetalert2';
-import { motion, AnimatePresence } from "framer-motion";
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 //ícones
-import { FaWindowClose } from "react-icons/fa";
-import { MdAddBox } from "react-icons/md";
-import { FaChevronDown } from 'react-icons/fa';
-import { PiSteeringWheelFill } from "react-icons/pi";
-import { FaSquarePhone } from "react-icons/fa6";
-import { FaIdCard } from "react-icons/fa";
+import { MdAdd } from 'react-icons/md';
+import { BsFillFileEarmarkExcelFill } from "react-icons/bs";
+import { IoClose } from "react-icons/io5";
+import { SlOptionsVertical } from "react-icons/sl";
+import { BiSolidUserCircle } from 'react-icons/bi';
+import { MdEditSquare } from "react-icons/md";
 import { FaFilePdf } from "react-icons/fa6";
-import { RiLockPasswordFill } from "react-icons/ri";
+import { GrUpdate } from "react-icons/gr";
+
 
 //Importação de Modais Adjacentes: 
 import AddMotorista from '../addMotorista';
+import EditUser from '../editUser';
 import EditCnhMotorista from '../editCnhValidadeMotorista';
 import EditTelMotorista from '../editTelMotorista';
 import EditSenhaMotorista from '../EditSenhaMotorista';
@@ -36,12 +37,17 @@ import {
     ModalAreaInfo,
     DefaultButton,
     Button,
+    CargoModalOverlay,
+    CargoModalContent,
+    RemoveButton,
+    CargoItem
 } from './styles';
 
 const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) => {
 
     const [listaMotoristas, setListaMotoristas] = useState([]);
     const [motoristaExpandido, setMotoristaExpandido] = useState(null);
+    const [modalDetalhes, setModalDetalhes] = useState(false);
 
     const [modalAddMotoristaForm, setModalAddMotoristaForm] = useState(false);
     const [modalEditMotoristaTel, setModalEditMotoristaTel] = useState(false);
@@ -102,20 +108,17 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
 
     useEffect(() => {
         const db = getDatabase();
-        const motoristasRef = ref(db, `empresas/${empresaId}/motoristas`);
+        const motoristasRef = ref(db, `empresas/${empresaId}/usuarios`);
 
         onValue(motoristasRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                const lista = Object.entries(data).map(([key, value]) => ({
-                    id: key,
-                    ...value
-                }));
-                setListaMotoristas(lista);
+            if (Array.isArray(data)) {
+                setListaMotoristas(data.filter(u => u && u.nome)); // evita nulos
             } else {
-                setListaMotoristas([]); // Sem motoristas cadastrados
+                setListaMotoristas([]);
             }
         });
+
     }, []);
 
 
@@ -144,20 +147,6 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
         });
     };
 
-    const editarMotoristaTel = (id, nome) => {
-        const motorista = listaMotoristas.find((item) => item.id === id);
-        setMotoristaSelecionado(motorista);
-        setModalEditMotoristaTel(true);
-        setNomeMotorista(nome);
-    };
-
-    const editarMotoristaCNH = (id, nome) => {
-        const motorista = listaMotoristas.find((item) => item.id === id);
-        setMotoristaSelecionado(motorista);
-        setNomeMotorista(nome);
-        setModalEditMotoristaCnh(true);
-    }
-
     const editarMotoristaSenha = (id, nome) => {
         const motorista = listaMotoristas.find((item) => item.id === id);
         setMotoristaSelecionado(motorista);
@@ -165,187 +154,230 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
         setModalEditMotoristaSenha(true);
     };
 
+    const mensageeeee = () => {
+        alert("em desenvolvimento!");
+    }
 
     return (
         <ModalAreaTotalDisplay>
             <ModalAreaInfo>
 
-                <Box
-                    width={'100%'}
-                    height={'65px'}
-                    radius={'10px'}
-                    direction={'row'}
-                    topSpace={'10px'}
-                    bottomSpace={'10px'}
-                    align={'center'}
-                    justify={'space-between'}
-                >
-                    <Box>
-                        <PiSteeringWheelFill size={'30px'} color={colors.silver} />
-                        <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'21px'}>Motorista(s) da empresa {empresaNome}</TextDefault>
+                <Box color={colors.black} width={'100%'} topSpace={'10px'} direction={'column'} align={'center'}>
+                    <Box
+                        width={'95%'}
+                        justify={'space-between'}
+                        align={'center'}
+                        topSpace={'10px'}
+                        paddingTop={'10px'}
+                        paddingLeft={'20px'}
+                        paddingRight={'20px'}
+                    >
+                        <Box direction="row" align="center">
+                            <BiSolidUserCircle size={'27px'} color={colors.silver} />
+                            <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'17px'}>
+                                Usuários da empresa {empresaNome}
+                            </TextDefault>
+                        </Box>
+
+                        <Button onClick={() => closeModalListMotorista()} color={'transparent'}>
+                            <IoClose size={'30px'} color={colors.silver} />
+                        </Button>
                     </Box>
 
+                    <Box width={'95%'} height={'1px'} radius={'1px'} color={colors.silver} topSpace={'20px'} />
 
-                    <DefaultButton onClick={() => closeModalListMotorista()}>
-                        <FaWindowClose size={'30px'} color={colors.silver} />
-                    </DefaultButton>
+                    <Box direction={'row'} align={'center'} width={'95%'}>
+                        <DefaultButton width="150px" onClick={() => setModalAddMotoristaForm(true)}>
+                            <MdAdd size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Novo Usuário
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={()=> mensageeeee()} right={'20px'}>
+                            <FaFilePdf size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Gerar Pdf
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={()=>mensageeeee()} right={'20px'}>
+                            <BsFillFileEarmarkExcelFill size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Gerar Excel
+                            </TextDefault>
+                        </DefaultButton>
+
+                        <DefaultButton color={colors.orange} onClick={()=>mensageeeee()} right={'20px'}>
+                            <GrUpdate size={'20px'} color={colors.silver} />
+                            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
+                                Atualizar Lista
+                            </TextDefault>
+                        </DefaultButton>
+                    </Box>
                 </Box>
 
-                <Box>
-                    <Button color={colors.orange} onClick={() => setModalAddMotoristaForm(true)} right={'20px'}>
-                        <MdAddBox size={'30px'} color={colors.silver} />
-                    </Button>
-
-                    <Button color={colors.orange} onClick={geratePdfList} right={'20px'}>
-                        <FaFilePdf size={'30px'} color={colors.silver} />
-                    </Button>
-
-                </Box>
 
                 {listaMotoristas.length === 0 ? (
                     <TextDefault top="10px" color={colors.silver}>
-                        Nenhum motorista cadastrado.
+                        Nenhum Usuário cadastrado.
                     </TextDefault>
                 ) : (
-                    listaMotoristas.map((motorista) => (
-                        <Box
-                            key={motorista.id}
-                            width="100%"
-                            radius="10px"
-                            color={colors.darkGrayTwo}
-                            paddingLeft="10px"
-                            paddingTop="10px"
-                            paddingBottom="10px"
-                            topSpace="10px"
-                            direction="column"
-                            style={{ border: `1px solid ${colors.darkGrayTwo}` }}
+                    <Box
+                        direction="column"
+                        width="100%"
+                        topSpace="20px"
+                        color={colors.black}
+                        style={{ overflowX: 'auto' }}
+                    >
+                        <table
+                            style={{
+                                width: 'max-content',
+                                minWidth: '100%',
+                                borderCollapse: 'collapse',
+                                color: colors.silver,
+                                fontSize: '12px', // Fonte menor
+                            }}
                         >
-                            <Box
-                                width="100%"
-                                justify="space-between"
-                                align="center"
-                                onClick={() => toggleExpandirMotorista(motorista.id)}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                <Box direction="column">
-                                    <TextDefault color={colors.silver} weight="bold">
-                                        {motorista.nome}
-                                    </TextDefault>
-                                    <TextDefault color={colors.silver} size="12px">
-                                        <strong>CPF:</strong> {motorista.cpf}
-                                    </TextDefault>
-                                    <TextDefault color={colors.silver} size="12px">
-                                        <strong>SENHA:</strong> {motorista.senhaMotorista}
-                                    </TextDefault>
-                                    <TextDefault color={colors.silver} size="12px">
-                                        <strong>TELEFONE:</strong> {motorista.telefone}
-                                    </TextDefault>
-                                </Box>
+                            <thead>
+                                <tr>
+                                    {['Matrícula', 'Senha', 'Nome', 'Sobrenome', 'CPF', 'Telefone', 'Cargo', 'Status', 'Ações'].map((header) => (
+                                        <th key={header} style={{ padding: '6px', textAlign: 'left', backgroundColor: colors.orange }}>
+                                            <TextDefault size="12px" color={colors.silver}>{header}</TextDefault>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
 
-                                <FaChevronDown
-                                    size={18}
-                                    color={colors.orange}
-                                    style={{
-                                        marginRight: '10px',
-                                        transform: motoristaExpandido === motorista.id ? 'rotate(180deg)' : 'rotate(0deg)',
-                                        transition: 'transform 0.3s ease',
-                                    }}
-                                />
+                            <tbody>
+                                {listaMotoristas.map((u) => (
+                                    <tr key={u.matricula} style={{ borderBottom: `1px solid ${colors.darkGrayTwo}` }}>
+                                        <td><TextDefault size="12px">{u.matricula}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.senha}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.nome}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.sobrenome}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.cpf}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.contato}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.cargoNome}</TextDefault></td>
+                                        <td><TextDefault size="12px">{u.status}</TextDefault></td>
+                                        <td style={{ display: "flex", gap: "8px", justifyContent: "flex-start" }}>
+                                            {/* Botão 3 pontinhos para abrir modal de detalhes */}
+                                            <Button
+                                                width="25px"
+                                                height="25px"
+                                                top={'10px'}
+                                                bottom={'10px'}
+                                                color={colors.orange}
+                                                onClick={() => {
+                                                    setMotoristaSelecionado(u);
+                                                    setModalDetalhes(true);
+                                                }}
+                                            >
+                                                <SlOptionsVertical size={'17px'} color={colors.silver} />
+                                            </Button>
+
+                                            {/* Botão editar */}
+                                            <Button
+                                                width={'auto'}
+                                                height={'auto'}
+                                                top={'10px'}
+                                                bottom={'10px'}
+                                                color={colors.orange}
+                                                onClick={() => editarMotoristaSenha(u.matricula, u.nome)}
+                                            >
+                                                <MdEditSquare size={'17px'} color={colors.silver} />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+
+                        </table>
+                    </Box>
+                )}
+
+                {modalDetalhes && motoristaSelecionado && (
+                    <CargoModalOverlay>
+                        <CargoModalContent>
+
+                            <Box
+                                width={'100%'}
+                                height={'65px'}
+                                direction={'row'}
+                                color={colors.black}
+                                bottomSpace={'20px'}
+                                align={'center'}
+                                justify={'space-between'}
+                            >
+
+                                <TextDefault size="17px" left={'15px'} color={colors.silver}>
+                                    Detalhes do Usuário {motoristaSelecionado.nome}
+                                </TextDefault>
+
+                                <RemoveButton onClick={() => setModalDetalhes(false)}>
+                                    <IoClose size={'30px'} color={colors.silver} />
+                                </RemoveButton>
+
                             </Box>
 
-                            <AnimatePresence>
-                                {motoristaExpandido === motorista.id && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        <Box direction="column" topSpace="10px">
-                                            <TextDefault color={colors.silver} size="12px" weight="bold">
-                                                DADOS DA CNH:
-                                            </TextDefault>
-                                            <TextDefault color={colors.silver} size="12px">
-                                                <strong>Número de registro:</strong> {motorista.cnh}
-                                            </TextDefault>
-                                            <TextDefault color={colors.silver} size="12px">
-                                                <strong>Validade:</strong> {motorista.cnhValidade}
-                                            </TextDefault>
-                                            <TextDefault color={colors.silver} size="12px">
-                                                <strong>Categoria:</strong> {motorista.cnhCat}
-                                            </TextDefault>
-                                            <TextDefault color={colors.silver} size="12px">
-                                                <strong>Data 1ª Habilitação:</strong> {motorista.cnhDate}
-                                            </TextDefault>
-                                            <TextDefault color={colors.silver} size="12px">
-                                                <strong>Observações:</strong> {motorista.observacao ? motorista.observacao : 'Nenhuma'}
-                                            </TextDefault>
+                            <Box direction="column" topSpace="20px" gap="10px">
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>E-mail:</b> {motoristaSelecionado.email}
+                                    </TextDefault>
+                                </CargoItem>
 
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>Tipo de Acesso:</b> {motoristaSelecionado.tipoAcesso}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                            <Box
-                                                direction={'row'}
-                                                topSpace={'20px'}
-                                                width={'auto'}
-                                                bottomSpace={'5px'}
-                                                paddingTop={'5px'}
-                                                justify={'flex-start'}
-                                                paddingBottom={'5px'}
-                                            >
-                                                <Button direction={'column'} color={colors.darkGray} onClick={() => excluirMotorista(motorista.id)} right={'20px'}>
-                                                    <FaWindowClose size={'17px'} />
-                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-                                                        Excluir
-                                                    </TextDefault>
-                                                </Button>
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>Carga horário:</b> {motoristaSelecionado.horarioEntrada} ás {motoristaSelecionado.horarioSaida}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaTel(motorista.id, motorista.nome)} >
-                                                    <FaSquarePhone size={'17px'} />
-                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-                                                        Tel.
-                                                    </TextDefault>
-                                                </Button>
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>CNH Categoria:</b> {motoristaSelecionado.cnhCategoria || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaCNH(motorista.id, motorista.nome)} left={'20px'} right={'20px'}>
-                                                    <FaIdCard size={'17px'} />
-                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-                                                        CNH
-                                                    </TextDefault>
-                                                </Button>
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>CNH Número:</b> {motoristaSelecionado.cnhNumero || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                                <Button direction={'column'} color={colors.orange} onClick={() => editarMotoristaSenha(motorista.id, motorista.nome)}>
-                                                    <RiLockPasswordFill size={'17px'} />
-                                                    <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
-                                                        Senha
-                                                    </TextDefault>
-                                                </Button>
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>CNH Validade:</b> {motoristaSelecionado.cnhValidade || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>1ª Habilitação:</b> {motoristaSelecionado.cnhPrimeiraHab || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                            </Box>
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>Obs CNH:</b> {motoristaSelecionado.cnhObs || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
-                                        </Box>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </Box>
-                    ))
-                )}
+                                <CargoItem>
+                                    <TextDefault size="15px" color={colors.silver}>
+                                        <b>Observações do usuário:</b> {motoristaSelecionado.obs || "Não registrado"}
+                                    </TextDefault>
+                                </CargoItem>
 
-                {modalEditMotoristaTel && (
-                    <EditTelMotorista
-                        closeModalTelefoneEditMotorista={() => setModalEditMotoristaTel(false)}
-                        empresaIdProp={empresaId}
-                        motoristaSelecionado={motoristaSelecionado}
-                        nomeMotorista={nomeMotorista}
-                    />
-                )}
-
-                {modalEditMotoristaCnh && (
-                    <EditCnhMotorista
-                        closeModalCnhEditMotorista={() => setModalEditMotoristaCnh(false)}
-                        empresaIdProp={empresaId}
-                        motoristaSelecionado={motoristaSelecionado}
-                        nomeMotorista={nomeMotorista}
-                    />
+                            </Box>
+                        </CargoModalContent>
+                    </CargoModalOverlay>
                 )}
 
                 {modalAddMotoristaForm && (
@@ -356,14 +388,13 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                 )}
 
                 {modalEditMotoristaSenha && (
-                    <EditSenhaMotorista
-                        closeModalSenhaEditMotorista={() => setModalEditMotoristaSenha(false)}
+                    <EditUser
+                        closeModalAddMotorista={() => setModalEditMotoristaSenha(false)}
                         empresaIdProp={empresaId}
-                        motoristaSelecionado={motoristaSelecionado}
-                        nomeMotorista={nomeMotorista}
+                        usuarioIndex={motoristaSelecionado}   // índice do usuário
+                        usuarioData={nomeMotorista}           // objeto com os dados do usuário
                     />
                 )}
-
 
             </ModalAreaInfo>
         </ModalAreaTotalDisplay>

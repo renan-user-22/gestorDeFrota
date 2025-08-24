@@ -5,15 +5,15 @@ import Swal from 'sweetalert2';
 
 //Banco de dados conexões:
 import { db } from '../../../firebaseConnection';
-import { ref, set, push } from 'firebase/database';
+import { ref, set, push, get } from 'firebase/database';
 
 //Importação de components de Inputs:
-import InputTelefone from '../../inputs/InputTelefone';
+import InputTel from '../../inputs/InputTelefone';
 import InputCpf from '../../inputs/formatCPF';
-import InputDate from '../../inputs/formatDate';
+import InputData from '../../inputs/formatDate';
 
 //Icones: 
-import { FaWindowClose } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 import { MdAddBox } from "react-icons/md";
 import { LuSave } from "react-icons/lu";
 
@@ -21,86 +21,117 @@ import { LuSave } from "react-icons/lu";
 import { Box, TextDefault } from '../../../stylesAppDefault';
 import { colors } from '../../../theme';
 import {
-    ModalAreaTotalDisplay,
-    ModalAreaInfo,
+    Select,
     Input,
     Button,
-    DefaultButton
-} from './styles';
+    ModalAreaTotalDisplay,
+    ModalAreaInfo,
+    DefaultButton,
+    CargoList,
+    CargoModalOverlay,
+    CargoModalContent,
+    RemoveButton,
+    CargoItem,
+    InputHora
+} from './styles'; // ajuste conforme seu projeto
 
 const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
 
-    const [cnhValidade, setCnhValidade] = useState('');
-    const [telefoneMotorista, setTelefoneMotorista] = useState('');
-    const [nomeMotorista, setNomeMotorista] = useState('');
-    const [cnhMotorista, setCnhMotorista] = useState('');
-    const [cnhCat, setCnhCat] = useState('');
-    const [cnhDate, setCnhDate] = useState('');
-    const [cpfMotorista, setCpfMotorista] = useState('');
-    const [senha, setSenha] = useState('');
-    const [obs, setObs] = useState('');
+    const [cargos, setCargos] = useState([]);
 
-    const goBack = () => {
-        closeModalAddMotorista()
-    }
+    const [form, setForm] = useState({
+        nome: '',
+        sobrenome: '',
+        cpf: '',
+        senha: '',
+        cargoNome: '',
+        contato: '',
+        tipoAcesso: 'gestao',
+        status: '',
+        email: '',
+        obs: '',
+        horarioEntrada: '',
+        horarioSaida: '',
+        cnhNumero: '',
+        cnhValidade: '',
+        cnhCategoria: '',
+        cnhPrimeiraHab: '',
+        cnhObs: ''
+    });
 
-    const salvarMotorista = async () => {
-        if (
-            !nomeMotorista ||
-            !cnhMotorista ||
-            !cnhCat ||
-            !cnhDate ||
-            !cnhValidade ||
-            !cpfMotorista
-        ) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos obrigatórios',
-                text: 'Por favor, preencha todos os campos obrigatórios.',
-                confirmButtonColor: '#f27474'
-            });
+    useEffect(() => {
+        const fetchCargos = async () => {
+            try {
+                const snap = await get(ref(db, `empresas/${empresaIdProp}/cargos`));
+                if (snap.exists()) {
+                    const data = snap.val();
+                    // transforma objeto em array
+                    const cargosArray = Array.isArray(data) ? data : Object.values(data);
+                    setCargos(cargosArray);
+                }
+            } catch (err) {
+                console.error("Erro ao carregar cargos:", err);
+            }
+        };
+        fetchCargos();
+    }, [empresaIdProp]);
+
+
+    const handleChange = (field, value) => {
+        setForm(prev => ({ ...prev, [field]: value }));
+
+        if (field === 'cargoNome') {
+            const cargoSel = cargos.find(c => c.nome === value);
+            if (cargoSel) {
+                setForm(prev => ({ ...prev, tipoAcesso: cargoSel.acesso }));
+            }
+        }
+
+    };
+
+    const handleHoraChange = (field, value) => {
+        let v = value.replace(/\D/g, '');
+        if (v.length >= 3) v = v.slice(0, 2) + ':' + v.slice(2, 4);
+        if (v.length > 5) v = v.slice(0, 5);
+        handleChange(field, v);
+    };
+
+    const isMotorista = form.tipoAcesso === 'motorista';
+
+    // 🔹 Salvar no Firebase
+    const salvarUsuario = async () => {
+        if (!form.nome || !form.sobrenome || !form.cpf || !form.senha ||
+            !form.cargoNome || !form.contato || !form.status) {
+            Swal.fire('Atenção', 'Preencha todos os campos obrigatórios.', 'warning');
+            return;
+        }
+
+        // se for motorista, validar CNH
+        if (isMotorista && (!form.cnhNumero || !form.cnhValidade || !form.cnhCategoria || !form.cnhPrimeiraHab)) {
+            Swal.fire('Atenção', 'Preencha todos os dados da CNH para motoristas.', 'warning');
             return;
         }
 
         try {
-            const motoristaRef = push(ref(db, `empresas/${empresaIdProp}/motoristas`));
-            await set(motoristaRef, {
-                nome: nomeMotorista,
-                cpf: cpfMotorista,
-                cnhCat: cnhCat,
-                cnhDate: cnhDate,
-                cnhValidade: cnhValidade,
-                cnh: cnhMotorista,
-                telefone: telefoneMotorista,
-                senhaMotorista: senha,
-                observacao: obs
+            const usuariosRef = ref(db, `empresas/${empresaIdProp}/usuarios`);
+            const snap = await get(usuariosRef);
+
+            let nextIndex = 0;
+            if (snap.exists()) {
+                const data = snap.val();
+                nextIndex = Array.isArray(data) ? data.length : Object.keys(data).length;
+            }
+
+            await set(ref(db, `empresas/${empresaIdProp}/usuarios/${nextIndex}`), {
+                ...form,
+                matricula: Math.floor(1000000 + Math.random() * 9000000),
             });
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Motorista cadastrado!',
-                text: `${nomeMotorista} foi adicionado com sucesso.`,
-                confirmButtonColor: '#3085d6'
-            });
-
+            Swal.fire("Sucesso", "Usuário cadastrado com sucesso!", "success");
             closeModalAddMotorista();
-            setNomeMotorista('');
-            setCnhMotorista('');
-            setTelefoneMotorista('');
-            setCnhCat('');
-            setCpfMotorista('');
-            setCnhDate('');
-            setCnhValidade('');
-            setSenha('');
-            setObs('');
-        } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Erro ao cadastrar',
-                text: 'Não foi possível salvar o motorista. Tente novamente.',
-                confirmButtonColor: '#d33'
-            });
-            console.error("Erro ao salvar motorista:", error);
+        } catch (err) {
+            console.error("Erro ao salvar usuário:", err);
+            Swal.fire("Erro", "Não foi possível salvar o usuário.", "error");
         }
     };
 
@@ -111,7 +142,7 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
                 <Box
                     width={'100%'}
                     height={'65px'}
-                    radius={'10px'}
+                    color={colors.black}
                     direction={'row'}
                     topSpace={'10px'}
                     bottomSpace={'20px'}
@@ -120,87 +151,208 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
                 >
                     <Box leftSpace={'20px'}>
                         <MdAddBox size={'30px'} color={colors.silver} />
-                        <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Novo Motorista</TextDefault>
+                        <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Novo Usuário</TextDefault>
                     </Box>
 
-
-                    <DefaultButton onClick={() => goBack()}>
-                        <FaWindowClose size={'30px'} color={colors.silver} />
+                    <DefaultButton onClick={closeModalAddMotorista}>
+                        <IoClose size={'30px'} color={colors.silver} />
                     </DefaultButton>
                 </Box>
 
 
-                {/* Linha 1: Nome do motorista / CPF */}
-                <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">
-                    <Box flex={'1'} direction="column">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">Nome</TextDefault>
-                        <Input value={nomeMotorista} onChange={e => setNomeMotorista(e.target.value)} placeholder="Nome completo" />
+                <Box
+                    direction={'column'}
+                    width={'100%'}
+                    height={'auto'}
+                    color={colors.darkGrayTwo}
+                    align={'center'}
+                    paddingTop={'20px'}
+                    paddingBottom={'10px'}
+                >
+                    {/* Linha 1: Nome da Empresa / CNPJ */}
+                    <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
+                        <Box flex={'1'} direction="column">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Nome
+                            </TextDefault>
+                            <Input placeholder="Nome *" value={form.nome} onChange={e => handleChange('nome', e.target.value)} />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Sobrenome
+                            </TextDefault>
+                            <Input placeholder="Sobrenome *" value={form.sobrenome} onChange={e => handleChange('sobrenome', e.target.value)} />
+                        </Box>
+
+                        <Box flex={'0.5'} direction="column" leftSpace={'30px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                CPF
+                            </TextDefault>
+
+                            <InputCpf
+                                placeholder="CPF*"
+                                value={form.cpf}
+                                onChange={(val) => handleChange('cpf', val)}
+                            />
+                        </Box>
                     </Box>
 
-                    <Box direction="column" flex={'0.5'} leftSpace={'30px'}>
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">CPF</TextDefault>
-                        <InputCpf value={cpfMotorista} onChange={setCpfMotorista} placeholder="000.000.000-00" />
+                    <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
+                        <Box flex={'1'} direction="column">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                E-mail
+                            </TextDefault>
+                            <Input placeholder="Email" value={form.email} onChange={e => handleChange('email', e.target.value)} />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Telefone/WhatsApp
+                            </TextDefault>
+
+                            <InputTel
+                                placeholder="Telefone/WhatsApp *"
+                                value={form.contato}
+                                onChange={(val) => handleChange('contato', val)}
+                            />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Status
+                            </TextDefault>
+                            {/* Status */}
+                            <Select value={form.status} onChange={e => handleChange('status', e.target.value)}>
+                                <option value="">Selecione o status</option>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                                <option value="ferias">Férias</option>
+                                <option value="afastado">Afastado</option>
+                                <option value="demitido">Demitido</option>
+                            </Select>
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'20px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Horário de trabalho
+                            </TextDefault>
+
+                            <Box direction="row" align="center">
+                                <InputHora
+                                    value={form.horarioEntrada}
+                                    onChange={(e) => handleHoraChange('horarioEntrada', e.target.value)}
+                                />
+                                <TextDefault size="12px" color={colors.silver} left="10px" right="10px">às</TextDefault>
+                                <InputHora
+                                    value={form.horarioSaida}
+                                    onChange={(e) => handleHoraChange('horarioSaida', e.target.value)}
+                                />
+                            </Box>
+                        </Box>
                     </Box>
 
-                    <Box flex={'0.5'} direction="column" leftSpace={'30px'}>
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Telefone/WhatsApp
+                    <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
+                        <Box flex={'1'} direction="column">
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Observações:
+                            </TextDefault>
+                            <Input
+                                placeholder="Usuário com deficiência ou outra observação"
+                                type="text"
+                                value={form.obs}
+                                onChange={e => handleChange('obs', e.target.value)}
+                            />
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'35px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Cargo (acesso a plataforma)
+                            </TextDefault>
+                            <Select value={form.cargoNome} onChange={e => handleChange('cargoNome', e.target.value)}>
+                                <option value="">Selecione o cargo</option>
+                                {cargos.map((c, i) => (
+                                    <option key={i} value={c.nome}>
+                                        {c.nome} {c.acesso === 'motorista' ? '(Motorista)' : '(Gestão)'}
+                                    </option>
+                                ))}
+                            </Select>
+                        </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'20px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Senha de acesso
+                            </TextDefault>
+                            <Input placeholder="Senha *" type="password" value={form.senha} onChange={e => handleChange('senha', e.target.value)} />
+                        </Box>
+                    </Box>
+                </Box>
+
+                {/* Campos extras se motorista */}
+                {isMotorista && (
+                    <>
+                        <TextDefault size="13px" color={colors.silver}>
+                            Dados da CNH
                         </TextDefault>
-                        <InputTelefone value={telefoneMotorista} onChange={setTelefoneMotorista} />
-                    </Box>
-                </Box>
+                        <Box
+                            direction={'column'}
+                            width={'100%'}
+                            height={'auto'}
+                            color={colors.darkGrayTwo}
+                            align={'center'}
+                            paddingTop={'20px'}
+                            paddingBottom={'10px'}
+                        >
+                            {/* Linha 1: Nome da Empresa / CNPJ */}
+                            <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
+                                <Box flex={'1'} direction="column">
+                                    <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                        CNH - Número de Registro
+                                    </TextDefault>
+                                    <Input placeholder="CNH - Número de Registro" value={form.cnhNumero} onChange={e => handleChange('cnhNumero', e.target.value)} />
+                                </Box>
 
-                <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="97%">
-                    <Box flex={'1.5'} direction="column">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">CNH (NUMERO DE REGISTRO)</TextDefault>
-                        <Input value={cnhMotorista} onChange={e => setCnhMotorista(e.target.value)} placeholder="Número da CNH" />
-                    </Box>
+                                <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                                    <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                        CNH - Validade
+                                    </TextDefault>
+                                    <InputData placeholder="CNH - Validade" value={form.cnhValidade} onChange={(val) => handleChange('cnhValidade', val)} />
+                                </Box>
 
-                    <Box flex={'0.5'} direction="column" paddingLeft="20px">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">CNH (Validade)</TextDefault>
-                        <InputDate value={cnhValidade} onChange={setCnhValidade} placeholder="00/00/0000" />
-                    </Box>
+                                <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                                    <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                        CNH - Categoria
+                                    </TextDefault>
+                                    <Input placeholder="CNH - Categoria" value={form.cnhCategoria} onChange={e => handleChange('cnhCategoria', e.target.value)} />
+                                </Box>
 
-                    <Box flex={'1'} direction="column" paddingLeft="20px">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">CNH (Categoria)</TextDefault>
-                        <Input value={cnhCat} onChange={e => setCnhCat(e.target.value)} placeholder="A,B,C,D ou E" />
-                    </Box>
+                                <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                                    <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                        CNH - Data 1ª Habilitação
+                                    </TextDefault>
+                                    <InputData placeholder="CNH - Data 1ª Habilitação" value={form.cnhPrimeiraHab} onChange={(val) => handleChange('cnhPrimeiraHab', val)} />
+                                </Box>
 
-                    <Box flex={'1'} direction="column" paddingLeft="20px">
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">CNH (Data 1ª Habilitação)</TextDefault>
-                        <InputDate value={cnhDate} onChange={setCnhDate} placeholder="00/00/0000" />
-                    </Box>
-                </Box>
+                                <Box flex={'1'} direction="column" leftSpace={'30px'}>
+                                    <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                        Observação CNH
+                                    </TextDefault>
+                                    <Input placeholder="Observação CNH" value={form.cnhObs} onChange={e => handleChange('cnhObs', e.target.value)} />
+                                </Box>
 
-                {/* Linha 2: Senha */}
-                <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="70%">
-                    
-                    <Box flex={'1'} direction="column" >
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">Observação (CNH)</TextDefault>
-                        <Input value={obs} onChange={e => setObs(e.target.value)} placeholder="EAR, Usa Oculos, etc..." />
-                    </Box>
+                            </Box>
+                        </Box>
+                    </>
+                )}
 
-                    <Box flex={'1'} direction="column" leftSpace={'30px'}>
-                        <TextDefault size="12px" color={colors.silver} bottom="5px">
-                            Senha:
-                        </TextDefault>
-                        <Input
-                            type="password"  // Definindo o campo como tipo "password"
-                            value={senha}
-                            onChange={(e) => setSenha(e.target.value)}  // Atualizando a senha
-                            placeholder="Senha de acesso"
-                        />
-                    </Box>
-                </Box>
 
                 <Box direction="row" justify="space-between" topSpace="20px">
-                    <Button onClick={() => salvarMotorista()}>
+                    <Button onClick={() => salvarUsuario()}>
                         <LuSave color={colors.silver} size={'20px'} />
                         <TextDefault color={colors.silver} left={'10px'}>
                             Salvar
                         </TextDefault>
                     </Button>
-
                 </Box>
 
             </ModalAreaInfo>

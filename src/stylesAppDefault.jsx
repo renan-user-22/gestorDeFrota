@@ -33,7 +33,7 @@ export const Box = styled.div`
 export const InfoBox = styled.div`
   overflow: hidden;
   width: 100%;
-  align-items: center;
+  align-items:${props => props.align || 'center'};
   //margin-right: ${props => props.rightSpace || '-100px'};
   max-height: ${({ open }) => open ? '500px' : '0'};
   opacity: ${({ open }) => open ? 1 : 0};

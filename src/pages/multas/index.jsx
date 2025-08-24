@@ -1,44 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
-//Importações de Modais: 
+// Importações de Modais
 import CreateMultasForm from '../../components/pagesModaisMultas/createMulta';
 import ListMultas from '../../components/pagesModaisMultas/listMultas';
 
-//Banco de dados conexões:
+// Firebase
 import { db } from '../../firebaseConnection';
 import { ref, onValue } from 'firebase/database';
 
-//Bibliotecas:
+// Bibliotecas
 import Swal from 'sweetalert2';
 import { motion, AnimatePresence } from "framer-motion";
 
-//ícones
-import { GoOrganization } from 'react-icons/go';
+// Ícones
 import { FaFileInvoiceDollar } from 'react-icons/fa';
-import { HiMiniUser } from "react-icons/hi2";
 import { IoMdListBox } from "react-icons/io";
-import { FaArrowUpRightDots } from "react-icons/fa6";
 import { IoIosArrowDown } from "react-icons/io";
 
-//Estilos: 
+// Estilos
 import { TextDefault, Box, InfoBox } from '../../stylesAppDefault';
 import { colors } from '../../theme';
-import {
-  Container,
-  Input,
-  Button,
-  ListaEmpresasWrapper,
-} from './styles';
+import { Container, Input, Button, ListaEmpresasWrapper } from './styles';
 
 const Multas = () => {
-
   const [empresas, setEmpresas] = useState([]);
   const [openInfoById, setOpenInfoById] = useState({});
   const [termoBusca, setTermoBusca] = useState('');
 
   const [areaModalListMotoristaInfo, setAreaModalListMotoristaInfo] = useState(false);
   const [areaModalFormAddMultas, setAreaModalFormAddMultas] = useState(false);
-  const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
 
   const toggleInfoEmpresa = (id) => {
@@ -47,30 +37,27 @@ const Multas = () => {
 
   const empresasFiltradas = Array.isArray(empresas)
     ? empresas.filter(empresa =>
-      empresa.nome?.toLowerCase().includes(termoBusca?.toLowerCase() || "")
-    )
+        empresa.nomeEmpresa?.toLowerCase().includes(termoBusca?.toLowerCase() || "")
+      )
     : [];
 
   const areaModaladdVeiculo = (id, n, cnpj) => {
-    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
+    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj });
     setAreaModalFormAddMultas(true);
     setAreaModalListMotoristaInfo(false);
-    setAreaModalEditEmpresa(false);
   }
 
   const areaModalListMultas = (id, n, cnpj) => {
-    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj }); // ← crie esse state para guardar o ID e nome da empresa
+    setEmpresaSelecionada({ id, nome: n, cnpj: cnpj });
     setAreaModalFormAddMultas(false);
     setAreaModalListMotoristaInfo(true);
-    setAreaModalEditEmpresa(false);
   }
 
-  // lê lista de empresas
   useEffect(() => {
     const companiesRef = ref(db, 'empresas');
-    return onValue(companiesRef, snap => {
+    return onValue(companiesRef, (snap) => {
       const raw = snap.val() || {};
-      const list = Object.keys(raw).map(k => ({ id: k, ...raw[k] }));
+      const list = Object.keys(raw).map((k) => ({ id: k, ...raw[k] }));
       setEmpresas(list);
     });
   }, []);
@@ -90,9 +77,10 @@ const Multas = () => {
       >
         <Box leftSpace={'20px'}>
           <FaFileInvoiceDollar size={'27px'} color={colors.silver} />
-          <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>Gerenciamento de Multas</TextDefault>
+          <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>
+            Gerenciamento de Multas
+          </TextDefault>
         </Box>
-
       </Box>
 
       <Box width={'95%'}>
@@ -105,11 +93,12 @@ const Multas = () => {
       </Box>
 
       {empresas.length === 0 ? (
-        <TextDefault left={'20px'} top={'20px'} color={colors.silver}>Nenhuma empresa cadastrada.</TextDefault>
+        <TextDefault left={'20px'} top={'20px'} color={colors.silver}>
+          Nenhuma empresa cadastrada.
+        </TextDefault>
       ) : (
-        <ListaEmpresasWrapper >
+        <ListaEmpresasWrapper>
           {empresasFiltradas.map((empresa, index) => (
-
             <Box
               key={index}
               width={'99%'}
@@ -121,20 +110,23 @@ const Multas = () => {
               justify={'space-between'}
               paddingTop={'10px'}
               paddingLeft={'10px'}
-              color={colors.darkGrayTwo}
+              color={colors.black}
               onClick={() => toggleInfoEmpresa(empresa.id)}
               style={{ cursor: 'pointer' }}
             >
               <Box direction={'column'} flex={'1'} >
                 <Box direction={'column'} width={'100%'}>
                   <TextDefault color={colors.silver} size={'18px'} weight={'bold'} bottom={'5px'}>
-                    {empresa.nome}
+                    {empresa.nomeEmpresa}
                   </TextDefault>
                   <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
                     CNPJ: {empresa.cnpj}
                   </TextDefault>
+                  <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
+                    Telefone: {empresa.telefone}
+                  </TextDefault>
                   <TextDefault color={colors.silver} size={'12px'} bottom={'20px'}>
-                    Endereço: {empresa.address?.logradouro}, Nº {empresa.address?.numero}, {empresa.address?.bairro} - {empresa.address?.complemento}
+                    Endereço: {empresa.endereco?.logradouro}, Nº {empresa.endereco?.numero}, {empresa.endereco?.bairro} - {empresa.endereco?.complemento}
                   </TextDefault>
                 </Box>
 
@@ -147,14 +139,12 @@ const Multas = () => {
                       transition={{ duration: 0.6 }}
                       style={{ overflow: "hidden" }}
                     >
-                      <InfoBox direction={'column'} open={true}>
-
+                      <InfoBox direction={'column'} open={true} align={'flex-start'}>
                         {Array.isArray(empresa.usuarios) && empresa.usuarios.length > 0 && (
                           <>
                             <TextDefault color={colors.silver} size={'12px'} bottom={'5px'} weight={'bold'}>
                               Usuários:
                             </TextDefault>
-
                             {empresa.usuarios.map((usuario, i) => (
                               <TextDefault
                                 key={i}
@@ -162,35 +152,26 @@ const Multas = () => {
                                 size={'12px'}
                                 bottom={'8px'}
                               >
-                                {i + 1}.<strong>{usuario.user}</strong> - Usuário: {usuario.nome} - Senha: {usuario.senha} - Cargo: {usuario.cargo} - Tel: {usuario.telefone}
+                                {i + 1}. <strong>{usuario.nome}</strong> - Cargo: {usuario.cargoNome} - Tel: {usuario.contato} - CNH: {usuario.cnhCategoria}
                               </TextDefault>
                             ))}
                           </>
                         )}
 
-                        <Box
-                          direction={'row'}
-                          width={'auto'}
-                          bottomSpace={'5px'}
-                          paddingTop={'5px'}
-                          justify={'flex-start'}
-                          paddingBottom={'5px'}
-                        >
-
-                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nome, empresa.cnpj)} right={'20px'}>
+                        <Box direction={'row'} width={'auto'} bottomSpace={'5px'} paddingTop={'5px'} justify={'flex-start'} paddingBottom={'5px'}>
+                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa, empresa.cnpj)} right={'20px'}>
                             <IoMdListBox size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
                               Registrar
                             </TextDefault>
                           </Button>
 
-                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModalListMultas(empresa.id, empresa.nome)} right={'20px'}>
+                          <Button width={'100px'} direction={'column'} color={colors.orange} onClick={() => areaModalListMultas(empresa.id, empresa.nomeEmpresa, empresa.cnpj)} right={'20px'}>
                             <FaFileInvoiceDollar size={'17px'} />
                             <TextDefault color={colors.silver} size={'10px'} top={'5px'}>
                               Exibir
                             </TextDefault>
                           </Button>
-
                         </Box>
                       </InfoBox>
                     </motion.div>
@@ -209,7 +190,6 @@ const Multas = () => {
                   }}
                 />
               </Box>
-
             </Box>
           ))}
         </ListaEmpresasWrapper>
@@ -236,4 +216,5 @@ const Multas = () => {
     </Container>
   );
 };
+
 export default Multas;

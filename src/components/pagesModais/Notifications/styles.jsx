@@ -28,7 +28,7 @@ export const ModalAreaTotalDisplay = styled.div`
 export const ModalAreaInfo = styled.div`
   background-color: ${colors.darkGray};
   padding: 30px;
-  border-radius: 20px;
+  border-radius: 5px;
   width: 90%;
   height: 80%;
 `;
@@ -84,4 +84,9 @@ export const ListaEmpresasWrapper = styled.div`
   &::-webkit-scrollbar-track {
     background-color: transparent;
   }
+`;
+
+export const Dev = styled.img`
+  width:  ${(props) => props.width || '60%'};
+  height: auto;
 `;

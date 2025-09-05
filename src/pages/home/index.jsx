@@ -110,16 +110,6 @@ const Home = () => {
 
         <Box
           width={'100%'}
-          justify={'flex-end'}
-          align={'center'}
-        >
-          <ToggleMenuButton onClick={() => setIsMenuCollapsed(prev => !prev)}>
-            {isMenuCollapsed ? <IoIosArrowForward size={30} color={colors.orange} /> : <IoIosArrowBack size={30} color={colors.orange} />}
-          </ToggleMenuButton>
-        </Box>
-
-        <Box
-          width={'100%'}
           height={'200px'}
           justify={'center'}
           align={'center'}
@@ -171,6 +161,17 @@ const Home = () => {
           })}
 
         </Box>
+
+        <Box
+          width={'100%'}
+          justify={'flex-end'}
+          align={'center'}
+        >
+          <ToggleMenuButton onClick={() => setIsMenuCollapsed(prev => !prev)}>
+            {isMenuCollapsed ? <IoIosArrowForward size={30} color={colors.orange} /> : <IoIosArrowBack size={30} color={colors.orange} />}
+          </ToggleMenuButton>
+        </Box>
+
       </Box>
 
       {/* CONTEÚDO */}

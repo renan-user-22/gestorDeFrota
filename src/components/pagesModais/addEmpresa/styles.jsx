@@ -98,21 +98,21 @@ export const ModalAreaInfo = styled.div`
 `;
 
 export const Input = styled.input`
-  width:${props => props.width || '100%'};
+  width:${props => props.width || 'auto'};
   margin-left:${props => props.left || '0px'};
   height: 30px;
   padding-left: 10px;
   border: 1px solid ${colors.silver};
   font-size: 14px;
-  margin-bottom: 10px;
   border-radius: 3px;
 `;
 
 export const Select = styled.select`
-  width:${props => props.width || '100%'};
+  width:${props => props.width || 'auto'};
   margin-left:${props => props.left || '0px'};
   height: 33px;
   padding-left: 10px;
+  padding-right: 10px;
   border: 1px solid ${colors.silver};
   font-size: 13px;
   margin-bottom: 10px;
@@ -223,9 +223,7 @@ export const RemoveButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  &:hover {
-    background: #cc0000;
-  }
+  
 `;
 
 export const InputHora = styled.input.attrs({

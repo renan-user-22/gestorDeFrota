@@ -98,6 +98,62 @@ const Step4 = ({ closeRegister }) => {
           </TextDefault>
           <TextDefault left={'20px'} size="12px" color={colors.silver}><b>Complemento:</b> {company.endereco.complemento}</TextDefault>
           <TextDefault left={'20px'} size="12px" color={colors.yellow}> <b>Status:</b> {company.extras.status}</TextDefault>
+          {/* Cargos cadastrados */}
+          <Box
+            direction={'column'}
+            width={'100%'}
+            height={'auto'}
+            color={colors.darkGrayTwo}
+            align={'flex-start'}
+            paddingTop={'20px'}
+            paddingBottom={'10px'}
+          >
+            <TextDefault size="15px" weight="bold" left={'20px'} bottom={'20px'} color={colors.silver}>
+              Cargos cadastrados:
+            </TextDefault>
+            <Box left={'30px'} direction="column" gap="5px">
+              {company.cargos && company.cargos.length > 0 ? (
+                company.cargos.map((cargo, index) => (
+                  <TextDefault key={index} left={'20px'} size="12px" color={colors.silver}>
+                    <b>{cargo.nome}</b> - {cargo.acesso}
+                  </TextDefault>
+                ))
+              ) : (
+                <TextDefault left={'20px'} size="12px" color={colors.silver}>
+                  Nenhum cargo cadastrado
+                </TextDefault>
+              )}
+            </Box>
+          </Box>
+
+          {/* Bases / Filiais cadastradas */}
+          <Box
+            direction={'column'}
+            width={'100%'}
+            height={'auto'}
+            color={colors.darkGrayTwo}
+            align={'flex-start'}
+            paddingTop={'20px'}
+            paddingBottom={'10px'}
+          >
+            <TextDefault size="15px" weight="bold" left={'20px'} bottom={'20px'} color={colors.silver}>
+              Bases / Filiais cadastradas:
+            </TextDefault>
+            <Box left={'30px'} direction="column" gap="5px">
+              {company.bases && company.bases.length > 0 ? (
+                company.bases.map((base, index) => (
+                  <TextDefault key={index} left={'20px'} size="12px" color={colors.silver}>
+                    {base}
+                  </TextDefault>
+                ))
+              ) : (
+                <TextDefault left={'20px'} size="12px" color={colors.silver}>
+                  Nenhuma base/filial cadastrada
+                </TextDefault>
+              )}
+            </Box>
+          </Box>
+
         </Box>
       </Box>
 

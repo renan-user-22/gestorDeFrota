@@ -1,59 +1,86 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  nomeEmpresa: '',
-  cnpj: '',
-  telefone: '',
-  endereco: { logradouro: '', numero: '', bairro: '', complemento: '' },
-  tipo: '', // Transportadora, Locadora, etc.
-  cargos: [], // lista dinâmica [{ nome: '', acesso: '' }]
-  extras: { site: '', email: '', status: '' }, // opcional + status
+  nomeEmpresa: "",
+  cnpj: "",
+  telefone: "",
+  endereco: {
+    logradouro: "",
+    numero: "",
+    bairro: "",
+    complemento: "",
+    cidade: ""
+  },
+  tipo: "",
+  extras: {
+    status: "",
+    email: "",
+    site: ""
+  },
+  cargos: [],
+  permissoes: {
+    abastecimento: false,
+    checklist: false,
+    contabilidade: false,
+    cursos: false,
+    fleetIA: false,
+    juridico: false,
+    localizacao: false,
+    manutencao: false,
+    multas: false,
+  },
+  bases: [] // <-- Novo campo
 };
 
-const companySlice = createSlice({
-  name: 'company',
+export const companySlice = createSlice({
+  name: "company",
   initialState,
   reducers: {
-    setNomeEmpresa: (state, { payload }) => {
-      state.nomeEmpresa = payload;
+    setNomeEmpresa(state, action) {
+      state.nomeEmpresa = action.payload;
     },
-    setCnpj: (state, { payload }) => {
-      state.cnpj = payload;
+    setCnpj(state, action) {
+      state.cnpj = action.payload;
     },
-    setTelefone: (state, { payload }) => {
-      state.telefone = payload;
+    setTelefone(state, action) {
+      state.telefone = action.payload;
     },
-    setTipo: (state, { payload }) => {
-      state.tipo = payload;
-    },
-    setEnderecoField: (state, { payload }) => {
-      const { field, value } = payload; // logradouro | numero | bairro | complemento
+    setEnderecoField(state, action) {
+      const { field, value } = action.payload;
       state.endereco[field] = value;
     },
-    setExtraField: (state, { payload }) => {
-      const { field, value } = payload; // site | email | status
+    setTipo(state, action) {
+      state.tipo = action.payload;
+    },
+    setExtrasField(state, action) {
+      const { field, value } = action.payload;
       state.extras[field] = value;
     },
-    addCargo: (state, { payload }) => {
-      const { nome, acesso } = payload;
-      if (
-        nome &&
-        acesso &&
-        !state.cargos.some(
-          (c) =>
-            c.nome.toLowerCase() === nome.toLowerCase() &&
-            c.acesso === acesso
-        )
-      ) {
-        state.cargos.push({ nome, acesso });
-      }
+    setCargos(state, action) {
+      state.cargos = action.payload;
     },
-    removeCargo: (state, { payload }) => {
-      state.cargos = state.cargos.filter(
-        (c) => !(c.nome === payload.nome && c.acesso === payload.acesso)
-      );
+    addCargo(state, action) {
+      state.cargos.push(action.payload);
     },
-    resetCompany: () => initialState,
+    removeCargo(state, action) {
+      state.cargos = state.cargos.filter((_, i) => i !== action.payload);
+    },
+    setPermissoes(state, action) {
+      state.permissoes = { ...state.permissoes, ...action.payload };
+    },
+    // Novos reducers para bases
+    setBases(state, action) {
+      state.bases = action.payload;
+    },
+    addBase(state, action) {
+      state.bases.push(action.payload);
+    },
+    removeBase(state, action) {
+      state.bases = state.bases.filter((_, i) => i !== action.payload);
+    },
+    resetCompany(state) {
+      return initialState;
+    },
   },
 });
 
@@ -61,11 +88,16 @@ export const {
   setNomeEmpresa,
   setCnpj,
   setTelefone,
-  setTipo,
   setEnderecoField,
-  setExtraField,
+  setTipo,
+  setExtrasField,
+  setCargos,
   addCargo,
   removeCargo,
+  setPermissoes,
+  setBases,
+  addBase,
+  removeBase,
   resetCompany,
 } = companySlice.actions;
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
 
 const StyledInput = styled.input`
-  width:${props => props.width || '100%'};
+  width:${props => props.width || 'auto'};
   height: 30px;
   padding-left: 10px;
   border: 1px solid ${colors.silver};

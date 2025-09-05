@@ -18,11 +18,13 @@ import {
   RemoveButton,
   SwalCustomStyles,
   ListaEmpresasWrapper,
+  Switch
 } from './styles';
 
 import InputCnpj from '../../inputs/InputCNPJ';
 import InputTel from '../../inputs/InputTelefone';
 
+import { nextStep } from '../../../store/slices/flowSlice';
 import {
   setNomeEmpresa,
   setCnpj,
@@ -30,11 +32,10 @@ import {
   setEnderecoField,
   addCargo,
   setTipo,
-  setExtraField,
+  setExtrasField,
+  addBase,   // >>>
+  removeBase // >>>
 } from '../../../store/slices/companySlice';
-
-import { nextStep } from '../../../store/slices/flowSlice';
-import { removeCargo } from '../../../store/slices/companySlice';
 
 const Step1Empresa = () => {
   const dispatch = useDispatch();
@@ -47,8 +48,20 @@ const Step1Empresa = () => {
   // Campos adicionais
   const [statusEmpresa, setStatusEmpresa] = useState('');
 
+  const [temBases, setTemBases] = useState(false);
+  const [baseNome, setBaseNome] = useState('');
+  const [showBaseModal, setShowBaseModal] = useState(false);
+
+
+
   // Status Modal lista de Cargos
   const [showCargoModal, setShowCargoModal] = useState(false);
+
+  const handleAddBase = () => {
+    if (!baseNome.trim()) return;
+    dispatch(addBase(baseNome.trim()));
+    setBaseNome('');
+  };
 
   const handleAddCargo = () => {
     if (!cargoNome.trim()) {
@@ -127,8 +140,8 @@ const Step1Empresa = () => {
       return;
     }
 
-    // Salvar status no extras do Redux
-    dispatch(setExtraField({ field: 'status', value: statusEmpresa }));
+
+    dispatch(setExtrasField({ field: 'status', value: statusEmpresa })); // ajuste: era setExtraField
 
     // Avançar para próximo step
     dispatch(nextStep());
@@ -136,9 +149,9 @@ const Step1Empresa = () => {
 
   return (
     <Box direction="column" gap="15px" width="100%" topSpace={'20px'} >
-     
+
       <SwalCustomStyles />
-      
+
       <TextDefault size="17px" weight="bold" color={colors.silver}>
         Informações da Empresa
       </TextDefault>
@@ -153,8 +166,9 @@ const Step1Empresa = () => {
         paddingBottom={'10px'}
       >
         {/* Linha 1: Nome da Empresa / CNPJ */}
-        <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="94.5%">
-          <Box flex={'1.5'} direction="column">
+        <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="95%">
+
+          <Box flex={'2'} direction="column" rightSpace={'20px'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Nome da Empresa
             </TextDefault>
@@ -163,10 +177,9 @@ const Step1Empresa = () => {
               value={company.nomeEmpresa}
               onChange={(e) => dispatch(setNomeEmpresa(e.target.value))}
             />
-
           </Box>
 
-          <Box direction="column" flex={'1'} leftSpace={'30px'}>
+          <Box direction="column" flex={'1'} rightSpace={'20px'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px" left={'20px'}>
               CNPJ
             </TextDefault>
@@ -177,7 +190,7 @@ const Step1Empresa = () => {
             {/* Certifique-se que setCnpj está sendo passado corretamente */}
           </Box>
 
-          <Box direction="column" flex={'1'} leftSpace={'30px'}>
+          <Box direction="column" flex={'1'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Telefone/WhatsApp
             </TextDefault>
@@ -197,14 +210,14 @@ const Step1Empresa = () => {
         color={colors.darkGrayTwo}
         align={'center'}
         paddingTop={'20px'}
-        paddingBottom={'10px'}
+        paddingBottom={'20px'}
       >
         {/* Linha 2: Endereço completo */}
-        <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="94.5%">
-          <Box flex={'1.5'} direction="column">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Logradouro
-            </TextDefault>
+
+        <Box direction="row" justify="space-between" align="center" width="95%">
+
+          <Box flex={'1.5'} direction="column" rightSpace={'20px'} >
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Logradouro</TextDefault>
             <Input
               placeholder="Logradouro"
               value={company.endereco.logradouro}
@@ -212,10 +225,8 @@ const Step1Empresa = () => {
             />
           </Box>
 
-          <Box flex={'0.5'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Nº
-            </TextDefault>
+          <Box flex={'0.5'} direction="column" rightSpace={'20px'} >
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Nº</TextDefault>
             <Input
               placeholder="Número"
               value={company.endereco.numero}
@@ -223,10 +234,8 @@ const Step1Empresa = () => {
             />
           </Box>
 
-          <Box flex={'1'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Bairro
-            </TextDefault>
+          <Box flex={'1'} direction="column" rightSpace={'20px'}>
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Bairro</TextDefault>
             <Input
               placeholder="Bairro"
               value={company.endereco.bairro}
@@ -234,17 +243,26 @@ const Step1Empresa = () => {
             />
           </Box>
 
-          <Box flex={'1'} direction="column" paddingLeft="20px">
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Complemento
-            </TextDefault>
+          <Box flex={'1'} direction="column" rightSpace={'20px'}>
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Complemento</TextDefault>
             <Input
               placeholder="Complemento"
               value={company.endereco.complemento}
               onChange={e => dispatch(setEnderecoField({ field: 'complemento', value: e.target.value }))}
             />
           </Box>
+
+          {/* >>> Novo campo Cidade */}
+          <Box flex={'1'} direction="column" >
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Cidade</TextDefault>
+            <Input
+              placeholder="Cidade"
+              value={company.endereco.cidade}
+              onChange={e => dispatch(setEnderecoField({ field: 'cidade', value: e.target.value }))}
+            />
+          </Box>
         </Box>
+
       </Box>
 
       <Box
@@ -256,9 +274,9 @@ const Step1Empresa = () => {
         paddingTop={'20px'}
         paddingBottom={'10px'}
       >
-        <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="94.5%">
+        <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="95%">
 
-          <Box flex={'1'} direction="column" >
+          <Box flex={'1'} direction="column" rightSpace={'20px'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Categoria da empresa
             </TextDefault>
@@ -285,7 +303,7 @@ const Step1Empresa = () => {
 
           </Box>
 
-          <Box flex={'1'} direction="column" leftSpace={'30px'}>
+          <Box flex={'1'} direction="column" rightSpace={'20px'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Status
             </TextDefault>
@@ -302,19 +320,21 @@ const Step1Empresa = () => {
             </Select>
           </Box>
 
-          <Box flex={'2'} direction="column" leftSpace={'30px'}>
+          <Box flex={'3.5'} direction="column">
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Cadastro de cargos
             </TextDefault>
 
             {/* Cargos */}
-            <Box direction="row" gap="30px" >
+            <Box direction="row" justify={'space-between'} gap={'20px'}>
               <Input
+                width={'30%'}
                 placeholder="Nome do Cargo"
                 value={cargoNome}
                 onChange={e => setCargoNome(e.target.value)}
               />
               <Select
+                width={'20%'}
                 value={cargoAcesso}
                 onChange={e => setCargoAcesso(e.target.value)}
               >
@@ -322,13 +342,20 @@ const Step1Empresa = () => {
                 <option value="gestao">Gestor</option>
                 <option value="motorista">Motorista</option>
               </Select>
-              <Button onClick={handleAddCargo}>
+              <Button onClick={handleAddCargo} width={'20%'}>
                 <IoMdAdd size={'20px'} color={colors.silver} />
+                <TextDefault size="12px" color={colors.silver} left="10px">
+                  Adicionar Cargo
+                </TextDefault>
               </Button>
 
               {company.cargos.length > 0 && (
-                <Button onClick={() => setShowCargoModal(true)}>
+                <Button onClick={() => setShowCargoModal(true)} width={'25%'}>
                   <TiThList size={'20px'} color={colors.silver} />
+
+                  <TextDefault size="12px" color={colors.silver} left="10px">
+                    Cargos Adicionados
+                  </TextDefault>
                 </Button>
               )}
 
@@ -336,6 +363,67 @@ const Step1Empresa = () => {
           </Box>
         </Box>
       </Box>
+
+      <Box flex={'1'} direction="row" rightSpace={'20px'} align={'center'} height={'100%'}>
+        <Switch>
+          <input
+            type="checkbox"
+            checked={temBases}
+            onChange={(e) => setTemBases(e.target.checked)}
+          />
+          <span />
+        </Switch>
+
+        <TextDefault size="12px" color={colors.silver} left={'20px'}>Possui Bases / Filiais?</TextDefault>
+
+      </Box>
+
+      {temBases && (
+
+        <Box
+          direction={'column'}
+          width={'100%'}
+          height={'auto'}
+          color={colors.darkGrayTwo}
+          align={'center'}
+          paddingTop={'20px'}
+          paddingBottom={'20px'}
+        >
+          <Box direction="row" justify="flex-start" align="flex-start" width="95%">
+
+            <Box flex={'5'} direction="column" >
+
+              <TextDefault size="12px" color={colors.silver} bottom={'5px'}>Nome da Base / Filial</TextDefault>
+
+              <Box direction="row" justify={'flex-start'} gap={'20px'}>
+                <Input
+                  width={'30%'}
+                  placeholder="Nome da Base/Filial"
+                  value={baseNome}
+                  onChange={e => setBaseNome(e.target.value)}
+                />
+                <Button onClick={handleAddBase}  width={'200px'}>
+                  <IoMdAdd size={'20px'} color={colors.silver} />
+
+                  <TextDefault size="12px" color={colors.silver} left="10px">
+                    Adicionar Base / Filial
+                  </TextDefault>
+                </Button>
+
+                {company.bases.length > 0 && (
+                  <Button onClick={() => setShowBaseModal(true)} width={'200px'}>
+                    <TiThList size={'20px'} color={colors.silver} />
+                    <TextDefault size="12px" color={colors.silver} left="10px">
+                      Bases Adicionadas
+                    </TextDefault>
+                  </Button>
+                )}
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
+      )}
 
       <Box
         direction={'column'}
@@ -356,56 +444,90 @@ const Step1Empresa = () => {
         </Button>
       </Box>
 
-      {showCargoModal && (
-        <CargoModalOverlay onClick={() => setShowCargoModal(false)}>
+      {
+        showCargoModal && (
+          <CargoModalOverlay onClick={() => setShowCargoModal(false)}>
+            <CargoModalContent onClick={(e) => e.stopPropagation()}>
+
+              <Box
+                width={'100%'}
+                height={'65px'}
+                direction={'row'}
+                color={colors.black}
+                bottomSpace={'20px'}
+                align={'center'}
+                justify={'space-between'}
+              >
+
+                <TextDefault left={'20px'} size="17px" weight="bold" color={colors.silver}>
+                  Cargos Registrados
+                </TextDefault>
+
+                <RemoveButton onClick={() => setShowCargoModal(false)}>
+                  <IoClose size={'30px'} color={colors.silver} />
+                </RemoveButton>
+
+              </Box>
+
+              <CargoList>
+                {company.cargos.length > 0 ? (
+                  company.cargos.map((cargo, index) => (
+                    <CargoItem key={index}>
+                      <TextDefault size="13px" color={colors.silver}>
+                        {cargo.nome} - {cargo.acesso}
+                      </TextDefault>
+
+                      <RemoveButton
+                        onClick={() => dispatch(removeCargo(cargo))}
+                      >
+                        <IoClose size={'20px'} color={colors.silver} />
+                      </RemoveButton>
+                    </CargoItem>
+                  ))
+                ) : (
+                  <TextDefault size="12px" color={colors.silver}>
+                    Nenhum cargo registrado
+                  </TextDefault>
+                )}
+              </CargoList>
+
+            </CargoModalContent>
+          </CargoModalOverlay>
+        )
+      }
+
+      {/* >>> Modal de Bases Adicionadas */}
+      {showBaseModal && (
+        <CargoModalOverlay onClick={() => setShowBaseModal(false)}>
           <CargoModalContent onClick={(e) => e.stopPropagation()}>
-
-            <Box
-              width={'100%'}
-              height={'65px'}
-              direction={'row'}
-              color={colors.black}
-              bottomSpace={'20px'}
-              align={'center'}
-              justify={'space-between'}
-            >
-
+            <Box width={'100%'} height={'65px'} direction={'row'} color={colors.black} bottomSpace={'20px'} align={'center'} justify={'space-between'}>
               <TextDefault left={'20px'} size="17px" weight="bold" color={colors.silver}>
-                Cargos Registrados
+                Bases / Filiais Registradas
               </TextDefault>
 
-              <RemoveButton onClick={() => setShowCargoModal(false)}>
+              <RemoveButton onClick={() => setShowBaseModal(false)}>
                 <IoClose size={'30px'} color={colors.silver} />
               </RemoveButton>
-
             </Box>
 
             <CargoList>
-              {company.cargos.length > 0 ? (
-                company.cargos.map((cargo, index) => (
+              {company.bases.length > 0 ? (
+                company.bases.map((base, index) => (
                   <CargoItem key={index}>
-                    <TextDefault size="13px" color={colors.silver}>
-                      {cargo.nome} - {cargo.acesso}
-                    </TextDefault>
-
-                    <RemoveButton
-                      onClick={() => dispatch(removeCargo(cargo))}
-                    >
+                    <TextDefault size="13px" color={colors.silver}>{base}</TextDefault>
+                    <RemoveButton onClick={() => dispatch(removeBase(index))}>
                       <IoClose size={'20px'} color={colors.silver} />
                     </RemoveButton>
                   </CargoItem>
                 ))
               ) : (
-                <TextDefault size="12px" color={colors.silver}>
-                  Nenhum cargo registrado
-                </TextDefault>
+                <TextDefault size="12px" color={colors.silver}>Nenhuma base registrada</TextDefault>
               )}
             </CargoList>
-
           </CargoModalContent>
         </CargoModalOverlay>
       )}
-    </Box>
+    </Box >
   );
 };
 

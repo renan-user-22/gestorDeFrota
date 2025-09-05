@@ -31,6 +31,8 @@ const Step2Usuarios = () => {
 
   const cargos = useSelector(state => state.company.cargos);
   const users = useSelector(state => state.users.list);
+  const bases = useSelector(state => state.company.bases);
+
 
   // considere "válido" quem preencheu os campos mínimos
   const isValidUser = (u) =>
@@ -62,7 +64,8 @@ const Step2Usuarios = () => {
     cnhValidade: '',
     cnhCategoria: '',
     cnhPrimeiraHab: '',
-    cnhObs: ''
+    cnhObs: '',
+    base: '',
   });
 
   const handleChange = (field, value) => {
@@ -299,6 +302,29 @@ const Step2Usuarios = () => {
             <Input placeholder="Senha *" type="password" value={form.senha} onChange={e => handleChange('senha', e.target.value)} />
           </Box>
         </Box>
+
+        <Box direction="row" justify="flex-start" align="flex-start" bottomSpace="10px" width="94.5%">
+          <Box flex={'1'} direction="column">
+            <TextDefault size="12px" color={colors.silver} bottom="5px">
+              Base / Filial
+            </TextDefault>
+
+            <Select
+              value={form.base}
+              onChange={e => handleChange('base', e.target.value)}
+              width={'30%'}
+            >
+              {bases.length === 0 ? (
+                <option value="Matriz">Matriz</option>
+              ) : (
+                bases.map((b, i) => (
+                  <option key={i} value={b}>{b}</option>
+                ))
+              )}
+            </Select>
+          </Box>
+
+        </Box>
       </Box>
 
       {/* Campos extras se motorista */}
@@ -442,7 +468,7 @@ const Step2Usuarios = () => {
                         </TextDefault>
 
                         <TextDefault size="13px" weight={'bold'} color={colors.silver}>
-                          Login: {u.matricula} &nbsp; | &nbsp; Senha: {u.senha}
+                          Login: {u.matricula} &nbsp; | &nbsp; Senha: {u.senha} | &nbsp; Pertence a base: {u.base}
                         </TextDefault>
 
                         {/* Mostrar CNH somente se motorista */}

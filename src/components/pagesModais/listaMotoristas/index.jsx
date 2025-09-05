@@ -194,21 +194,21 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                             </TextDefault>
                         </DefaultButton>
 
-                        <DefaultButton color={colors.orange} onClick={()=> mensageeeee()} right={'20px'}>
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
                             <FaFilePdf size={'20px'} color={colors.silver} />
                             <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
                                 Gerar Pdf
                             </TextDefault>
                         </DefaultButton>
 
-                        <DefaultButton color={colors.orange} onClick={()=>mensageeeee()} right={'20px'}>
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
                             <BsFillFileEarmarkExcelFill size={'20px'} color={colors.silver} />
                             <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
                                 Gerar Excel
                             </TextDefault>
                         </DefaultButton>
 
-                        <DefaultButton color={colors.orange} onClick={()=>mensageeeee()} right={'20px'}>
+                        <DefaultButton color={colors.orange} onClick={() => mensageeeee()} right={'20px'}>
                             <GrUpdate size={'20px'} color={colors.silver} />
                             <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
                                 Atualizar Lista
@@ -241,7 +241,8 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                         >
                             <thead>
                                 <tr>
-                                    {['Matrícula', 'Senha', 'Nome', 'Sobrenome', 'CPF', 'Telefone', 'Cargo', 'Status', 'Ações'].map((header) => (
+                                    {['Matrícula', 'Senha', 'Nome', 'Sobrenome', 'CPF', 'Telefone', 'Cargo', 'Base', 'Status', 'Ações'].map((header) => (
+
                                         <th key={header} style={{ padding: '6px', textAlign: 'left', backgroundColor: colors.orange }}>
                                             <TextDefault size="12px" color={colors.silver}>{header}</TextDefault>
                                         </th>
@@ -252,15 +253,16 @@ const ListaMotoristas = ({ closeModalListMotorista, empresaId, empresaNome }) =>
                             <tbody>
                                 {listaMotoristas.map((u) => (
                                     <tr key={u.matricula} style={{ borderBottom: `1px solid ${colors.darkGrayTwo}` }}>
-                                        <td><TextDefault size="12px">{u.matricula}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.senha}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.nome}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.sobrenome}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.cpf}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.contato}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.cargoNome}</TextDefault></td>
-                                        <td><TextDefault size="12px">{u.status}</TextDefault></td>
-                                        <td style={{ display: "flex", gap: "8px", justifyContent: "flex-start" }}>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.matricula}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.senha}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.nome}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.sobrenome}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.cpf}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.contato}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.cargoNome}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.base || "Matriz"}</TextDefault></td>
+                                        <td style={{ padding: '8px' }}><TextDefault size="12px">{u.status}</TextDefault></td>
+                                        <td style={{ display: "flex", gap: "8px", justifyContent: "flex-start", padding: '8px' }}>
                                             {/* Botão 3 pontinhos para abrir modal de detalhes */}
                                             <Button
                                                 width="25px"

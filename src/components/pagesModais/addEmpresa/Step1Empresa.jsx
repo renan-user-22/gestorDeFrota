@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { colors } from '../../../theme';
@@ -56,6 +56,14 @@ const Step1Empresa = () => {
 
   // Status Modal lista de Cargos
   const [showCargoModal, setShowCargoModal] = useState(false);
+
+  useEffect(() => {
+    if (!company.bases.includes("Matriz")) {
+      dispatch(addBase("Matriz"));
+    }
+    // depende só do dispatch para rodar uma vez
+  }, [dispatch]);
+
 
   const handleAddBase = () => {
     if (!baseNome.trim()) return;
@@ -369,8 +377,18 @@ const Step1Empresa = () => {
           <input
             type="checkbox"
             checked={temBases}
-            onChange={(e) => setTemBases(e.target.checked)}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setTemBases(checked);
+
+              if (!checked) {
+                // Quando não possui filiais, cria automaticamente a "Matriz"
+                dispatch(removeBase()); // limpa tudo antes
+                dispatch(addBase("Matriz"));
+              }
+            }}
           />
+
           <span />
         </Switch>
 
@@ -402,7 +420,7 @@ const Step1Empresa = () => {
                   value={baseNome}
                   onChange={e => setBaseNome(e.target.value)}
                 />
-                <Button onClick={handleAddBase}  width={'200px'}>
+                <Button onClick={handleAddBase} width={'200px'}>
                   <IoMdAdd size={'20px'} color={colors.silver} />
 
                   <TextDefault size="12px" color={colors.silver} left="10px">

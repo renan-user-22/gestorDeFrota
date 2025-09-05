@@ -29,7 +29,8 @@ const initialState = {
     manutencao: false,
     multas: false,
   },
-  bases: [] // <-- Novo campo
+  bases: ["Matriz"] // <-- Sempre começa com Matriz
+
 };
 
 export const companySlice = createSlice({
@@ -73,8 +74,13 @@ export const companySlice = createSlice({
       state.bases = action.payload;
     },
     addBase(state, action) {
-      state.bases.push(action.payload);
+      const base = action.payload;
+      // garante que não entra duplicado
+      if (!state.bases.includes(base)) {
+        state.bases.push(base);
+      }
     },
+
     removeBase(state, action) {
       state.bases = state.bases.filter((_, i) => i !== action.payload);
     },

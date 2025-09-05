@@ -67,8 +67,9 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
   //Buscando dados de veículos e condutores no Firebase:
   useEffect(() => {
     const veiculosRef = ref(db, `empresas/${empresaId}/veiculos`);
-    const condutoresRef = ref(db, `empresas/${empresaId}/motoristas`);
+    const usuariosRef = ref(db, `empresas/${empresaId}/usuarios`);
 
+    // Veículos
     onValue(veiculosRef, snapshot => {
       const data = snapshot.val();
       if (data) {
@@ -77,13 +78,17 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
       }
     });
 
-    onValue(condutoresRef, snapshot => {
+    // Motoristas (filtrar usuarios com acesso motorista)
+    onValue(usuariosRef, snapshot => {
       const data = snapshot.val();
       if (data) {
-        const condutoresArray = Object.entries(data).map(([key, value]) => ({ id: key, ...value }));
-        setListaCondutores(condutoresArray);
+        const usuariosArray = Object.values(data)
+          .filter(u => u) // remove null
+          .map((u, index) => ({ id: index.toString(), ...u }));
+        setListaCondutores(usuariosArray);
       }
     });
+
   }, [empresaId]);
 
   //Quando selecionar veículo, preencher proprietário:
@@ -119,121 +124,6 @@ const CreateMultas = ({ closeModalAddMultas, empresaId, empresaNome, empresaCpfC
   //Voltar para a pagina anterior
   const goBack = () => {
     closeModalAddMultas();
-  };
-
-  const createregisterMultaaaaaa = async () => {
-    if (!numeroAIT || !orgaoAutuador || !dataInfracao || !dataEmissao || !gravidade || !artigo) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Preencha todos os campos obrigatórios!',
-      });
-      return;
-    }
-
-    // 🔄 Usando função segura para conversão de valor brasileiro
-    const valorMultaNumerico = parseValorBrasileiro(valorMulta);
-
-    if (isNaN(valorMultaNumerico)) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Valor da multa inválido!',
-        text: 'Certifique-se de que o valor da multa está corretamente preenchido.',
-      });
-      return;
-    }
-
-    // 💰 Definindo valorPago com base no status
-    let valorPagoCalculado = 0;
-
-    switch (status) {
-      case 'defesa_previa':
-      case 'defesa_previa_FICI':
-      case 'recurso_jari':
-      case 'recurso_setran':
-      case 'NAIT_aguardando_NPMT':
-      case 'NPMT_aguardando_pagamento':
-      case 'Multa_Anulada':
-        valorPagoCalculado = 0;
-        break;
-
-      case 'defesa_previa_condutor':
-      case 'pago':
-        valorPagoCalculado = valorMultaNumerico;
-        break;
-
-      case 'pago_20':
-      case 'pago_20_recurso':
-        valorPagoCalculado = valorMultaNumerico * 0.8;
-        break;
-
-      case 'pago_40':
-        valorPagoCalculado = valorMultaNumerico * 0.6;
-        break;
-
-      default:
-        valorPagoCalculado = 0;
-        break;
-    }
-
-    const novaMulta = {
-      numeroAIT,
-      orgaoAutuador,
-      dataInfracao,
-      dataEmissao,
-      artigo,
-      gravidade,
-      pontuacao,
-
-      // Local da infração
-      logradouro,
-      numeroLocal,
-      cidade,
-
-      // Veículo
-      veiculoId: veiculoSelecionado?.id || '',
-      placaVeiculo: veiculoSelecionado?.placa || '',
-      modeloVeiculo: veiculoSelecionado?.modelo || '',
-      renavam: veiculoSelecionado?.renavam || '',
-
-      // Proprietário
-      nomeProprietario,
-      cpfCnpjProprietario: cpfCnpj || empresaCpfCnpj,
-
-      // Condutor
-      motoristaId: condutorSelecionado?.id || '',
-      nomeMotorista: condutorSelecionado?.nome || '',
-      cpfCondutor: condutorSelecionado?.cpf || '',
-
-      // Outras informações
-      prazos,
-      dataProtocolo,
-      status,
-      informacoesGerais,
-      valorMulta: valorMultaNumerico,
-      valorPago: valorPagoCalculado,
-
-      // Data do registro
-      criadoEm: new Date().toISOString()
-    };
-
-    try {
-      const multaRef = push(ref(db, `empresas/${empresaId}/multas`));
-      await set(multaRef, novaMulta);
-
-      Swal.fire({
-        icon: 'success',
-        title: 'Multa registrada com sucesso!',
-      });
-
-      closeModalAddMultas();
-    } catch (error) {
-      console.error('Erro ao registrar multa:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro ao registrar a multa',
-        text: error.message,
-      });
-    }
   };
 
   const createregisterMulta = async () => {

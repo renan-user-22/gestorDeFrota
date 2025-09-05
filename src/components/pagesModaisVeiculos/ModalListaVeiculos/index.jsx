@@ -282,6 +282,9 @@ const ModalListaVeiculos = ({ closeModalListVeiculos, empresaId, empresaNome }) 
                                         <TextDefault color={colors.silver} size="12px">
                                             Status Operacional: <strong>{veiculo.status}</strong>
                                         </TextDefault>
+                                        <TextDefault color={colors.silver} size="12px">
+                                            Pertence a base: <strong>{veiculo.base}</strong>
+                                        </TextDefault>
                                     </Box>
 
                                     <FaChevronDown

@@ -38,6 +38,8 @@ import {
 const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
 
     const [cargos, setCargos] = useState([]);
+    const [bases, setBases] = useState([]);
+
 
     const [form, setForm] = useState({
         nome: '',
@@ -56,25 +58,41 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
         cnhValidade: '',
         cnhCategoria: '',
         cnhPrimeiraHab: '',
-        cnhObs: ''
+        cnhObs: '',
+        base: ''   // <-- nova chave
     });
 
+
     useEffect(() => {
-        const fetchCargos = async () => {
+        const fetchData = async () => {
             try {
-                const snap = await get(ref(db, `empresas/${empresaIdProp}/cargos`));
-                if (snap.exists()) {
-                    const data = snap.val();
-                    // transforma objeto em array
+                // Carregar cargos
+                const snapCargos = await get(ref(db, `empresas/${empresaIdProp}/cargos`));
+                if (snapCargos.exists()) {
+                    const data = snapCargos.val();
                     const cargosArray = Array.isArray(data) ? data : Object.values(data);
                     setCargos(cargosArray);
                 }
+
+                // Carregar bases
+                const snapBases = await get(ref(db, `empresas/${empresaIdProp}/bases`));
+                if (snapBases.exists()) {
+                    const basesArray = Array.isArray(snapBases.val())
+                        ? snapBases.val()
+                        : Object.values(snapBases.val());
+                    setBases(basesArray);
+                } else {
+                    // fallback: sempre pelo menos "Matriz"
+                    setBases(["Matriz"]);
+                }
             } catch (err) {
-                console.error("Erro ao carregar cargos:", err);
+                console.error("Erro ao carregar dados:", err);
             }
         };
-        fetchCargos();
+
+        fetchData();
     }, [empresaIdProp]);
+
 
 
     const handleChange = (field, value) => {
@@ -278,6 +296,21 @@ const AddMotorista = ({ closeModalAddMotorista, empresaIdProp }) => {
                                 ))}
                             </Select>
                         </Box>
+
+                        <Box flex={'1'} direction="column" leftSpace={'20px'}>
+                            <TextDefault size="12px" color={colors.silver} bottom="5px">
+                                Base / Filial
+                            </TextDefault>
+                            <Select
+                                value={form.base}
+                                onChange={e => handleChange('base', e.target.value)}
+                            >
+                                {bases.map((b, i) => (
+                                    <option key={i} value={b}>{b}</option>
+                                ))}
+                            </Select>
+                        </Box>
+
 
                         <Box flex={'1'} direction="column" leftSpace={'20px'}>
                             <TextDefault size="12px" color={colors.silver} bottom="5px">

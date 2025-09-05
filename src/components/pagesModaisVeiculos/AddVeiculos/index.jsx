@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Bibliotecas:
 import Swal from 'sweetalert2';
@@ -10,7 +10,7 @@ import InputCNPJ from '../../inputs/InputCNPJ';
 
 // Firebase:
 import { db } from '../../../firebaseConnection';
-import { ref, set, push } from 'firebase/database';
+import { ref, set, push, get } from 'firebase/database';
 
 // Ícones:
 import { FaWindowClose } from "react-icons/fa";
@@ -25,7 +25,8 @@ import {
   ModalAreaInfo,
   Input,
   Button,
-  DefaultButton
+  DefaultButton,
+  Select
 } from './styles';
 
 const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
@@ -40,6 +41,8 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   const [licenciamento, setLicenciamento] = useState('');
   const [tipo, setTipo] = useState('');
   const [status, setStatus] = useState('');
+  const [bases, setBases] = useState([]);
+  const [base, setBase] = useState('');
 
 
   const [isTerceirizado, setIsTerceirizado] = useState(false);
@@ -51,6 +54,27 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
   const goBack = () => {
     closeModalAddVeiculos();
   };
+
+  useEffect(() => {
+    const fetchBases = async () => {
+      try {
+        const snap = await get(ref(db, `empresas/${empresaIdProp}/bases`));
+        if (snap.exists()) {
+          const data = snap.val();
+          const basesArray = Array.isArray(data) ? data : Object.values(data);
+          setBases(basesArray);
+          setBase(basesArray[0]); // seleciona a primeira por padrão
+        } else {
+          setBases(["Matriz"]);
+          setBase("Matriz");
+        }
+      } catch (err) {
+        console.error("Erro ao carregar bases:", err);
+      }
+    };
+
+    fetchBases();
+  }, [empresaIdProp]);
 
   const salvarVeiculo = async () => {
     // Verificações de campos obrigatórios
@@ -102,6 +126,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
         renavam,
         quilometragem,
         tipo,
+        base, // <-- nova chave
         terceirizado: isTerceirizado || false
       };
 
@@ -201,6 +226,16 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
             <TextDefault size="12px" color={colors.silver} bottom="5px">Licenciamento</TextDefault>
             <Input value={licenciamento} onChange={e => setLicenciamento(e.target.value)} placeholder="Ano do Licenciamento" />
           </Box>
+
+          <Box flex={'1'} direction="column" paddingLeft="20px" leftSpace={'10px'}>
+            <TextDefault size="12px" color={colors.silver} bottom="5px">Base / Filial</TextDefault>
+            <Select value={base} onChange={e => setBase(e.target.value)}>
+              {bases.map((b, i) => (
+                <option key={i} value={b}>{b}</option>
+              ))}
+            </Select>
+          </Box>
+
         </Box>
 
         {/* Linha 2: Cor / Ano / Tipo / Renavam */}
@@ -217,18 +252,10 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
 
           <Box flex={'0.8'} direction="column" paddingLeft="20px">
             <TextDefault size="12px" color={colors.silver} bottom="5px">Tipo</TextDefault>
-            <select
+            <Select
               value={tipo}
               onChange={e => setTipo(e.target.value)}
-              style={{
-                height: '44px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.silver}`,
-                padding: '0 10px',
-                backgroundColor: '#fff',
-                color: colors.black,
-                fontSize: '14px'
-              }}
+
             >
               <option value="">Selecione o tipo de veículo</option>
               <option value="Passeio">Passeio</option>
@@ -248,23 +275,15 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
               <option value="Ônibus">Ônibus</option>
               <option value="Caminhão-tanque">Caminhão-tanque</option>
               <option value="Outros">Outros</option>
-            </select>
+            </Select>
           </Box>
 
           <Box flex={'0.8'} direction="column" paddingLeft="10px">
             <TextDefault size="12px" color={colors.silver} bottom="5px">Status Operacional</TextDefault>
-            <select
+            <Select
               value={status}
               onChange={e => setStatus(e.target.value)}
-              style={{
-                height: '44px',
-                borderRadius: '8px',
-                border: `1px solid ${colors.silver}`,
-                padding: '0 10px',
-                backgroundColor: '#fff',
-                color: colors.black,
-                fontSize: '14px'
-              }}
+
             >
               <option value="">Selecione o status</option>
               <option value="Ativo">Ativo</option>
@@ -276,7 +295,7 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
               <option value="Documentação Pendente">Documentação Pendente</option>
               <option value="Vendido / Desativado">Vendido / Desativado</option>
               <option value="Terceirizado Ativo">Terceirizado Ativo</option>
-            </select>
+            </Select>
           </Box>
 
 
@@ -290,6 +309,8 @@ const AddVeiculo = ({ closeModalAddVeiculos, empresaIdProp }) => {
           <TextDefault size="12px" color={colors.silver} bottom="5px">Quilometragem Atual:</TextDefault>
           <Input type='number' width={'250px'} value={quilometragem} onChange={e => setQuilometragem(e.target.value)} placeholder="30.000" />
         </Box>
+
+
 
         {isTerceirizado && (
           <Box direction="row" justify="space-between" align="flex-start" bottomSpace="10px" width="97%">

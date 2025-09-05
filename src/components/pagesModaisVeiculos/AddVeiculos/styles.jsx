@@ -25,6 +25,17 @@ export const ModalAreaTotalDisplay = styled.div`
   z-index: 999;
 `;
 
+export const Select = styled.select`
+  width:${props => props.width || '100%'};
+  margin-left:${props => props.left || '0px'};
+  height: 33px;
+  padding-left: 10px;
+  border: 1px solid ${colors.silver};
+  font-size: 13px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+`;
+
 export const ModalAreaInfo = styled.div`
   background-color: ${colors.darkGray};
   padding: 30px;
@@ -36,12 +47,12 @@ export const ModalAreaInfo = styled.div`
 export const Input = styled.input`
   width:${props => props.width || '100%'};
   margin-left:${props => props.left || '0px'};
-  height: 40px;
+  height: 30px;
   padding-left: 10px;
   border: 1px solid ${colors.silver};
   font-size: 14px;
   margin-bottom: 10px;
-  border-radius: 7px;
+  border-radius: 3px;
 `;
 
 export const Button = styled.button`

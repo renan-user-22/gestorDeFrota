@@ -1,75 +1,97 @@
-// Código completo atualizado do componente Empresas.jsx
-// Todas as referências ao banco foram ajustadas para refletir a estrutura correta do Firebase.
+// src/pages/empresas/index.jsx
+import React, { useEffect, useState } from 'react';
 
-import React, { useState, useEffect } from 'react';
 import ModalAddEmpresa from '../../components/pagesModais/addEmpresa';
 import ModalListaMotoristas from '../../components/pagesModais/listaMotoristas';
 import ModalListaVeiculos from '../../components/pagesModaisVeiculos/ModalListaVeiculos';
 import ModalEditEmpresa from '../../components/pagesModais/ModalEditEmpresa';
 import ModalCheckList from '../../components/pagesModais/ModalCheckList';
+
 import { db } from '../../firebaseConnection';
 import { ref, onValue, remove } from 'firebase/database';
+
 import Swal from 'sweetalert2';
-import { motion, AnimatePresence } from 'framer-motion';
-import { GoOrganization } from 'react-icons/go';
-import { FaWindowClose } from 'react-icons/fa';
-import { MdEditSquare } from 'react-icons/md';
-import { GoHeartFill } from "react-icons/go";
+import 'sweetalert2/dist/sweetalert2.min.css';
+
+import { GoOrganization, GoHeartFill } from 'react-icons/go';
+import { MdAdd, MdEditSquare } from 'react-icons/md';
 import { BiSolidUserCircle } from 'react-icons/bi';
-import { FaTruckFront } from 'react-icons/fa6';
+import { FaTruckFront, FaArrowUpRightDots, FaTrash } from 'react-icons/fa6';
 import { PiListBulletsFill } from 'react-icons/pi';
-import { FaArrowUpRightDots } from 'react-icons/fa6';
-import { FaFileInvoiceDollar } from 'react-icons/fa';
-import { MdAdd } from 'react-icons/md';
-import { IoIosArrowDown } from 'react-icons/io';
-import { TextDefault, Box, InfoBox } from '../../stylesAppDefault';
+
+import { TextDefault, Box, SwalCustomStyles } from '../../stylesAppDefault';
 import { colors } from '../../theme';
+
 import {
   Container,
   DefaultButton,
   Input,
-  Button,
-  ListaEmpresasWrapper,
-  SwalCustomStyles
+  EmpresasTableWrapper,
+  EmpresasTable,
+  EmpresasThead,
+  EmpresasTh,
+  EmpresasTr,
+  EmpresasTd,
+  EmpresasActionsTd,
+  AcoesWrap,
+  AcaoBtn,
 } from './styles';
+
+const swal = Swal.mixin({
+  customClass: {
+    popup: 'swal-custom-popup',
+    title: 'swal-custom-title',
+    htmlContainer: 'swal-custom-text',
+    confirmButton: 'swal-custom-confirm',
+    cancelButton: 'swal-custom-cancel',
+  },
+  buttonsStyling: false, // usa suas classes nos botões
+});
 
 const Empresas = () => {
   const [areaModalAddEmpresa, setAreaModalAddEmpresa] = useState(false);
+
   const [empresas, setEmpresas] = useState([]);
-  const [openInfoById, setOpenInfoById] = useState({});
   const [termoBusca, setTermoBusca] = useState('');
+
+  const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
+
+  // Modais existentes
   const [areaModalListMotoristaInfo, setAreaModalListMotoristaInfo] = useState(false);
   const [areaModalListVeiculosInfo, setAreaModalListVeiculosInfo] = useState(false);
   const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
   const [areaModalChecklist, setAreaModalChecklist] = useState(false);
-  const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
 
   const openModalAdd = () => setAreaModalAddEmpresa(true);
-  const toggleInfoEmpresa = (id) => setOpenInfoById((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const empresasFiltradas = Array.isArray(empresas)
-    ? empresas.filter((empresa) => empresa.nomeEmpresa?.toLowerCase().includes(termoBusca?.toLowerCase() || ''))
+    ? empresas.filter((e) =>
+      (e?.nomeEmpresa || '').toLowerCase().includes((termoBusca || '').toLowerCase())
+    )
     : [];
 
-  const areaModalListMotoristas = (id, n) => {
-    setEmpresaSelecionada({ id, nome: n });
+  const areaModalListMotoristas = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
     setAreaModalListMotoristaInfo(true);
     setAreaModalListVeiculosInfo(false);
     setAreaModalEditEmpresa(false);
+    setAreaModalChecklist(false);
   };
 
-  const areaModaladdVeiculo = (id, n) => {
-    setEmpresaSelecionada({ id, nome: n });
+  const areaModaladdVeiculo = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
     setAreaModalListVeiculosInfo(true);
     setAreaModalListMotoristaInfo(false);
     setAreaModalEditEmpresa(false);
+    setAreaModalChecklist(false);
   };
 
-  const areaModalEditEmpresaNext = (id, n) => {
-    setEmpresaSelecionada({ id, nome: n });
+  const areaModalEditEmpresaNext = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
+    setAreaModalEditEmpresa(true);
     setAreaModalListVeiculosInfo(false);
     setAreaModalListMotoristaInfo(false);
-    setAreaModalEditEmpresa(true);
+    setAreaModalChecklist(false);
   };
 
   const abrirModalChecklist = (id, nome) => {
@@ -89,18 +111,35 @@ const Empresas = () => {
       confirmButtonText: 'Sim, excluir',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: colors.orange,
-      cancelButtonColor: colors.black
+      cancelButtonColor: colors.black,
+      customClass: {
+        popup: 'swal-custom-popup',
+        title: 'swal-custom-title',
+        htmlContainer: 'swal-custom-text',
+        confirmButton: 'swal-custom-confirm',
+        cancelButton: 'swal-custom-cancel',
+      },
     });
 
     if (confirm.isConfirmed) {
       try {
         const empresaRef = ref(db, `empresas/${empresaId}`);
         await remove(empresaRef);
-        Swal.fire('Excluído!', `A empresa "${empresaNome}" foi excluída com sucesso.`, 'success');
+        Swal.fire({
+          title: 'Excluído!',
+          text: `A empresa "${empresaNome}" foi excluída com sucesso.`,
+          icon: 'success',
+          confirmButtonColor: colors.orange,
+        });
         setEmpresas((prev) => prev.filter((emp) => emp.id !== empresaId));
       } catch (error) {
         console.error('Erro ao excluir a empresa:', error);
-        Swal.fire('Erro!', 'Ocorreu um erro ao tentar excluir a empresa. Tente novamente.', 'error');
+        Swal.fire({
+          title: 'Erro!',
+          text: 'Ocorreu um erro ao tentar excluir a empresa. Tente novamente.',
+          icon: 'error',
+          confirmButtonColor: colors.orange,
+        });
       }
     }
   };
@@ -116,8 +155,15 @@ const Empresas = () => {
 
   return (
     <Container>
-      <SwalCustomStyles />
-      <Box color={colors.black} width={'95%'} topSpace={'10px'} direction={'column'} align={'center'}>
+
+      {/* Header / Filtros / Ações principais */}
+      <Box
+        color={colors.black}
+        width={'95%'}
+        topSpace={'10px'}
+        direction={'column'}
+        align={'center'}
+      >
         <Box
           width={'95%'}
           justify={'space-between'}
@@ -128,7 +174,7 @@ const Empresas = () => {
           paddingRight={'20px'}
         >
           <Box direction="row" align="center">
-            <GoOrganization size={'27px'} color={colors.silver} />
+            <GoOrganization size={'26px'} color={colors.silver} />
             <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>
               Empresas Cadastradas
             </TextDefault>
@@ -144,163 +190,132 @@ const Empresas = () => {
 
         <Box width={'95%'} height={'1px'} radius={'1px'} color={colors.silver} topSpace={'20px'} />
 
-        <Box direction={'row'} align={'center'} width={'95%'}>
-          <DefaultButton width="150px" onClick={openModalAdd}>
-            <MdAdd size={'20px'} color={colors.silver} />
-            <TextDefault color={colors.silver} size={'14px'} left={'5px'}>
-              Nova empresa
-            </TextDefault>
+        <Box direction={'row'} align={'center'} width={'95%'} style={{ gap: 10 }}>
+          <DefaultButton onClick={openModalAdd}>
+            <MdAdd size={'20px'} />
+            <span style={{ marginLeft: 6 }}>Nova empresa</span>
           </DefaultButton>
         </Box>
       </Box>
 
-      {empresas.length === 0 ? (
-        <TextDefault left={'20px'} top={'20px'} color={colors.silver}>
-          Nenhuma empresa cadastrada.
-        </TextDefault>
-      ) : (
-        <ListaEmpresasWrapper>
-          {empresasFiltradas.map((empresa, index) => (
-            <Box
-              key={index}
-              width={'100%'}
-              height={'auto'}
-              topSpace={'10px'}
-              direction={'row'}
-              align={'center'}
-              justify={'flex-start'}
-              color={colors.black}
-              onClick={() => toggleInfoEmpresa(empresa.id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <Box direction={'column'} flex={'1'} justify={'flex-start'} align={'flex-start'} topSpace={'10px'}>
-                <Box direction={'row'} width={'100%'} >
-                  <Box leftSpace={'10px'} direction={'column'} width={'100%'} justify={'flex-start'} align={'flex-start'} >
-                    <TextDefault color={colors.silver} size={'18px'} weight={'bold'} bottom={'5px'}>
-                      {empresa.nomeEmpresa}
-                    </TextDefault>
-                    <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
-                      CNPJ: {empresa.cnpj}
-                    </TextDefault>
-                    <TextDefault color={colors.silver} size={'12px'} bottom={'5px'}>
-                      Categoria: {empresa.tipo}
-                    </TextDefault>
-                    <TextDefault color={colors.silver} size={'12px'} bottom={'20px'}>
-                      Status: {empresa.extras?.status || 'Não informado'}
-                    </TextDefault>
+      {/* ===== LISTA EM TABELA ===== */}
+      <EmpresasTableWrapper>
+        <EmpresasTable>
+          <EmpresasThead>
+            <tr>
+              <EmpresasTh>Empresa</EmpresasTh>
+              <EmpresasTh>CNPJ</EmpresasTh>
+              <EmpresasTh>Categoria</EmpresasTh>
+              <EmpresasTh>Status</EmpresasTh>
+              <EmpresasTh>Ações</EmpresasTh>
+            </tr>
+          </EmpresasThead>
 
-                  </Box>
-                  <Box direction={'column'}>
-                    <IoIosArrowDown
-                      size={'30px'}
-                      color={colors.orange}
-                      style={{
-                        marginRight: '20px',
-                        transform: openInfoById[empresa.id] ? 'rotate(180deg)' : 'rotate(0deg)',
-                        transition: 'transform 0.3s ease'
+          <tbody>
+            {empresasFiltradas.map((empresa) => (
+              <EmpresasTr key={empresa.id}>
+                <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
+                <EmpresasTd>{empresa.cnpj}</EmpresasTd>
+                <EmpresasTd>{empresa.tipo}</EmpresasTd>
+                <EmpresasTd>{empresa.extras?.status || 'Ativa'}</EmpresasTd>
+
+                <EmpresasActionsTd>
+                  <AcoesWrap>
+                    <AcaoBtn
+                      aria-label="Dashboard"
+                      onClick={() => {
+                        Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info');
                       }}
-                    />
-                  </Box>
-                </Box>
-
-                <AnimatePresence>
-                  {openInfoById[empresa.id] && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.6 }}
-                      style={{ overflow: 'hidden', width: '100%' }}
                     >
+                      <FaArrowUpRightDots />
+                    </AcaoBtn>
 
-                      <InfoBox direction={'column'} open={true}>
-                        <Box
-                          color={colors.orange}
-                          direction={'row'}
-                          width={'97%'} b
-                          bottomSpace={'10px'}
-                          justify={'center'}
-                          radius={'50px'}
-                          style={{ overflow: 'hidden' }}
-                        >
+                    <AcaoBtn
+                      aria-label="Editar"
+                      onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}
+                    >
+                      <MdEditSquare />
+                    </AcaoBtn>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => { }} right={'20px'}>
-                            <FaArrowUpRightDots size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Dashboard
-                            </TextDefault>
-                          </Button>
+                    <AcaoBtn
+                      aria-label="Usuários"
+                      onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}
+                    >
+                      <BiSolidUserCircle />
+                    </AcaoBtn>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <MdEditSquare size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Editar
-                            </TextDefault>
-                          </Button>
+                    <AcaoBtn
+                      aria-label="Veículos"
+                      onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}
+                    >
+                      <FaTruckFront />
+                    </AcaoBtn>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <BiSolidUserCircle size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Usuários
-                            </TextDefault>
-                          </Button>
+                    <AcaoBtn
+                      aria-label="Meets"
+                      onClick={() => {
+                        Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info');
+                      }}
+                    >
+                      <GoHeartFill />
+                    </AcaoBtn>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <FaTruckFront size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Veículos
-                            </TextDefault>
-                          </Button>
+                    <AcaoBtn
+                      aria-label="CheckList"
+                      onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}
+                    >
+                      <PiListBulletsFill />
+                    </AcaoBtn>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <GoHeartFill size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Meets
-                            </TextDefault>
-                          </Button>
+                    <AcaoBtn
+                      aria-label="Excluir"
+                      onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}
+                    >
+                      <FaTrash />
+                    </AcaoBtn>
+                  </AcoesWrap>
+                </EmpresasActionsTd>
+              </EmpresasTr>
+            ))}
+          </tbody>
+        </EmpresasTable>
+      </EmpresasTableWrapper>
 
-                          <Button direction={'row'} color={colors.orange} onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <PiListBulletsFill size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              CheckList
-                            </TextDefault>
-                          </Button>
-
-                          
-
-                          <Button direction={'row'} color={colors.orange} onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)} right={'20px'}>
-                            <FaWindowClose size={'17px'} />
-                            <TextDefault color={colors.silver} size={'10px'} left={'7px'}>
-                              Excluir
-                            </TextDefault>
-                          </Button>
-                        </Box>
-                      </InfoBox>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </Box>
-            </Box>
-          ))}
-        </ListaEmpresasWrapper>
+      {/* ===== Modais existentes ===== */}
+      {areaModalAddEmpresa && (
+        <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />
       )}
 
-      {areaModalAddEmpresa && <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />}
-
       {areaModalEditEmpresa && empresaSelecionada && (
-        <ModalEditEmpresa closeModalEditEmpresa={() => setAreaModalEditEmpresa(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
+        <ModalEditEmpresa
+          closeModalEditEmpresa={() => setAreaModalEditEmpresa(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
       )}
 
       {areaModalListMotoristaInfo && empresaSelecionada && (
-        <ModalListaMotoristas closeModalListMotorista={() => setAreaModalListMotoristaInfo(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
+        <ModalListaMotoristas
+          closeModalListMotorista={() => setAreaModalListMotoristaInfo(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
       )}
 
       {areaModalListVeiculosInfo && empresaSelecionada && (
-        <ModalListaVeiculos closeModalListVeiculos={() => setAreaModalListVeiculosInfo(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
+        <ModalListaVeiculos
+          closeModalListVeiculos={() => setAreaModalListVeiculosInfo(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
       )}
 
       {areaModalChecklist && empresaSelecionada && (
-        <ModalCheckList closeModalChecklist={() => setAreaModalChecklist(false)} empresaId={empresaSelecionada.id} empresaNome={empresaSelecionada.nome} />
+        <ModalCheckList
+          closeModalChecklist={() => setAreaModalChecklist(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
       )}
     </Container>
   );

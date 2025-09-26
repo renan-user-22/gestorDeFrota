@@ -33,9 +33,11 @@ import {
   addCargo,
   setTipo,
   setExtrasField,
-  addBase,   // >>>
-  removeBase // >>>
+  addBase,
+  removeBase,
+  removeCargo
 } from '../../../store/slices/companySlice';
+
 
 const Step1Empresa = () => {
   const dispatch = useDispatch();
@@ -51,8 +53,6 @@ const Step1Empresa = () => {
   const [temBases, setTemBases] = useState(false);
   const [baseNome, setBaseNome] = useState('');
   const [showBaseModal, setShowBaseModal] = useState(false);
-
-
 
   // Status Modal lista de Cargos
   const [showCargoModal, setShowCargoModal] = useState(false);
@@ -274,75 +274,98 @@ const Step1Empresa = () => {
       </Box>
 
       <Box
-        direction={'column'}
+        direction={'row'}
         width={'100%'}
         height={'auto'}
-        color={colors.darkGrayTwo}
-        align={'center'}
-        paddingTop={'20px'}
-        paddingBottom={'10px'}
+        gap={'15px'}
       >
-        <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="95%">
 
-          <Box flex={'1'} direction="column" rightSpace={'20px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Categoria da empresa
-            </TextDefault>
-            {/* Tipo de Empresa */}
-            <Select
-              value={company.tipo}
-              onChange={e => dispatch(setTipo(e.target.value))}
-            >
-              <option value="">Selecione a categoria</option>
-              <option value="Transportadora">Transportadora</option>
-              <option value="Locadora de Veículos">Locadora de Veículos</option>
-              <option value="Distribuidora">Distribuidora</option>
-              <option value="Construção Civil">Construção Civil</option>
-              <option value="Cooperativa de Transporte">Cooperativa de Transporte</option>
-              <option value="Empresa de Logística">Empresa de Logística</option>
-              <option value="Fretamento e Turismo">Fretamento e Turismo</option>
-              <option value="Mineração">Mineração</option>
-              <option value="Agronegócio">Agronegócio</option>
-              <option value="Serviços Públicos">Serviços Públicos</option>
-              <option value="Indústria">Indústria</option>
-              <option value="Comércio Varejista e Atacadista">Comércio Varejista e Atacadista</option>
-              <option value="Outra">Outra</option>
-            </Select>
+        <Box
+          direction={'column'}
+          width={'40%'}
+          height={'auto'}
+          color={colors.darkGrayTwo}
+          align={'center'}
+          paddingTop={'20px'}
+          paddingBottom={'10px'}
+        >
+          <Box direction="row" justify="space-between" align="center" bottomSpace="10px" width="95%">
+
+            <Box flex={'1'} direction="column" rightSpace={'20px'}>
+              <TextDefault size="12px" color={colors.silver} bottom="5px">
+                Categoria da empresa
+              </TextDefault>
+              {/* Tipo de Empresa */}
+              <Select
+                value={company.tipo}
+                onChange={e => dispatch(setTipo(e.target.value))}
+              >
+                <option value="">Selecione a categoria</option>
+                <option value="Transportadora">Transportadora</option>
+                <option value="Locadora de Veículos">Locadora de Veículos</option>
+                <option value="Distribuidora">Distribuidora</option>
+                <option value="Construção Civil">Construção Civil</option>
+                <option value="Cooperativa de Transporte">Cooperativa de Transporte</option>
+                <option value="Empresa de Logística">Empresa de Logística</option>
+                <option value="Fretamento e Turismo">Fretamento e Turismo</option>
+                <option value="Mineração">Mineração</option>
+                <option value="Agronegócio">Agronegócio</option>
+                <option value="Serviços Públicos">Serviços Públicos</option>
+                <option value="Indústria">Indústria</option>
+                <option value="Comércio Varejista e Atacadista">Comércio Varejista e Atacadista</option>
+                <option value="Outra">Outra</option>
+              </Select>
+
+            </Box>
+
+            <Box flex={'1'} direction="column" rightSpace={'20px'}>
+              <TextDefault size="12px" color={colors.silver} bottom="5px">
+                Status
+              </TextDefault>
+              {/* Status da Empresa */}
+              <Select
+                value={statusEmpresa}
+                onChange={e => setStatusEmpresa(e.target.value)}
+              >
+                <option value="">Status da Empresa</option>
+                <option value="Ativa">Ativa</option>
+                <option value="Inadimplente">Inadimplente</option>
+                <option value="Negociação">Negociação</option>
+                <option value="Suspensa">Suspensa</option>
+              </Select>
+            </Box>
 
           </Box>
 
-          <Box flex={'1'} direction="column" rightSpace={'20px'}>
-            <TextDefault size="12px" color={colors.silver} bottom="5px">
-              Status
-            </TextDefault>
-            {/* Status da Empresa */}
-            <Select
-              value={statusEmpresa}
-              onChange={e => setStatusEmpresa(e.target.value)}
-            >
-              <option value="">Status da Empresa</option>
-              <option value="Ativa">Ativa</option>
-              <option value="Inadimplente">Inadimplente</option>
-              <option value="Negociação">Negociação</option>
-              <option value="Suspensa">Suspensa</option>
-            </Select>
-          </Box>
+        </Box>
 
-          <Box flex={'3.5'} direction="column">
+
+        <Box
+          direction={'column'}
+          width={'60%'}
+          height={'auto'}
+          color={colors.darkGrayTwo}
+          align={'center'}
+          paddingTop={'20px'}
+          paddingBottom={'10px'}
+        >
+          <Box flex={'1'} direction="column" width={'95%'}>
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Cadastro de cargos
             </TextDefault>
 
             {/* Cargos */}
-            <Box direction="row" justify={'space-between'} gap={'20px'}>
+            <Box direction="row" justify={'flex-start'} gap={'10px'}>
+
               <Input
-                width={'30%'}
+                width={'33.33%'}
                 placeholder="Nome do Cargo"
                 value={cargoNome}
                 onChange={e => setCargoNome(e.target.value)}
               />
+
               <Select
-                width={'20%'}
+
                 value={cargoAcesso}
                 onChange={e => setCargoAcesso(e.target.value)}
               >
@@ -350,7 +373,8 @@ const Step1Empresa = () => {
                 <option value="gestao">Gestor</option>
                 <option value="motorista">Motorista</option>
               </Select>
-              <Button onClick={handleAddCargo} width={'20%'}>
+
+              <Button onClick={handleAddCargo}>
                 <IoMdAdd size={'20px'} color={colors.silver} />
                 <TextDefault size="12px" color={colors.silver} left="10px">
                   Adicionar Cargo
@@ -369,7 +393,9 @@ const Step1Empresa = () => {
 
             </Box>
           </Box>
+
         </Box>
+
       </Box>
 
       <Box flex={'1'} direction="row" rightSpace={'20px'} align={'center'} height={'100%'}>
@@ -496,7 +522,7 @@ const Step1Empresa = () => {
                       </TextDefault>
 
                       <RemoveButton
-                        onClick={() => dispatch(removeCargo(cargo))}
+                        onClick={() => dispatch(removeCargo(index))}
                       >
                         <IoClose size={'20px'} color={colors.silver} />
                       </RemoveButton>

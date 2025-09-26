@@ -1,55 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
-import { TextDefault, Box } from '../../stylesAppDefault';
-import { Container, Input, Button, LogoImg, ButtonVisibility, SwalCustomStyles } from './styles';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { colors } from '../../theme';
+import { TextDefault, Box, SwalCustomStyles } from '../../stylesAppDefault';
+import { Container, Input, Button, LogoImg, ButtonVisibility } from './styles';
 import { db } from '../../firebaseConnection';
-import { ref, onValue } from "firebase/database"; // importe isso no topo
+import { ref, onValue } from 'firebase/database';
 import Swal from 'sweetalert2';
 import Logomarca from '../../images/logomarca.png';
-import { AiFillEyeInvisible } from "react-icons/ai";
-import { IoMdEye } from "react-icons/io";
+import { AiFillEyeInvisible } from 'react-icons/ai';
+import { IoMdEye } from 'react-icons/io';
 
-const Login = ({ nextHome }) => {
+const Login = ({ nextHome, onSuccess }) => {
+  // compat: prefer nextHome; se não vier, usa onSuccess
+  const goHome = useCallback(
+    (token) => {
+      const fn = typeof nextHome === 'function' ? nextHome : onSuccess;
+      if (typeof fn === 'function') fn(token);
+      else console.warn('nextHome/onSuccess ausente no App.jsx — verifique a prop passada.');
+    },
+    [nextHome, onSuccess]
+  );
 
   const [accessKey, setAccessKey] = useState('');
   const [passwordDataBase, setPasswordDataBase] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const unsubRef = useRef(null);
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
+  const togglePasswordVisibility = () => setShowPassword((v) => !v);
 
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      // Se a tecla pressionada for "Enter", chama a função de envio do formulário
-      handleLogin(event);
-    }
-  };
+  const handleSubmit = (e) => {
+    e?.preventDefault?.();
+    if (isChecking) return; // evita spam
 
-  const handleLogin = () => {
-    // Impede o scroll
-    document.body.classList.add('no-scroll');
-
+    setIsChecking(true);
     Swal.fire({
-      title: `Verificando...`,
+      title: 'Verificando...',
       text: 'Aguarde um instante',
       allowOutsideClick: false,
       showConfirmButton: false,
-
       didOpen: () => {
         Swal.showLoading();
 
+        // pequena simulação para UX; remova se usar validação real
         setTimeout(() => {
           Swal.close();
 
-          // Reativa o scroll
-          document.body.classList.remove('no-scroll');
+          const accessKeyTrimmed = String(accessKey || '').trim();
+          const passwordDataBaseTrimmed = String(passwordDataBase || '').trim();
 
-          const accessKeyTrimmed = String(accessKey).trim();
-          const passwordDataBaseTrimmed = String(passwordDataBase).trim();
-
-          if (accessKeyTrimmed === passwordDataBaseTrimmed) {
-            nextHome();
+          if (accessKeyTrimmed && accessKeyTrimmed === passwordDataBaseTrimmed) {
+            goHome('true'); // passa um token “opaque”; o App decide como persistir
           } else {
             Swal.fire({
               title: 'Ops!',
@@ -57,96 +57,85 @@ const Login = ({ nextHome }) => {
               icon: 'error',
               showConfirmButton: false,
               timer: 2000,
-
-              // Classes customizadas para título, texto e popup
               customClass: {
                 popup: 'swal-custom-popup',
                 title: 'swal-custom-title',
                 htmlContainer: 'swal-custom-text',
                 confirmButton: 'swal-custom-confirm',
                 cancelButton: 'swal-custom-cancel',
-              }
+              },
             });
           }
-        }, 1500);
+          setIsChecking(false);
+        }, 800);
       },
-
-      // Classes customizadas para título, texto e popup
       customClass: {
         popup: 'swal-custom-popup',
         title: 'swal-custom-title',
         htmlContainer: 'swal-custom-text',
         confirmButton: 'swal-custom-confirm',
         cancelButton: 'swal-custom-cancel',
-      }
+      },
     });
-
-
   };
 
   useEffect(() => {
-    const passwordRef = ref(db, "chaveAccess");
-    onValue(passwordRef, (snapshot) => {
+    const passwordRef = ref(db, 'chaveAccess');
+    const unsubscribe = onValue(passwordRef, (snapshot) => {
       const data = snapshot.val();
-      // Garantir que o valor de "chaveAccess" seja uma string
-      setPasswordDataBase(data ? String(data) : ""); // Caso seja undefined ou null, fica vazio
+      setPasswordDataBase(data ? String(data) : '');
     });
+    unsubRef.current = unsubscribe;
+    return () => unsubRef.current && unsubRef.current();
   }, []);
 
   return (
     <Container>
-
       <SwalCustomStyles />
 
       <Box
-        width={'500px'}
-        height={'400px'}
-        justify={'space-around'}
-        align={'center'}
-        direction={'column'}
+        width="500px"
+        height="400px"
+        justify="space-around"
+        align="center"
+        direction="column"
         color={colors.yellow}
       >
         <LogoImg
           src={Logomarca}
-          bottom={'20px'}
-          width={'70%'}
+          alt="Fleet Solutions"
+          $bottom="20px"
+          $width="70%"
         />
 
-        <Box
-          width={'70%'}
-          direction={'column'}
-          justify={'center'}
-          align={'center'}
-        >
-
-          <Box
-            align={'center'}
-            justify={'center'}
-            height={'auto'}
-            width={'100%'}
-            direction={'row'}
-            bottomSpace={'50px'}
-          >
-
-            <Input
-              placeholder="Chave de Acesso"
-              value={accessKey}
-              type={showPassword ? "text" : "password"}
-              onChange={(e) => setAccessKey(e.target.value)}
-              onKeyDown={handleKeyPress}
-            />
-
-            <ButtonVisibility onClick={togglePasswordVisibility}>
-              {showPassword ? <IoMdEye color={colors.orange} /> : <AiFillEyeInvisible color={colors.orange} />}
-            </ButtonVisibility>
+        <Box width="70%" direction="column" justify="center" align="center">
+          <Box align="center" justify="center" height="auto" width="100%" direction="row" bottomSpace="50px">
+            <form onSubmit={handleSubmit} style={{ display: 'flex', width: '100%' }}>
+              <Input
+                placeholder="Chave de Acesso"
+                value={accessKey}
+                type={showPassword ? 'text' : 'password'}
+                onChange={(e) => setAccessKey(e.target.value)}
+                autoComplete="current-password"
+                aria-label="Chave de Acesso"
+                disabled={isChecking}
+              />
+              <ButtonVisibility
+                type="button"
+                aria-label={showPassword ? 'Ocultar chave' : 'Mostrar chave'}
+                onClick={togglePasswordVisibility}
+                title={showPassword ? 'Ocultar' : 'Mostrar'}
+                disabled={isChecking}
+              >
+                {showPassword ? <IoMdEye color={colors.orange} /> : <AiFillEyeInvisible color={colors.orange} />}
+              </ButtonVisibility>
+            </form>
           </Box>
 
-          <Button color={colors.orange} onClick={() => handleLogin()}>
-            <TextDefault weight={'bold'}>Entrar</TextDefault>
+          <Button color={colors.orange} onClick={handleSubmit} type="button" disabled={isChecking}>
+            <TextDefault weight="bold">Entrar</TextDefault>
           </Button>
-
         </Box>
-
       </Box>
     </Container>
   );

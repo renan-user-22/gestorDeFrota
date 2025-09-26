@@ -1,26 +1,28 @@
-import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
-import { getStorage } from "firebase/storage";
-import { getAuth } from "firebase/auth";
+// Firebase (v9 modular) — sem Auth
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
+import { getStorage } from 'firebase/storage';
 
-// Sua configuração do Firebase
+// 👉 Use .env.* com prefixo VITE_ (Vite) quando puder
 const firebaseConfig = {
-    apiKey: "AIzaSyBbQxnD3ZLiKyB5lwAb8NB18b6RVOGXqI0",
-    authDomain: "fleet-48963.firebaseapp.com",
-    databaseURL: "https://fleet-48963-default-rtdb.firebaseio.com",
-    projectId: "fleet-48963",
-    storageBucket: "fleet-48963.appspot.com", // corrigido aqui também
-    messagingSenderId: "345938696401",
-    appId: "1:345938696401:web:6a761ac5bf005b73decdf0"
+  apiKey: import.meta?.env?.VITE_FIREBASE_API_KEY || 'AIzaSyBbQxnD3ZLiKyB5lwAb8NB18b6RVOGXqI0',
+  authDomain: import.meta?.env?.VITE_FIREBASE_AUTH_DOMAIN || 'fleet-48963.firebaseapp.com',
+  databaseURL: import.meta?.env?.VITE_FIREBASE_DATABASE_URL || 'https://fleet-48963-default-rtdb.firebaseio.com',
+  projectId: import.meta?.env?.VITE_FIREBASE_PROJECT_ID || 'fleet-48963',
+  storageBucket: import.meta?.env?.VITE_FIREBASE_STORAGE_BUCKET || 'fleet-48963.appspot.com',
+  messagingSenderId: import.meta?.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || '345938696401',
+  appId: import.meta?.env?.VITE_FIREBASE_APP_ID || '1:345938696401:web:6a761ac5bf005b73decdf0',
 };
 
-// Inicializa o app Firebase
-const app = initializeApp(firebaseConfig);
+// Singleton: evita “Firebase App named '[DEFAULT]' already exists”
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// Instâncias separadas
-const db = getDatabase(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
+// Apenas o que você usa AGORA
+export const db = getDatabase(app);
+export const storage = getStorage(app);
 
-// Exporta
-export { db, storage, auth, app };
+// ❌ Não exporte `auth` enquanto não for usar
+// import { getAuth } from 'firebase/auth'  // <- removido
+// export const auth = getAuth(app);        // <- removido
+
+export default app;

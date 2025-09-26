@@ -292,3 +292,4 @@ export const Switch = styled.label`
     transform: translateX(18px);
   }
 `;
+

@@ -66,6 +66,7 @@ export const companySlice = createSlice({
     removeCargo(state, action) {
       state.cargos = state.cargos.filter((_, i) => i !== action.payload);
     },
+
     setPermissoes(state, action) {
       state.permissoes = { ...state.permissoes, ...action.payload };
     },

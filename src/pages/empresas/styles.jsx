@@ -1,43 +1,7 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colors } from '../../theme'; // Lembrando de importar o tema para usar as cores
+import { colors } from '../../theme';
 
-export const SwalCustomStyles = createGlobalStyle`
-  .swal-custom-popup {
-    background-color: ${colors.darkGrayTwo};
-    font-family: 'Octosquares Extra Light';
-    border-radius: 5px;
-  }
-
-  .swal-custom-title {
-    font-size: 25px;
-    color: ${colors.silver} !important;
-  }
-  .swal-custom-text {
-    color: ${colors.silver};
-    font-family: 'Octosquares Extra Light';
-  }
-
-  .swal-custom-confirm {
-    background-color: ${colors.orange} !important;
-    color: ${colors.silver} !important;
-    font-family: 'Octosquares Extra Light';
-    border-radius: 5px;
-  }
-
-  .swal-custom-cancel {
-    background-color: ${colors.black} !important;
-    color: ${colors.silver} !important;
-    font-family: 'Octosquares Extra Light';
-    border-radius: 5px;
-  }
-
-  /* Ícone de warning */
-  .swal2-icon.swal2-warning {
-    border-color: ${colors.orange} !important;
-    color: ${colors.orange} !important;
-  }
-`;
-
+/* ===== Layout base da página ===== */
 export const Container = styled.div`
   display: flex;
   width: 100%;
@@ -46,105 +10,169 @@ export const Container = styled.div`
   height: 100vh;
   background-color: ${colors.darkGray};
   overflow: hidden;
+  font-family: 'Octosquares Extra Light', sans-serif;
 `;
 
+/* Botão padrão com transient props */
 export const DefaultButton = styled.button`
-  display: flex;
-  width: ${props => props.width || '150px'};
-  height: ${props => props.height || '35px'};
+  display: inline-flex;
+  width: ${p => p.$width || '150px'};
+  height: ${p => p.$height || '35px'};
   background-color: ${colors.orange};
-  border-radius: 5px;
+  color: ${colors.silver};
+  border-radius: 6px;
   margin-top: 15px;
   margin-bottom: 15px;
   align-items: center;
   justify-content: center;
-  padding: 5px;
-  margin-right: ${props => props.right || '20px'};
+  padding: 5px 10px;
+  margin-right: ${p => p.$right || '20px'};
   border: none;
   cursor: pointer;
+  font-family: 'Octosquares Extra Light', sans-serif;
+  transition: filter .2s ease, transform .08s ease;
+  &:hover { filter: brightness(1.08); }
+  &:active { transform: scale(0.98); }
 `;
 
-export const ModalAreaTotalDisplay = styled.div`
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-`;
-
-export const ModalAreaInfo = styled.div`
-  background-color: ${colors.darkGray};
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  height: 80%;
-`;
-
+/* Input padrão com transient props */
 export const Input = styled.input`
-  width:${props => props.width || '250px'};
+  width: ${p => p.$width || '260px'};
   background-color: ${colors.silver};
-  margin-left:${props => props.left || '0px'};
-  height: 30px;
+  margin-left: ${p => p.$left || '0px'};
+  height: 32px;
   color: ${colors.black};
-  padding-left: 10px;
+  padding: 0 10px;
   border: 1px solid ${colors.darkGrayTwo};
   font-size: 13px;
-  border-radius: 5px;
-  font-family: ${(props) => props.family || 'Octosquares Extra Light'};
+  border-radius: 6px;
+  font-family: 'Octosquares Extra Light', sans-serif;
 `;
 
-export const Button = styled.button`
-  display: flex;
-  flex: 1;
-  height: 40px;
-  flex-direction: ${(props) => props.direction || 'row'};
-  justify-content: center;
+/* ====== TABELA ====== */
+export const EmpresasTableWrapper = styled.div`
+  width: 95%;
+  overflow-x: auto;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding-bottom: 20px;
+
+  &::-webkit-scrollbar { height: 6px; width: 6px; }
+  &::-webkit-scrollbar-thumb { background: ${colors.orange}; border-radius: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+`;
+
+export const EmpresasTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* <-- antes estava fixed */
+  font-family: 'Octosquares Extra Light', sans-serif;
+  color: ${colors.silver};
+  font-size: 13px;
+`;
+
+export const EmpresasThead = styled.thead`
+  background: ${colors.orange};
+`;
+
+export const EmpresasTh = styled.th`
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  font-weight: 700;
+`;
+
+export const EmpresasTr = styled.tr`
+  background: ${colors.black};
+  border-bottom: 1px solid ${colors.darkGrayTwo};
+`;
+
+export const EmpresasTd = styled.td`
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+/* Coluna de ações: sem corte (overflow visível p/ tooltip) e mais larga */
+export const EmpresasActionsTd = styled(EmpresasTd)`
+  white-space: nowrap;
+  min-width: 420px;
+  width: 1%;
+  text-align: center;
+  overflow: visible;      /* <— importante para tooltip não ser cortado */
+  position: relative;
+`;
+
+/* Wrapper dos botões */
+export const AcoesWrap = styled.span`
+  display: inline-flex;
   align-items: center;
-  background-color: ${(props) => props.color || colors.orange};
+  justify-content: center; /* alinhado à esquerda */
+  gap: 10px;
+  flex-wrap: nowrap;           /* <-- impede quebra */
+  width: 100%;
+`;
+/* Botão de ação com tooltip custom (usa aria-label) */
+export const AcaoBtn = styled.button`
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: ${colors.orange};
   color: ${colors.silver};
   border: none;
-  font-size: 14px;
+  border-radius: 8px;
   cursor: pointer;
-  box-sizing: border-box;
+  transition: transform .08s ease, filter .2s ease;
+  &:hover { filter: brightness(1.08); }
+  &:active { transform: scale(0.97); }
 
-  /* remove margens para os botões se encostarem */
-  margin: 0;
-
-  /* transição suave ao passar o mouse */
-  transition: background 0.2s ease;
-
-  &:hover {
-    filter: brightness(1.1);
-  }
-`;
-
-export const ListaEmpresasWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 95%;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  overflow-y: auto;
-  padding-right: 10px;
-  margin-left: 10px; // para garantir o alinhamento entre o Header e o componente que com as informações da empresa
-
-  /* Scrollbar personalizada */
-  &::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* Tooltip */
+  &::after {
+    content: attr(aria-label);
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(4px);
+    background: ${colors.black};
+    color: ${colors.silver};
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease, transform .15s ease;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    z-index: 50;
   }
 
-  &::-webkit-scrollbar-thumb {
-    background-color: #f63b2a;
-    border-radius: 4px;
+  /* setinha do tooltip */
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 4px);
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: ${colors.black};
+    opacity: 0;
+    transition: opacity .15s ease;
+    z-index: 49;
   }
 
-  &::-webkit-scrollbar-track {
-    background-color: transparent;
+  &:hover::after, &:focus-visible::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  &:hover::before, &:focus-visible::before {
+    opacity: 1;
   }
 `;

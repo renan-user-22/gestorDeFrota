@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { colors } from '../../theme';
 import { TextDefault, Box } from '../../stylesAppDefault';
 
@@ -7,7 +7,11 @@ import {
   PageTransition,
   ToggleMenuButton,
   LogoImg,
-  IconDefaultButton,
+  Submenu,
+  Separator,
+  GroupButton,
+  ItemButton,
+  Flyout,
 } from './styles';
 
 import EmpresasPage from '../empresas';
@@ -15,192 +19,294 @@ import RelatoriosPage from '../relatorios';
 import ConfiguracoesPage from '../configuracoes';
 import MultasPage from '../multas';
 import Ia from '../ia';
-import CheckListPage from '../CheckListPage';
 
-import { FaFileInvoiceDollar, FaClipboardCheck } from 'react-icons/fa';
-import { IoSettingsSharp } from 'react-icons/io5';
-import { LuBrainCircuit } from "react-icons/lu";
-import { IoIosArrowBack } from "react-icons/io";
-import { IoIosArrowForward } from "react-icons/io";
-import { MdSpaceDashboard } from "react-icons/md";
-import { SiRustdesk } from "react-icons/si";
+import { FaFileInvoiceDollar, FaHandshake } from 'react-icons/fa';
+import { IoSettingsSharp, IoChevronDown, IoChevronUp, IoChevronBack, IoChevronForward } from 'react-icons/io5';
+import { LuBrainCircuit } from 'react-icons/lu';
+import { MdSpaceDashboard } from 'react-icons/md';
+import { RiSteering2Fill } from 'react-icons/ri';
+import { TbBuildingSkyscraper, TbCurrencyDollar, TbGauge, TbUsers, TbBuilding } from 'react-icons/tb';
 
 import Logomarca from '../../images/logomarcaWhite.png';
 import IconLogo from '../../images/iconLogo.png';
 
 const Home = () => {
-
-  const [empresasAction, setEmpresasAction] = useState(false);
-  const [relatoriosAction, setRelatoriosAction] = useState(false);
-  const [multasAction, setMultasAction] = useState(false);
-  const [checklistAction, setChecklistAction] = useState(false);
-  const [iaAction, setIaAction] = useState(false);
-  const [configuracoesAction, setConfiguracoesAction] = useState(false);
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
-  const [currentMenu, setCurrentMenu] = useState('Dashboard');
+  const [currentMenu, setCurrentMenu] = useState('Financeiro');
+  const [pageKey, setPageKey] = useState({});
+  const k = useCallback((name) => (pageKey[name] || 0), [pageKey]);
+  const [openGroup, setOpenGroup] = useState(null); // 'Fleet Solutions' | 'Fleet Drive' | null
 
-  const handleButtonClick = (setter, name) => {
-    setEmpresasAction(false);
-    setRelatoriosAction(false);
-    setConfiguracoesAction(false);
-    setMultasAction(false);
-    setIaAction(false);
-    setChecklistAction(false);
-    setter(true);
-    setCurrentMenu(name);
-  };
+  const isGroupOpen = useCallback((name) => openGroup === name, [openGroup]);
+  const toggleGroup = useCallback((name) => setOpenGroup(prev => (prev === name ? null : name)), []);
+  const handleNavigate = useCallback((key) => { setCurrentMenu(key); setPageKey(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 })); }, []);
+  const isActive = useCallback((key) => currentMenu === key, [currentMenu]);
+  const groupIsActive = useCallback((name) => {
+    if (name === 'Fleet Solutions') {
+      return ['FS: Dashboard', 'Empresas', 'Multas'].includes(currentMenu);
+    }
+    if (name === 'Fleet Drive') {
+      return ['Drive: Dashboard', 'Motoristas', 'Drive: Multas', 'Parceiros'].includes(currentMenu);
+    }
+    return false;
+  }, [currentMenu]);
 
-  const iconMap = {
-    Empresas: SiRustdesk,
-    Dashboard: MdSpaceDashboard,
+
+  // Ícones
+  const iconMap = useMemo(() => ({
+    Financeiro: TbCurrencyDollar,
+    'Fleet Ia': LuBrainCircuit,
     Configurações: IoSettingsSharp,
+
+    'Fleet Solutions': TbBuildingSkyscraper,
+    'Fleet Drive': RiSteering2Fill,
+
+    'FS: Dashboard': MdSpaceDashboard,
+    Empresas: TbBuilding,
     Multas: FaFileInvoiceDollar,
-    CheckList: FaClipboardCheck,
-    'Fleet IA': LuBrainCircuit,
+
+    'Drive: Dashboard': TbGauge,
+    Motoristas: TbUsers,
+    'Drive: Multas': FaFileInvoiceDollar,
+    Parceiros: FaHandshake,
+  }), []);
+
+  // Submenus
+  const fleetSolutionsItems = useMemo(() => ([
+    { key: 'FS: Dashboard', label: 'Dashboard' },
+    { key: 'Empresas', label: 'Empresas' },
+    { key: 'Multas', label: 'Multas' },
+  ]), []);
+
+  const fleetDriveItems = useMemo(() => ([
+    { key: 'Drive: Dashboard', label: 'Dashboard' },
+    { key: 'Motoristas', label: 'Motoristas' },
+    { key: 'Drive: Multas', label: 'Multas' },
+    { key: 'Parceiros', label: 'Parceiros' },
+  ]), []);
+
+  // A11y
+  const onGroupKeyDown = (e, name) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault(); toggleGroup(name);
+    } else if (e.key === 'ArrowRight') {
+      if (!isGroupOpen(name)) toggleGroup(name);
+    } else if (e.key === 'ArrowLeft') {
+      if (isGroupOpen(name)) toggleGroup(name);
+    }
+  };
+  const onItemKeyDown = (e, key) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigate(key); }
   };
 
-  const buttonData = [
-    {
-      titulo: 'Dashboard',
-      descricao: 'Acompanhe tudo em tempo real sobre a sua empresa',
-      action: setRelatoriosAction,
-    },
-    {
-      titulo: 'Empresas',
-      descricao: 'Cadastre, edite e gerencie suas empresas parceiras',
-      action: setEmpresasAction,
-    },
-    {
-      titulo: 'Multas',
-      descricao: 'Gerencie e visualize as multas das frotas cadastradas',
-      action: setMultasAction,
-    },
-    {
-      titulo: 'Fleet IA',
-      descricao: 'Utilize a inteligência artificial para pesquisas e automações',
-      action: setIaAction,
-    },
-    {
-      titulo: 'Configurações',
-      descricao: 'Ajustes de sistema e preferências de usuário',
-      action: setConfiguracoesAction,
-    },
-  ];
+  const DrawerGroup = ({ title, open, onToggle, items }) => {
+    const GroupIcon = iconMap[title] || MdSpaceDashboard;
+    const btnRef = useRef(null);
+    const [flyTop, setFlyTop] = useState(0);
+    const groupActive = groupIsActive(title);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setRelatoriosAction(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    useEffect(() => {
+      if (open && isMenuCollapsed && btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+        setFlyTop(rect.top + window.scrollY);
+      }
+    }, [open, isMenuCollapsed]);
+
+    return (
+      <Box width="100%" direction="column" radius="none">
+        { /* parent active when any child is active */}
+        { /* computed here to style title + icon */}
+
+        <GroupButton
+          ref={btnRef}
+          $open={open}
+          $active={groupActive}
+          onClick={onToggle}
+          onKeyDown={(e) => onGroupKeyDown(e, title)}
+          role="button"
+          aria-expanded={open}
+          aria-controls={`submenu-${title.replace(/\s/g, '')}`}
+          tabIndex={0}
+          style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start' }}
+        >
+          <GroupIcon size={isMenuCollapsed ? 22 : 20} />
+          {!isMenuCollapsed && (
+            <Box direction="row" align="center" justify="space-between" width="100%">
+              <TextDefault style={{ flex: 1, color: groupActive ? colors.orange : colors.silver }}>{title}</TextDefault>
+              {open ? <IoChevronUp size={18} color={colors.orange} /> : <IoChevronDown size={18} color={colors.orange} />}
+            </Box>
+          )}
+        </GroupButton>
+
+        {/* Submenu em modo expandido */}
+        <Submenu id={`submenu-${title.replace(/\s/g, '')}`} $open={open && !isMenuCollapsed}>
+          <Box direction="column" leftSpace="12px">
+            {items.map(({ key, label }) => {
+              const Icon = iconMap[key] || MdSpaceDashboard;
+              const active = isActive(key);
+              return (
+                <ItemButton
+                  key={key}
+                  $active={active}
+                  onClick={(e) => { e.stopPropagation(); handleNavigate(key); setOpenGroup(null); }}
+                  onKeyDown={(e) => onItemKeyDown(e, key)}
+                  tabIndex={0}
+                >
+                  <Icon size={18} />
+                  <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>
+                </ItemButton>
+              );
+            })}
+          </Box>
+        </Submenu>
+
+        {/* Flyout em modo colapsado */}
+        {isMenuCollapsed && open && (
+          <Flyout $top={flyTop}>
+            <Box direction="column">
+              {items.map(({ key, label }) => {
+                const Icon = iconMap[key] || MdSpaceDashboard;
+                const active = isActive(key);
+                return (
+                  <ItemButton
+                    key={`flyout-${key}`}
+                    $active={active}
+                    onClick={(e) => { e.stopPropagation(); handleNavigate(key); setOpenGroup(null); }}
+                    tabIndex={0}
+                  >
+                    <Icon size={18} />
+                    <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>
+                  </ItemButton>
+                );
+              })}
+            </Box>
+          </Flyout>
+        )}
+      </Box>
+    );
+  };
+
+  const DrawerStandalone = ({ keyName, label }) => {
+    const Icon = iconMap[keyName] || MdSpaceDashboard;
+    const active = isActive(keyName);
+    return (
+      <ItemButton
+        $active={active}
+        onClick={() => { setOpenGroup(null); handleNavigate(keyName); }}
+        onKeyDown={(e) => { onItemKeyDown(e, keyName); if (e.key === 'Enter' || e.key === ' ') setOpenGroup(null); }}
+        tabIndex={0}
+        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: 48 }}
+      >
+        <Icon size={isMenuCollapsed ? 22 : 20} />
+        {!isMenuCollapsed && <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>}
+      </ItemButton>
+    );
+  };
 
   return (
     <Container>
-      {/* SIDEBAR FIXA */}
+      {/* SIDEBAR */}
       <Box
-        style={{
-          width: isMenuCollapsed ? '80px' : '300px',
-          transition: 'width 0.3s ease'
-        }}
-        direction={'column'}
-        height={'100%'}
-        radius={'none'}
+        style={{ width: isMenuCollapsed ? '80px' : '300px', transition: 'width 0.2s linear' }}
+        direction="column"
+        height="100%"
+        radius="none"
         color={colors.black}
       >
-
-        <Box
-          width={'100%'}
-          height={'200px'}
-          justify={'center'}
-          align={'center'}
-        >
+        <Box width="100%" height="150px" justify="center" align="center">
           <LogoImg
             src={isMenuCollapsed ? IconLogo : Logomarca}
-            width={isMenuCollapsed ? '50%' : '90%'} // tamanho menor quando colapsado
-            height={'auto'}
-            left={isMenuCollapsed ? '12px' : '0px'}
-            style={{
-              transition: 'width 0.3s ease', // transição suave
-            }}
+            $width={isMenuCollapsed ? '50%' : '90%'}
+            $left={isMenuCollapsed ? '12px' : '0px'}
           />
         </Box>
 
-        <Box
-          width={'100%'}
-          height={'100%'}
-          direction={'column'}
-          radius={'none'}
-        >
-          {buttonData.map(({ titulo, action }) => {
-            const Icon = iconMap[titulo];
-            const isActive = currentMenu === titulo;
+        {/* Drawer — ordem solicitada */}
+        <Box width="100%" height="100%" direction="column" radius="none" style={{ flexGrow: 1, overflowY: 'auto' }}>
+          <DrawerStandalone keyName="Financeiro" label="Financeiro" />
 
-            return (
-              <IconDefaultButton
-                key={titulo}
-                onClick={() => handleButtonClick(action, titulo)}
-                style={{ color: isActive ? colors.orange : colors.silver }}
-              >
-                <Icon
-                  size={isMenuCollapsed ? 32 : 25}
-                  style={{
-                    marginRight: isMenuCollapsed ? '0px' : '10px',
-                    transition: 'all 0.3s ease',
-                    color: isActive ? colors.orange : colors.silver
-                  }}
-                />
-                {!isMenuCollapsed && (
-                  <Box direction="column" align="flex-start">
-                    <TextDefault style={{ color: isActive ? colors.orange : colors.silver }}>
-                      {titulo}
-                    </TextDefault>
-                  </Box>
-                )}
-              </IconDefaultButton>
-            );
-          })}
+          <Separator $color={colors.darkGrayTwo} />
 
+          <DrawerGroup
+            title="Fleet Solutions"
+            open={isGroupOpen('Fleet Solutions')}
+            onToggle={() => toggleGroup('Fleet Solutions')}
+            items={fleetSolutionsItems}
+          />
+
+
+
+          <DrawerGroup
+            title="Fleet Drive"
+            open={isGroupOpen('Fleet Drive')}
+            onToggle={() => toggleGroup('Fleet Drive')}
+            items={fleetDriveItems}
+          />
+
+          <Separator $color={colors.darkGrayTwo} />
+
+          <DrawerStandalone keyName="Fleet Ia" label="Fleet Ia" />
+          <DrawerStandalone keyName="Configurações" label="Configurações" />
         </Box>
 
-        <Box
-          width={'100%'}
-          justify={'flex-end'}
-          align={'center'}
-        >
+        <Box width="100%" justify="flex-end" align="center">
           <ToggleMenuButton onClick={() => setIsMenuCollapsed(prev => !prev)}>
-            {isMenuCollapsed ? <IoIosArrowForward size={30} color={colors.orange} /> : <IoIosArrowBack size={30} color={colors.orange} />}
+            {isMenuCollapsed ? <IoChevronForward size={26} color={colors.orange} /> : <IoChevronBack size={26} color={colors.orange} />}
           </ToggleMenuButton>
         </Box>
-
       </Box>
 
       {/* CONTEÚDO */}
-      <Box
-        style={{
-          flexGrow: 1,
-          transition: 'all 0.3s ease',
-        }}
-        position={'relative'}
-        direction={'column'}
-        height={'100vh'}
-      >
-        <PageTransition visible={empresasAction}>
-          <EmpresasPage />
+      <Box style={{ flexGrow: 1 }} position="relative" direction="column" height="100vh">
+        {/* Fleet Solutions */}
+        <PageTransition $visible={isActive('Empresas')} key={`Empresas-${k('Empresas')}`}>
+          <EmpresasPage key={`Empresas-${k('Empresas')}`} />
         </PageTransition>
-        <PageTransition visible={relatoriosAction}>
-          <RelatoriosPage />
+
+        <PageTransition $visible={isActive('FS: Dashboard')} key={`FS:Dashboard-${k('FS: Dashboard')}`}>
+          <RelatoriosPage key={`FS:Dashboard-${k('FS: Dashboard')}`} />
         </PageTransition>
-        <PageTransition visible={configuracoesAction}>
+
+        <PageTransition $visible={isActive('Multas')} key={`Multas-${k('Multas')}`}>
+          <MultasPage key={`Multas-${k('Multas')}`} />
+        </PageTransition>
+
+        {/* Fleet Drive */}
+        <PageTransition $visible={isActive('Drive: Dashboard')} key={`DriveDash-${k('Drive: Dashboard')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Drive — Dashboard</TextDefault>
+            <TextDefault top="10px">Em breve: visão geral do motorista.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Motoristas')} key={`Motoristas-${k('Motoristas')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Drive — Motoristas</TextDefault>
+            <TextDefault top="10px">Em breve: cadastro e gestão de motoristas.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Drive: Multas')} key={`DriveMultas-${k('Drive: Multas')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Drive — Multas</TextDefault>
+            <TextDefault top="10px">Em breve: gestão de multas para motoristas autônomos.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        {/* Top-level */}
+        <PageTransition $visible={isActive('Financeiro')} key={`Financeiro-${k('Financeiro')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Financeiro — Visão Geral</TextDefault>
+            <TextDefault top="10px">Em breve: consolidação financeira.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Configurações')} key={`Config-${k('Configurações')}`}>
           <ConfiguracoesPage />
         </PageTransition>
-        <PageTransition visible={iaAction}>
+
+        <PageTransition $visible={isActive('Fleet Ia')} key={`IA-${k('Fleet Ia')}`}>
           <Ia />
-        </PageTransition>
-        <PageTransition visible={multasAction}>
-          <MultasPage />
-        </PageTransition>
-        <PageTransition visible={checklistAction}>
-          <CheckListPage />
         </PageTransition>
       </Box>
     </Container>

@@ -1,48 +1,44 @@
 import styled, { createGlobalStyle } from 'styled-components';
 import { colors } from './theme';
 
-/* =========================================================
- * 1) Estilos Globais (migrados do index.css)
- *    -> assim você pode remover o index.css e o import no main.jsx
- * ========================================================= */
+// >>> IMPORTES DAS FONTES (usando os arquivos que você já tem em src/fonts/)
+import OctoExtraLightTTF from './fonts/TT Octosquares Trial ExtraLight.ttf';
+import OctoBoldItalicTTF from './fonts/TT Octosquares Trial Bold Italic.ttf';
+import NebulaOTF        from './fonts/Nebula-Regular.otf';
+import CaviarTTF        from './fonts/CaviarDreams.ttf';
+
+// Se preferir, depois você pode trocar para .woff/.woff2 (menores)
+
 export const GlobalStyle = createGlobalStyle`
-  /* Ajuste os paths conforme sua estrutura real */
+  /* ——— Fontes registradas via URL gerada pelo Vite ——— */
+  @font-face {
+    font-family: 'Octosquares Extra Light';
+    src: url(${OctoExtraLightTTF}) format('truetype');
+    font-weight: 200;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Octosquares Bold Italic';
+    src: url(${OctoBoldItalicTTF}) format('truetype');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+  }
+
   @font-face {
     font-family: 'Nebula';
-    src: url('/src/fonts/Nebula-Regular.otf') format('opentype');
-    font-weight: normal;
+    src: url(${NebulaOTF}) format('opentype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
   }
 
   @font-face {
     font-family: 'Caviar Dreams';
-    src: url('/src/fonts/CaviarDreams.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Octosquares Bold';
-    src: url('/src/fonts/TT Octosquares Trial Bold Italic.ttf') format('truetype');
-    font-weight: bold;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Octosquares Italic';
-    src: url('/src/fonts/TT Octosquares Trial Bold Italic.ttf') format('truetype');
-    font-weight: normal;
-    font-style: italic;
-    font-display: swap;
-  }
-
-  @font-face {
-    font-family: 'Octosquares Extra Light';
-    src: url('/src/fonts/TT Octosquares Trial ExtraLight.ttf') format('truetype');
-    font-weight: 200;
+    src: url(${CaviarTTF}) format('truetype');
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
   }
@@ -51,27 +47,25 @@ export const GlobalStyle = createGlobalStyle`
 
   body {
     margin: 0;
-    overflow: hidden; /* mantido do index.css */
+    overflow: hidden;
     background-color: #f5f5f5;
-    font-family: 'Nebula', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-                 'Octosquares Extra Light', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
-                 'Helvetica Neue', 'Century Gothic', 'Caviar Dreams', 'Octosquares Bold', 'Octosquares Italic',
-                 sans-serif;
+
+    /* Deixa a Octosquares como fonte principal do app */
+    font-family: 'Octosquares Extra Light',
+                 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+                 Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+                 Arial, sans-serif;
+
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   code {
-    font-family: 'Nebula', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-                 'Caviar Dreams', 'Octosquares Bold', 'Octosquares Italic', 'Octosquares Extra Light',
-                 monospace;
+    font-family: 'Octosquares Extra Light', ui-monospace, SFMono-Regular, Menlo,
+                 Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   }
 `;
 
-/* =========================================================
- * 2) Helpers: bloquear props de estilo de irem ao DOM
- *    (mantemos os nomes originais das props sem mudar o JSX)
- * ========================================================= */
 const deny = (...names) => (prop) => !names.includes(prop);
 
 /* =========================

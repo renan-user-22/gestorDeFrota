@@ -229,7 +229,7 @@ const Home = () => {
           <Separator $color={colors.darkGrayTwo} />
 
           <DrawerGroup
-            title="Fleet Bussines"
+            title="Fleet Business"
             open={isGroupOpen('Fleet Bussines')}
             onToggle={() => toggleGroup('Fleet Bussines')}
             items={fleetSolutionsItems}

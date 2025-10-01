@@ -10,6 +10,8 @@ import { Box, TextDefault } from '../../../stylesAppDefault';
 import {
   Button,
   Input,
+  InputCnpjDark,
+  InputTelDark,
   Select,
   CargoModalOverlay,
   CargoModalContent,
@@ -191,7 +193,7 @@ const Step1Empresa = () => {
             <TextDefault size="12px" color={colors.silver} bottom="5px" left={'20px'}>
               CNPJ
             </TextDefault>
-            <InputCnpj
+            <InputCnpjDark
               value={company.cnpj}
               onChange={(value) => dispatch(setCnpj(value))}
             />
@@ -202,7 +204,7 @@ const Step1Empresa = () => {
             <TextDefault size="12px" color={colors.silver} bottom="5px">
               Telefone/WhatsApp
             </TextDefault>
-            <InputTel
+            <InputTelDark
               value={company.telefone}
               onChange={(value) => dispatch(setTelefone(value))}
             />

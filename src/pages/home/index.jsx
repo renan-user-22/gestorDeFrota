@@ -32,20 +32,20 @@ import IconLogo from '../../images/iconLogo.png';
 
 const Home = () => {
   const [isMenuCollapsed, setIsMenuCollapsed] = useState(false);
-  const [currentMenu, setCurrentMenu] = useState('Financeiro');
+  const [currentMenu, setCurrentMenu] = useState('Dashboard');
   const [pageKey, setPageKey] = useState({});
   const k = useCallback((name) => (pageKey[name] || 0), [pageKey]);
-  const [openGroup, setOpenGroup] = useState(null); // 'Fleet Solutions' | 'Fleet Drive' | null
+  const [openGroup, setOpenGroup] = useState(null); // 'Fleet Bussines' | 'Fleet One' | null
 
   const isGroupOpen = useCallback((name) => openGroup === name, [openGroup]);
   const toggleGroup = useCallback((name) => setOpenGroup(prev => (prev === name ? null : name)), []);
   const handleNavigate = useCallback((key) => { setCurrentMenu(key); setPageKey(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 })); }, []);
   const isActive = useCallback((key) => currentMenu === key, [currentMenu]);
   const groupIsActive = useCallback((name) => {
-    if (name === 'Fleet Solutions') {
+    if (name === 'Fleet Bussines') {
       return ['FS: Dashboard', 'Empresas', 'Multas'].includes(currentMenu);
     }
-    if (name === 'Fleet Drive') {
+    if (name === 'Fleet One') {
       return ['Drive: Dashboard', 'Motoristas', 'Drive: Multas', 'Parceiros'].includes(currentMenu);
     }
     return false;
@@ -54,12 +54,13 @@ const Home = () => {
 
   // Ícones
   const iconMap = useMemo(() => ({
+    Dashboard: MdSpaceDashboard,
     Financeiro: TbCurrencyDollar,
     'Fleet Ia': LuBrainCircuit,
     Configurações: IoSettingsSharp,
 
-    'Fleet Solutions': TbBuildingSkyscraper,
-    'Fleet Drive': RiSteering2Fill,
+    'Fleet Bussines': TbBuildingSkyscraper,
+    'Fleet One': RiSteering2Fill,
 
     'FS: Dashboard': MdSpaceDashboard,
     Empresas: TbBuilding,
@@ -114,8 +115,6 @@ const Home = () => {
 
     return (
       <Box width="100%" direction="column" radius="none">
-        { /* parent active when any child is active */}
-        { /* computed here to style title + icon */}
 
         <GroupButton
           ref={btnRef}
@@ -127,7 +126,7 @@ const Home = () => {
           aria-expanded={open}
           aria-controls={`submenu-${title.replace(/\s/g, '')}`}
           tabIndex={0}
-          style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start' }}
+          style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height:'60px' }}
         >
           <GroupIcon size={isMenuCollapsed ? 22 : 20} />
           {!isMenuCollapsed && (
@@ -151,6 +150,7 @@ const Home = () => {
                   onClick={(e) => { e.stopPropagation(); handleNavigate(key); setOpenGroup(null); }}
                   onKeyDown={(e) => onItemKeyDown(e, key)}
                   tabIndex={0}
+                  style={{ height: 44, gap: 8, paddingLeft: 35 }}
                 >
                   <Icon size={18} />
                   <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>
@@ -186,6 +186,7 @@ const Home = () => {
     );
   };
 
+
   const DrawerStandalone = ({ keyName, label }) => {
     const Icon = iconMap[keyName] || MdSpaceDashboard;
     const active = isActive(keyName);
@@ -195,7 +196,7 @@ const Home = () => {
         onClick={() => { setOpenGroup(null); handleNavigate(keyName); }}
         onKeyDown={(e) => { onItemKeyDown(e, keyName); if (e.key === 'Enter' || e.key === ' ') setOpenGroup(null); }}
         tabIndex={0}
-        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: 48 }}
+        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height:'60px'}}
       >
         <Icon size={isMenuCollapsed ? 22 : 20} />
         {!isMenuCollapsed && <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>}
@@ -223,27 +224,29 @@ const Home = () => {
 
         {/* Drawer — ordem solicitada */}
         <Box width="100%" height="100%" direction="column" radius="none" style={{ flexGrow: 1, overflowY: 'auto' }}>
-          <DrawerStandalone keyName="Financeiro" label="Financeiro" />
+          <DrawerStandalone keyName="Dashboard" label="Dashboard" />
 
           <Separator $color={colors.darkGrayTwo} />
 
           <DrawerGroup
-            title="Fleet Solutions"
-            open={isGroupOpen('Fleet Solutions')}
-            onToggle={() => toggleGroup('Fleet Solutions')}
+            title="Fleet Bussines"
+            open={isGroupOpen('Fleet Bussines')}
+            onToggle={() => toggleGroup('Fleet Bussines')}
             items={fleetSolutionsItems}
           />
 
 
 
           <DrawerGroup
-            title="Fleet Drive"
-            open={isGroupOpen('Fleet Drive')}
-            onToggle={() => toggleGroup('Fleet Drive')}
+            title="Fleet One"
+            open={isGroupOpen('Fleet One')}
+            onToggle={() => toggleGroup('Fleet One')}
             items={fleetDriveItems}
           />
 
           <Separator $color={colors.darkGrayTwo} />
+
+          <DrawerStandalone keyName="Financeiro" label="Financeiro" />
 
           <DrawerStandalone keyName="Fleet Ia" label="Fleet Ia" />
           <DrawerStandalone keyName="Configurações" label="Configurações" />
@@ -293,7 +296,14 @@ const Home = () => {
           </Box>
         </PageTransition>
 
-        {/* Top-level */}
+        {/* Top-level */
+        <PageTransition $visible={isActive('Dashboard')} key={`Dashboard-${k('Dashboard')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Dashboard — Visão Geral</TextDefault>
+            <TextDefault top="10px">Visão consolidada de toda a Fleet.</TextDefault>
+          </Box>
+        </PageTransition>
+}
         <PageTransition $visible={isActive('Financeiro')} key={`Financeiro-${k('Financeiro')}`}>
           <Box width="100%" height="100%" justify="center" align="center" direction="column">
             <TextDefault size="22px" weight="bold" top="10px">Financeiro — Visão Geral</TextDefault>

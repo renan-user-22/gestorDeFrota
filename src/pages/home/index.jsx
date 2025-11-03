@@ -1,3 +1,4 @@
+// src/pages/home/index.jsx
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { colors } from '../../theme';
 import { TextDefault, Box } from '../../stylesAppDefault';
@@ -20,7 +21,7 @@ import ConfiguracoesPage from '../configuracoes';
 import MultasPage from '../multas';
 import Ia from '../ia';
 
-import { FaFileInvoiceDollar, FaHandshake } from 'react-icons/fa';
+import { FaFileInvoiceDollar, FaHandshake, FaShieldAlt } from 'react-icons/fa';
 import { IoSettingsSharp, IoChevronDown, IoChevronUp, IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import { LuBrainCircuit } from 'react-icons/lu';
 import { MdSpaceDashboard } from 'react-icons/md';
@@ -35,32 +36,33 @@ const Home = () => {
   const [currentMenu, setCurrentMenu] = useState('Dashboard');
   const [pageKey, setPageKey] = useState({});
   const k = useCallback((name) => (pageKey[name] || 0), [pageKey]);
-  const [openGroup, setOpenGroup] = useState(null); // 'Fleet Bussines' | 'Fleet One' | null
+  const [openGroup, setOpenGroup] = useState(null);
 
   const isGroupOpen = useCallback((name) => openGroup === name, [openGroup]);
   const toggleGroup = useCallback((name) => setOpenGroup(prev => (prev === name ? null : name)), []);
-  const handleNavigate = useCallback((key) => { setCurrentMenu(key); setPageKey(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 })); }, []);
+  const handleNavigate = useCallback((key) => { setCurrentMenu(key); setPageKey(prev => ({ ...prev, [key]: (prev[key] || 0) + 1 })); setOpenGroup(null); }, []);
   const isActive = useCallback((key) => currentMenu === key, [currentMenu]);
+
   const groupIsActive = useCallback((name) => {
-    if (name === 'Fleet Bussines') {
-      return ['FS: Dashboard', 'Empresas', 'Multas'].includes(currentMenu);
-    }
-    if (name === 'Fleet One') {
-      return ['Drive: Dashboard', 'Motoristas', 'Drive: Multas', 'Parceiros'].includes(currentMenu);
-    }
+    if (name === 'Fleet Business') return ['FS: Dashboard', 'Empresas', 'Multas'].includes(currentMenu);
+    if (name === 'Fleet One') return ['Drive: Dashboard', 'Motoristas', 'Drive: Multas', 'Parceiros'].includes(currentMenu);
+    if (name === 'Fleet Protect') return ['Protect: Acompanhamento'].includes(currentMenu);
+    if (name === 'Fleet Recurso') return ['Recurso: Clientes'].includes(currentMenu);
+    if (name === 'Fleet Yard') return ['Yard: Pátios'].includes(currentMenu);
     return false;
   }, [currentMenu]);
 
-
-  // Ícones
   const iconMap = useMemo(() => ({
     Dashboard: MdSpaceDashboard,
     Financeiro: TbCurrencyDollar,
     'Fleet Ia': LuBrainCircuit,
     Configurações: IoSettingsSharp,
 
-    'Fleet Bussines': TbBuildingSkyscraper,
+    'Fleet Bussines': TbBuildingSkyscraper, // mantém como está no projeto atual
     'Fleet One': RiSteering2Fill,
+    'Fleet Protect': FaShieldAlt,
+    'Fleet Recurso': FaFileInvoiceDollar,
+    'Fleet Yard': TbBuilding,
 
     'FS: Dashboard': MdSpaceDashboard,
     Empresas: TbBuilding,
@@ -70,9 +72,12 @@ const Home = () => {
     Motoristas: TbUsers,
     'Drive: Multas': FaFileInvoiceDollar,
     Parceiros: FaHandshake,
+
+    'Protect: Acompanhamento': FaShieldAlt,
+    'Recurso: Clientes': TbUsers,
+    'Yard: Pátios': TbBuilding,
   }), []);
 
-  // Submenus
   const fleetSolutionsItems = useMemo(() => ([
     { key: 'FS: Dashboard', label: 'Dashboard' },
     { key: 'Empresas', label: 'Empresas' },
@@ -86,83 +91,88 @@ const Home = () => {
     { key: 'Parceiros', label: 'Parceiros' },
   ]), []);
 
-  // A11y
+  const fleetProtectItems = useMemo(() => ([
+    { key: 'Protect: Acompanhamento', label: 'Acompanhamento (CNH & Placas)' },
+  ]), []);
+
+  const fleetRecursoItems = useMemo(() => ([
+    { key: 'Recurso: Clientes', label: 'Clientes' },
+  ]), []);
+
+  const fleetYardItems = useMemo(() => ([
+    { key: 'Yard: Pátios', label: 'Pátios' },
+  ]), []);
+
   const onGroupKeyDown = (e, name) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault(); toggleGroup(name);
-    } else if (e.key === 'ArrowRight') {
-      if (!isGroupOpen(name)) toggleGroup(name);
-    } else if (e.key === 'ArrowLeft') {
-      if (isGroupOpen(name)) toggleGroup(name);
-    }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleGroup(name); }
+    else if (e.key === 'ArrowRight') { if (!isGroupOpen(name)) toggleGroup(name); }
+    else if (e.key === 'ArrowLeft') { if (isGroupOpen(name)) toggleGroup(name); }
   };
-  const onItemKeyDown = (e, key) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigate(key); }
-  };
+  const onItemKeyDown = (e, key) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleNavigate(key); } };
 
   const DrawerGroup = ({ title, open, onToggle, items }) => {
     const GroupIcon = iconMap[title] || MdSpaceDashboard;
     const btnRef = useRef(null);
     const [flyTop, setFlyTop] = useState(0);
-    const groupActive = groupIsActive(title);
 
     useEffect(() => {
-      if (open && isMenuCollapsed && btnRef.current) {
+      if (open && btnRef.current) {
         const rect = btnRef.current.getBoundingClientRect();
         setFlyTop(rect.top + window.scrollY);
       }
     }, [open, isMenuCollapsed]);
 
+    // deslocamento lateral (colapsado = 80px, expandido = 300px)
+    const flyLeft = isMenuCollapsed ? 80 : 300;
+
+    const Header = (
+      <Box direction="row" align="center" justify="flex-start" width="100%" bottomSpace="6px" style={{ padding: '6px 8px' }}>
+        <GroupIcon size={18} />
+        <TextDefault left="8px" weight="bold" color={colors.orange}>{title}</TextDefault>
+      </Box>
+    );
+
     return (
       <Box width="100%" direction="column" radius="none">
-
         <GroupButton
           ref={btnRef}
           $open={open}
-          $active={groupActive}
+          $active={groupIsActive(title)}
           onClick={onToggle}
           onKeyDown={(e) => onGroupKeyDown(e, title)}
           role="button"
           aria-expanded={open}
           aria-controls={`submenu-${title.replace(/\s/g, '')}`}
           tabIndex={0}
-          style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height:'60px' }}
+          style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: '60px' }}
         >
           <GroupIcon size={isMenuCollapsed ? 22 : 20} />
           {!isMenuCollapsed && (
             <Box direction="row" align="center" justify="space-between" width="100%">
-              <TextDefault style={{ flex: 1, color: groupActive ? colors.orange : colors.silver }}>{title}</TextDefault>
-              {open ? <IoChevronUp size={18} color={colors.orange} /> : <IoChevronDown size={18} color={colors.orange} />}
+              <TextDefault style={{ flex: 1, color: groupIsActive(title) ? colors.orange : colors.silver }}>{title}</TextDefault>
+              {open ? (
+                <IoChevronBack size={18} color={colors.orange} />
+              ) : (
+                <IoChevronForward size={18} color={colors.orange} />
+              )}
             </Box>
           )}
         </GroupButton>
 
-        {/* Submenu em modo expandido */}
-        <Submenu id={`submenu-${title.replace(/\s/g, '')}`} $open={open && !isMenuCollapsed}>
-          <Box direction="column" leftSpace="12px">
-            {items.map(({ key, label }) => {
-              const Icon = iconMap[key] || MdSpaceDashboard;
-              const active = isActive(key);
-              return (
-                <ItemButton
-                  key={key}
-                  $active={active}
-                  onClick={(e) => { e.stopPropagation(); handleNavigate(key); setOpenGroup(null); }}
-                  onKeyDown={(e) => onItemKeyDown(e, key)}
-                  tabIndex={0}
-                  style={{ height: 44, gap: 8, paddingLeft: 35 }}
-                >
-                  <Icon size={18} />
-                  <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>
-                </ItemButton>
-              );
-            })}
-          </Box>
-        </Submenu>
+        {/* ❌ Submenu inline desativado */}
+        <Submenu id={`submenu-${title.replace(/\s/g, '')}`} $open={false} />
 
-        {/* Flyout em modo colapsado */}
-        {isMenuCollapsed && open && (
-          <Flyout $top={flyTop}>
+        {/* ✅ Flyout lateral com animação (slide por padrão; 'fade' opcional) */}
+        {open && (
+          <Flyout
+            $top={flyTop}
+            $left={flyLeft}
+            $animateMode="slide"   // <— mude para "fade" se preferir o fallback
+            role="dialog"
+            aria-label={`Submenu de ${title}`}
+          >
+            {Header}
+            <Separator $color={colors.darkGrayTwo} />
             <Box direction="column">
               {items.map(({ key, label }) => {
                 const Icon = iconMap[key] || MdSpaceDashboard;
@@ -171,8 +181,10 @@ const Home = () => {
                   <ItemButton
                     key={`flyout-${key}`}
                     $active={active}
-                    onClick={(e) => { e.stopPropagation(); handleNavigate(key); setOpenGroup(null); }}
+                    onClick={(e) => { e.stopPropagation(); handleNavigate(key); }}
+                    onKeyDown={(e) => onItemKeyDown(e, key)}
                     tabIndex={0}
+                    style={{ height: 44, gap: 8 }}
                   >
                     <Icon size={18} />
                     <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>
@@ -186,7 +198,6 @@ const Home = () => {
     );
   };
 
-
   const DrawerStandalone = ({ keyName, label }) => {
     const Icon = iconMap[keyName] || MdSpaceDashboard;
     const active = isActive(keyName);
@@ -196,7 +207,7 @@ const Home = () => {
         onClick={() => { setOpenGroup(null); handleNavigate(keyName); }}
         onKeyDown={(e) => { onItemKeyDown(e, keyName); if (e.key === 'Enter' || e.key === ' ') setOpenGroup(null); }}
         tabIndex={0}
-        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height:'60px'}}
+        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: '60px'}}
       >
         <Icon size={isMenuCollapsed ? 22 : 20} />
         {!isMenuCollapsed && <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>}
@@ -222,7 +233,7 @@ const Home = () => {
           />
         </Box>
 
-        {/* Drawer — ordem solicitada */}
+        {/* Drawer — sem expansão vertical (scroll só da sidebar se necessário) */}
         <Box width="100%" height="100%" direction="column" radius="none" style={{ flexGrow: 1, overflowY: 'auto' }}>
           <DrawerStandalone keyName="Dashboard" label="Dashboard" />
 
@@ -235,8 +246,6 @@ const Home = () => {
             items={fleetSolutionsItems}
           />
 
-
-
           <DrawerGroup
             title="Fleet One"
             open={isGroupOpen('Fleet One')}
@@ -244,10 +253,30 @@ const Home = () => {
             items={fleetDriveItems}
           />
 
+          <DrawerGroup
+            title="Fleet Protect"
+            open={isGroupOpen('Fleet Protect')}
+            onToggle={() => toggleGroup('Fleet Protect')}
+            items={fleetProtectItems}
+          />
+
+          <DrawerGroup
+            title="Fleet Recurso"
+            open={isGroupOpen('Fleet Recurso')}
+            onToggle={() => toggleGroup('Fleet Recurso')}
+            items={fleetRecursoItems}
+          />
+
+          <DrawerGroup
+            title="Fleet Yard"
+            open={isGroupOpen('Fleet Yard')}
+            onToggle={() => toggleGroup('Fleet Yard')}
+            items={fleetYardItems}
+          />
+
           <Separator $color={colors.darkGrayTwo} />
 
           <DrawerStandalone keyName="Financeiro" label="Financeiro" />
-
           <DrawerStandalone keyName="Fleet Ia" label="Fleet Ia" />
           <DrawerStandalone keyName="Configurações" label="Configurações" />
         </Box>
@@ -259,9 +288,8 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* CONTEÚDO */}
+      {/* CONTEÚDO (inalterado) */}
       <Box style={{ flexGrow: 1 }} position="relative" direction="column" height="100vh">
-        {/* Fleet Solutions */}
         <PageTransition $visible={isActive('Empresas')} key={`Empresas-${k('Empresas')}`}>
           <EmpresasPage key={`Empresas-${k('Empresas')}`} />
         </PageTransition>
@@ -274,7 +302,6 @@ const Home = () => {
           <MultasPage key={`Multas-${k('Multas')}`} />
         </PageTransition>
 
-        {/* Fleet Drive */}
         <PageTransition $visible={isActive('Drive: Dashboard')} key={`DriveDash-${k('Drive: Dashboard')}`}>
           <Box width="100%" height="100%" justify="center" align="center" direction="column">
             <TextDefault size="22px" weight="bold" top="10px">Fleet Drive — Dashboard</TextDefault>
@@ -296,14 +323,13 @@ const Home = () => {
           </Box>
         </PageTransition>
 
-        {/* Top-level */
         <PageTransition $visible={isActive('Dashboard')} key={`Dashboard-${k('Dashboard')}`}>
           <Box width="100%" height="100%" justify="center" align="center" direction="column">
             <TextDefault size="22px" weight="bold" top="10px">Dashboard — Visão Geral</TextDefault>
             <TextDefault top="10px">Visão consolidada de toda a Fleet.</TextDefault>
           </Box>
         </PageTransition>
-}
+
         <PageTransition $visible={isActive('Financeiro')} key={`Financeiro-${k('Financeiro')}`}>
           <Box width="100%" height="100%" justify="center" align="center" direction="column">
             <TextDefault size="22px" weight="bold" top="10px">Financeiro — Visão Geral</TextDefault>
@@ -317,6 +343,27 @@ const Home = () => {
 
         <PageTransition $visible={isActive('Fleet Ia')} key={`IA-${k('Fleet Ia')}`}>
           <Ia />
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Recurso: Clientes')} key={`RecursoClientes-${k('Recurso: Clientes')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Recurso — Clientes</TextDefault>
+            <TextDefault top="10px">Em breve: cadastro/gestão de clientes do Recurso.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Yard: Pátios')} key={`YardPatios-${k('Yard: Pátios')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Yard — Pátios</TextDefault>
+            <TextDefault top="10px">Em breve: gestão de pátios e tempos de doca.</TextDefault>
+          </Box>
+        </PageTransition>
+
+        <PageTransition $visible={isActive('Protect: Acompanhamento')} key={`ProtectAcompanhamento-${k('Protect: Acompanhamento')}`}>
+          <Box width="100%" height="100%" justify="center" align="center" direction="column">
+            <TextDefault size="22px" weight="bold" top="10px">Fleet Protect — Acompanhamento</TextDefault>
+            <TextDefault top="10px">Monitoramento de CNH e Placas (add-on para clientes One/Business).</TextDefault>
+          </Box>
         </PageTransition>
       </Box>
     </Container>

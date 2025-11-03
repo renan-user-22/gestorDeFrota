@@ -1,4 +1,5 @@
-import styled, { createGlobalStyle } from 'styled-components';
+// src/pages/empresas/styles.jsx
+import styled from 'styled-components';
 import { colors } from '../../theme';
 
 /* ===== Layout base da página ===== */
@@ -65,7 +66,7 @@ export const EmpresasTableWrapper = styled.div`
 export const EmpresasTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto; /* <-- antes estava fixed */
+  table-layout: auto;
   font-family: 'Octosquares Extra Light', sans-serif;
   color: ${colors.silver};
   font-size: 13px;
@@ -98,26 +99,25 @@ export const EmpresasTd = styled.td`
   text-overflow: ellipsis;
 `;
 
-/* Coluna de ações: sem corte (overflow visível p/ tooltip) e mais larga */
+/* Coluna de ações */
 export const EmpresasActionsTd = styled(EmpresasTd)`
   white-space: nowrap;
   min-width: 420px;
   width: 1%;
   text-align: center;
-  overflow: visible;      /* <— importante para tooltip não ser cortado */
+  overflow: visible;
   position: relative;
 `;
 
-/* Wrapper dos botões */
 export const AcoesWrap = styled.span`
   display: inline-flex;
   align-items: center;
-  justify-content: center; /* alinhado à esquerda */
+  justify-content: center;
   gap: 10px;
-  flex-wrap: nowrap;           /* <-- impede quebra */
+  flex-wrap: nowrap;
   width: 100%;
 `;
-/* Botão de ação com tooltip custom (usa aria-label) */
+
 export const AcaoBtn = styled.button`
   position: relative;
   width: 32px;
@@ -134,7 +134,6 @@ export const AcaoBtn = styled.button`
   &:hover { filter: brightness(1.08); }
   &:active { transform: scale(0.97); }
 
-  /* Tooltip */
   &::after {
     content: attr(aria-label);
     position: absolute;
@@ -154,7 +153,6 @@ export const AcaoBtn = styled.button`
     z-index: 50;
   }
 
-  /* setinha do tooltip */
   &::before {
     content: '';
     position: absolute;
@@ -168,11 +166,22 @@ export const AcaoBtn = styled.button`
     z-index: 49;
   }
 
-  &:hover::after, &:focus-visible::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-  &:hover::before, &:focus-visible::before {
-    opacity: 1;
-  }
+  &:hover::after, &:focus-visible::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+  &:hover::before, &:focus-visible::before { opacity: 1; }
+`;
+
+/* ===== Empty State (somente Lottie) ===== */
+export const EmptyState = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+`;
+
+export const EmptyLottieBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 90vw;
 `;

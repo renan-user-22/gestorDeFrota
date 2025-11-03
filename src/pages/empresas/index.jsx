@@ -1,5 +1,5 @@
 // src/pages/empresas/index.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 import ModalAddEmpresa from '../../components/pagesModais/addEmpresa';
 import ModalListaMotoristas from '../../components/pagesModais/listaMotoristas';
@@ -35,7 +35,13 @@ import {
   EmpresasActionsTd,
   AcoesWrap,
   AcaoBtn,
+  EmptyState,
+  EmptyLottieBox,
 } from './styles';
+
+// Lottie
+import Lottie from 'lottie-react';
+import EmptyCompaniesAnim from '../../components/lotties/empty-companies.json'; // ajuste o caminho conforme sua pasta
 
 const swal = Swal.mixin({
   customClass: {
@@ -45,7 +51,7 @@ const swal = Swal.mixin({
     confirmButton: 'swal-custom-confirm',
     cancelButton: 'swal-custom-cancel',
   },
-  buttonsStyling: false, // usa suas classes nos botões
+  buttonsStyling: false,
 });
 
 const Empresas = () => {
@@ -64,11 +70,15 @@ const Empresas = () => {
 
   const openModalAdd = () => setAreaModalAddEmpresa(true);
 
-  const empresasFiltradas = Array.isArray(empresas)
-    ? empresas.filter((e) =>
-      (e?.nomeEmpresa || '').toLowerCase().includes((termoBusca || '').toLowerCase())
-    )
-    : [];
+  const empresasFiltradas = useMemo(() => (
+    Array.isArray(empresas)
+      ? empresas.filter((e) =>
+          (e?.nomeEmpresa || '').toLowerCase().includes((termoBusca || '').toLowerCase())
+        )
+      : []
+  ), [empresas, termoBusca]);
+
+  const isEmptyDB = empresas.length === 0; // “nenhuma empresa cadastrada” (não confundir com busca vazia)
 
   const areaModalListMotoristas = (id, nome) => {
     setEmpresaSelecionada({ id, nome });
@@ -155,8 +165,9 @@ const Empresas = () => {
 
   return (
     <Container>
+      <SwalCustomStyles />
 
-      {/* Header / Filtros / Ações principais */}
+      {/* Header / Filtros / Ações principais — aparece SEMPRE */}
       <Box
         color={colors.black}
         width={'95%'}
@@ -198,90 +209,103 @@ const Empresas = () => {
         </Box>
       </Box>
 
-      {/* ===== LISTA EM TABELA ===== */}
-      <EmpresasTableWrapper>
-        <EmpresasTable>
-          <EmpresasThead>
-            <tr>
-              <EmpresasTh>Empresa</EmpresasTh>
-              <EmpresasTh>CNPJ</EmpresasTh>
-              <EmpresasTh>Categoria</EmpresasTh>
-              <EmpresasTh>Status</EmpresasTh>
-              <EmpresasTh>Ações</EmpresasTh>
-            </tr>
-          </EmpresasThead>
+      {/* Conteúdo condicional abaixo do Header */}
+      {isEmptyDB ? (
+        <EmptyState>
+          <EmptyLottieBox>
+            <Lottie
+              animationData={EmptyCompaniesAnim}
+              loop
+              autoplay
+              style={{ width: '520px', maxWidth: '90vw' }}
+            />
+          </EmptyLottieBox>
+        </EmptyState>
+      ) : (
+        <EmpresasTableWrapper>
+          <EmpresasTable>
+            <EmpresasThead>
+              <tr>
+                <EmpresasTh>Empresa</EmpresasTh>
+                <EmpresasTh>CNPJ</EmpresasTh>
+                <EmpresasTh>Categoria</EmpresasTh>
+                <EmpresasTh>Status</EmpresasTh>
+                <EmpresasTh>Ações</EmpresasTh>
+              </tr>
+            </EmpresasThead>
 
-          <tbody>
-            {empresasFiltradas.map((empresa) => (
-              <EmpresasTr key={empresa.id}>
-                <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
-                <EmpresasTd>{empresa.cnpj}</EmpresasTd>
-                <EmpresasTd>{empresa.tipo}</EmpresasTd>
-                <EmpresasTd>{empresa.extras?.status || 'Ativa'}</EmpresasTd>
+            <tbody>
+              {empresasFiltradas.map((empresa) => (
+                <EmpresasTr key={empresa.id}>
+                  <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
+                  <EmpresasTd>{empresa.cnpj}</EmpresasTd>
+                  <EmpresasTd>{empresa.tipo}</EmpresasTd>
+                  <EmpresasTd>{empresa.extras?.status || 'Ativa'}</EmpresasTd>
 
-                <EmpresasActionsTd>
-                  <AcoesWrap>
-                    <AcaoBtn
-                      aria-label="Dashboard"
-                      onClick={() => {
-                        Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info');
-                      }}
-                    >
-                      <FaArrowUpRightDots />
-                    </AcaoBtn>
+                  <EmpresasActionsTd>
+                    <AcoesWrap>
+                      <AcaoBtn
+                        aria-label="Dashboard"
+                        onClick={() => {
+                          Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info');
+                        }}
+                      >
+                        <FaArrowUpRightDots />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="Editar"
-                      onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}
-                    >
-                      <MdEditSquare />
-                    </AcaoBtn>
+                      <AcaoBtn
+                        aria-label="Editar"
+                        onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}
+                      >
+                        <MdEditSquare />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="Usuários"
-                      onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}
-                    >
-                      <BiSolidUserCircle />
-                    </AcaoBtn>
+                      <AcaoBtn
+                        aria-label="Usuários"
+                        onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}
+                      >
+                        <BiSolidUserCircle />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="Veículos"
-                      onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}
-                    >
-                      <FaTruckFront />
-                    </AcaoBtn>
+                      <AcaoBtn
+                        aria-label="Veículos"
+                        onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}
+                      >
+                        <FaTruckFront />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="Meets"
-                      onClick={() => {
-                        Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info');
-                      }}
-                    >
-                      <GoHeartFill />
-                    </AcaoBtn>
+                      <AcaoBtn
+                        aria-label="Meets"
+                        onClick={() => {
+                          Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info');
+                        }}
+                      >
+                        <GoHeartFill />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="CheckList"
-                      onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}
-                    >
-                      <PiListBulletsFill />
-                    </AcaoBtn>
+                      <AcaoBtn
+                        aria-label="CheckList"
+                        onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}
+                      >
+                        <PiListBulletsFill />
+                      </AcaoBtn>
 
-                    <AcaoBtn
-                      aria-label="Excluir"
-                      onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}
-                    >
-                      <FaTrash />
-                    </AcaoBtn>
-                  </AcoesWrap>
-                </EmpresasActionsTd>
-              </EmpresasTr>
-            ))}
-          </tbody>
-        </EmpresasTable>
-      </EmpresasTableWrapper>
+                      <AcaoBtn
+                        aria-label="Excluir"
+                        onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}
+                      >
+                        <FaTrash />
+                      </AcaoBtn>
+                    </AcoesWrap>
+                  </EmpresasActionsTd>
+                </EmpresasTr>
+              ))}
+            </tbody>
+          </EmpresasTable>
+        </EmpresasTableWrapper>
+      )}
 
-      {/* ===== Modais existentes ===== */}
+      {/* Modais */}
       {areaModalAddEmpresa && (
         <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />
       )}

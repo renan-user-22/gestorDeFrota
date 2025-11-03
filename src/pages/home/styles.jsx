@@ -1,4 +1,5 @@
-import styled from 'styled-components';
+// src/pages/home/styles.jsx
+import styled, { keyframes, css } from 'styled-components';
 import { colors } from '../../theme';
 
 export const Container = styled.div`
@@ -41,8 +42,9 @@ export const ToggleMenuButton = styled.button`
   z-index: 1;
 `;
 
+/* 🔒 Submenu inline desativado (evita empurrar layout) */
 export const Submenu = styled.div`
-  display: ${({ $open }) => ($open ? 'block' : 'none')};
+  display: none;
 `;
 
 export const GroupButton = styled.button`
@@ -122,14 +124,48 @@ export const Separator = styled.div`
   border-radius: 2px;
 `;
 
+/* 🎞️ Animações */
+const slideIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to   { opacity: 1; }
+`;
+
+const animationByMode = ({ $animateMode }) => {
+  if ($animateMode === 'fade') {
+    return css`animation: ${fadeIn} 180ms ease-out both;`;
+  }
+  // default: slide
+  return css`animation: ${slideIn} 220ms cubic-bezier(.2,.8,.2,1) both;`;
+};
+
+/* 🧭 Flyout com deslocamento dinâmico (colapsado: 80px, expandido: 300px) + animação */
 export const Flyout = styled.div`
   position: absolute;
-  left: 80px; /* largura do menu colapsado */
+  left: ${({ $left }) => ($left != null ? `${$left}px` : '80px')};
   top: ${({ $top }) => $top || 0}px;
-  min-width: 220px;
+  min-width: 260px;
   background: ${colors.black};
   border: 1px solid ${colors.darkGrayTwo};
   border-radius: 10px;
   padding: 6px 8px;
   z-index: 1000;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+
+  will-change: transform, opacity;
+  ${animationByMode}
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
 `;

@@ -8,16 +8,27 @@ import { Box, TextDefault } from '../../../stylesAppDefault';
 import { Button, Switch } from './styles';
 import { TbArrowBadgeLeftFilled, TbArrowBadgeRightFilled } from "react-icons/tb";
 
+const PERMISSIONS_META = [
+  { key: 'abastecimento', label: 'Abastecimento' },
+  { key: 'financeiro',   label: 'Financeiro' }, 
+  { key: 'checklist', label: 'CheckList' },
+  { key: 'fleetIA', label: 'Fleet IA (Inteligência Artificial aplicada na sua frota)' },
+  { key: 'manutencao', label: 'Área de Manutenção' },
+  { key: 'contabilidade', label: 'Contabilidade' },
+  { key: 'multas', label: 'Multas' },
+  { key: 'protect', label: 'Protect (assinatura de multas)' }, // NOVA OPÇÃO
+  { key: 'localizacao', label: 'Logística (motoristas x veículos, localizações)' },
+  { key: 'juridico', label: 'Jurídico' },
+  { key: 'cursos', label: 'Cursos & Treinamentos' },
+];
+
 const Step3 = () => {
   const dispatch = useDispatch();
   const permissions = useSelector((state) => state.permissions);
 
-  const handlePrev = () => {
-    dispatch(prevStep());
-  };
+  const handlePrev = () => dispatch(prevStep());
 
   const handleNext = () => {
-    // Verifica se pelo menos uma permissão é true
     const hasPermission = Object.values(permissions).some((val) => val === true);
     if (hasPermission) {
       dispatch(nextStep());
@@ -28,6 +39,7 @@ const Step3 = () => {
 
   const renderPermission = (label, key) => (
     <Box
+      key={key}
       direction={'column'}
       width={'100%'}
       height={'auto'}
@@ -52,6 +64,16 @@ const Step3 = () => {
     </Box>
   );
 
+  // TRUE no topo em ordem alfabética pelo label (depois os FALSE, também ordenados)
+  const sortedItems = [...PERMISSIONS_META]
+    .map(item => ({ ...item, value: Boolean(permissions[item.key]) }))
+    .sort((a, b) => {
+      // true primeiro
+      if (a.value !== b.value) return a.value ? -1 : 1;
+      // ordem alfabética por label
+      return a.label.localeCompare(b.label, 'pt-BR', { sensitivity: 'base' });
+    });
+
   return (
     <Box direction="column" gap="15px" width="100%" topSpace={'20px'}>
       <Box width="100%" height={'auto'} align={'center'} justify={'space-between'}>
@@ -65,15 +87,7 @@ const Step3 = () => {
         </Box>
       </Box>
 
-      {renderPermission("Abastecimento", "abastecimento")}
-      {renderPermission("CheckList", "checklist")}
-      {renderPermission("Fleet IA (Inteligência Artificial aplicada na sua frota)", "fleetIA")}
-      {renderPermission("Área de Manutenção", "manutencao")}
-      {renderPermission("Contabilidade", "contabilidade")}
-      {renderPermission("Multas", "multas")}
-      {renderPermission("Logística (motoristas x veículos, localizações)", "localizacao")}
-      {renderPermission("Jurídico", "juridico")}
-      {renderPermission("Cursos & Treinamentos", "cursos")}
+      {sortedItems.map(({ label, key }) => renderPermission(label, key))}
 
       {/* Rodapé de navegação */}
       <Box

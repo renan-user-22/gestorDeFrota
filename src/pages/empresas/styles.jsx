@@ -36,7 +36,7 @@ export const DefaultButton = styled.button`
   &:active { transform: scale(0.98); }
 `;
 
-/* Input padrão com transient props */
+/* Input padrão */
 export const Input = styled.input`
   width: ${p => p.$width || '260px'};
   background-color: ${colors.silver};
@@ -76,19 +76,50 @@ export const EmpresasThead = styled.thead`
   background: ${colors.orange};
 `;
 
+/* Cabeçalho padrão */
 export const EmpresasTh = styled.th`
   padding: 10px 12px;
   text-align: center;
   vertical-align: middle;
   border: none;
   font-weight: 700;
+  position: relative;
+
+  /* 2ª coluna ("Empresa") também à esquerda */
+  &:nth-child(2) {
+    text-align: left;
+  }
+
+  /* Última coluna ("Ações") – centralização visual custom */
+  &:last-child {
+    text-align: left; /* base neutra para nosso span absoluto */
+  }
+  &:last-child span {
+    position: absolute;
+    right: 40%; /* ajuste fino já existente no seu arquivo */
+    top: 50%;
+    transform: translateY(-50%);
+  }
 `;
 
+/* NOVO: Cabeçalho da coluna ID (1ª coluna, pequena) */
+export const EmpresasIdTh = styled.th`
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  font-weight: 700;
+  width: 110px;
+  min-width: 110px;
+`;
+
+/* Linha */
 export const EmpresasTr = styled.tr`
   background: ${colors.black};
   border-bottom: 1px solid ${colors.darkGrayTwo};
 `;
 
+/* Célula padrão */
 export const EmpresasTd = styled.td`
   padding: 10px 12px;
   text-align: center;
@@ -97,22 +128,42 @@ export const EmpresasTd = styled.td`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
+  /* 2ª coluna ("Empresa") à esquerda */
+  &:nth-child(2) {
+    text-align: left;
+  }
+`;
+
+/* NOVO: Célula da coluna ID (pequena, monoespaçada) */
+export const EmpresasIdTd = styled.td`
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: middle;
+  border: none;
+  width: 110px;
+  min-width: 110px;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 /* Coluna de ações */
 export const EmpresasActionsTd = styled(EmpresasTd)`
   white-space: nowrap;
-  min-width: 420px;
+  min-width: 420px; /* em sincronia com a lógica do cabeçalho de Ações */
   width: 1%;
-  text-align: center;
+  text-align: right;
   overflow: visible;
   position: relative;
 `;
 
+/* Botões de ação */
 export const AcoesWrap = styled.span`
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 10px;
   flex-wrap: nowrap;
   width: 100%;
@@ -170,7 +221,7 @@ export const AcaoBtn = styled.button`
   &:hover::before, &:focus-visible::before { opacity: 1; }
 `;
 
-/* ===== Empty State (somente Lottie) ===== */
+/* Empty state */
 export const EmptyState = styled.div`
   display: flex;
   align-items: center;

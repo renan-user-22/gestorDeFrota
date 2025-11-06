@@ -1,11 +1,11 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
-import { colors } from '../../../theme'; // mantém seu tema
+import { colors } from '../../../theme';
 
 import InputCnpj from '../../inputs/InputCNPJ';
 import InputTel from '../../inputs/InputTelefone';
 
 /* =========================================================
-   Swal local (mantido como estava, apenas formatado)
+   Swal
    ========================================================= */
 export const SwalCustomStyles = createGlobalStyle`
   .swal-custom-popup {
@@ -45,7 +45,7 @@ export const SwalCustomStyles = createGlobalStyle`
 `;
 
 /* =========================================================
-   Containers e wrappers (mantidos)
+   Containers e wrappers
    ========================================================= */
 export const ListaEmpresasWrapper = styled.div`
   width: 100%;
@@ -69,7 +69,7 @@ export const ListaEmpresasWrapper = styled.div`
 
 export const ModalAreaTotalDisplay = styled.div`
   position: absolute;
-  inset: 0; /* top/left/right/bottom */
+  inset: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
@@ -98,7 +98,7 @@ export const ModalAreaInfo = styled.div`
 `;
 
 /* =========================================================
-   Controles básicos (mantendo visual original)
+   Controles básicos
    ========================================================= */
 
 const inputSkin = css`
@@ -131,7 +131,6 @@ export const Input = styled.input`
   ${inputSkin}
 `;
 
-/* Força a classe no wrapper e aplica o mesmo skin no <input> interno */
 export const InputCnpjDark = styled(({ className, ...props }) => (
   <div className={className}>
     <InputCnpj {...props} />
@@ -141,7 +140,6 @@ export const InputCnpjDark = styled(({ className, ...props }) => (
   margin-left: ${({ $left, left }) => $left || left || '0px'};
   margin-bottom: ${({ $bottom, bottom }) => $bottom || bottom || '0'};
 
-  /* estiliza QUALQUER <input> dentro do componente importado */
   & input {
     ${inputSkin}
     width: 100%;
@@ -217,7 +215,7 @@ export const DefaultButton = styled.button`
 `;
 
 /* =========================================================
-   Indicador de Steps (mantendo seu look)
+   Indicador de Steps
    ========================================================= */
 export const StepIndicator = styled.div`
   display: flex;
@@ -237,9 +235,9 @@ export const Dot = styled.div.withConfig({
 `;
 
 /* =========================================================
-   Modais auxiliares (Cargos)
+   Modais e listas (genéricos para Bases)
    ========================================================= */
-export const CargoModalOverlay = styled.div`
+export const BaseModalOverlay = styled.div`
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.5);
@@ -249,7 +247,7 @@ export const CargoModalOverlay = styled.div`
   z-index: 1000;
 `;
 
-export const CargoModalContent = styled.div`
+export const BaseModalContent = styled.div`
   width: 70%;
   height: 70vh;
   background: ${colors.darkGrayTwo};
@@ -261,18 +259,18 @@ export const CargoModalContent = styled.div`
     width: 0px;
     background: transparent;
   }
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE e Edge antigo */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 `;
 
-export const CargoList = styled.div`
+export const BaseList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin: 15px 0;
 `;
 
-export const CargoItem = styled.div`
+export const BaseItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -287,18 +285,18 @@ export const RemoveButton = styled.button`
   background-color: ${({ $color, color }) => $color || color || 'transparent'};
   color: white;
   border: none;
-  padding: 5px 8px; /* removi duplicidade */
+  padding: 5px 8px;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
 `;
 
 /* =========================================================
-   InputHora (mantendo seu visual)
+   InputHora
    ========================================================= */
 export const InputHora = styled.input.attrs({
   type: 'text',
-  maxLength: 5, // sempre "HH:MM"
+  maxLength: 5,
   placeholder: '00:00'
 })`
   width: ${({ $width, width }) => $width || width || '100%'};
@@ -319,7 +317,7 @@ export const InputHora = styled.input.attrs({
 `;
 
 /* =========================================================
-   Switch (idêntico ao seu, só formatado)
+   Switch
    ========================================================= */
 export const Switch = styled.label`
    position: relative;

@@ -1,15 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  abastecimento: false,
-  checklist: false,
+  // padrão: tudo TRUE, exceto Fleet IA e Multas (e Protect) = FALSE
+  abastecimento: true,
+  financeiro: true, 
+  checklist: true,
   fleetIA: false,
-  manutencao: false,
-  contabilidade: false,
+  manutencao: true,
+  contabilidade: true,
   multas: false,
-  localizacao: false,
-  juridico: false,
-  cursos: false,
+  protect: false, // nova permissão acoplada a "multas"
+  localizacao: true,
+  juridico: true,
+  cursos: true,
 };
 
 const permissionsSlice = createSlice({
@@ -18,11 +21,34 @@ const permissionsSlice = createSlice({
   reducers: {
     setPermission: (state, { payload }) => {
       const { key, value } = payload; // ex: { key: 'checklist', value: true }
-      if (key in state) state[key] = Boolean(value);
+      if (!(key in state)) return;
+
+      const val = Boolean(value);
+
+      // Acoplamento Multas <-> Protect
+      if (key === 'multas' || key === 'protect') {
+        state.multas = val;
+        state.protect = val;
+        return;
+      }
+
+      state[key] = val;
     },
+
     togglePermission: (state, { payload }) => {
-      if (payload in state) state[payload] = !state[payload];
+      if (!(payload in state)) return;
+
+      // Acoplamento Multas <-> Protect
+      if (payload === 'multas' || payload === 'protect') {
+        const newVal = !state[payload];
+        state.multas = newVal;
+        state.protect = newVal;
+        return;
+      }
+
+      state[payload] = !state[payload];
     },
+
     resetPermissions: () => initialState,
   },
 });

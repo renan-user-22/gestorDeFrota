@@ -16,7 +16,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import { GoOrganization, GoHeartFill } from 'react-icons/go';
 import { MdAdd, MdEditSquare } from 'react-icons/md';
 import { BiSolidUserCircle } from 'react-icons/bi';
-import { FaTruckFront, FaArrowUpRightDots, FaTrash } from 'react-icons/fa6';
+import { FaTruckFront, FaArrowUpRightDots, FaTrash, FaTicket, FaMoneyBillWave } from 'react-icons/fa6';
 import { PiListBulletsFill } from 'react-icons/pi';
 
 import { TextDefault, Box, SwalCustomStyles } from '../../stylesAppDefault';
@@ -30,8 +30,10 @@ import {
   EmpresasTable,
   EmpresasThead,
   EmpresasTh,
+  EmpresasIdTh,        // ⬅️ NOVO
   EmpresasTr,
   EmpresasTd,
+  EmpresasIdTd,        // ⬅️ NOVO
   EmpresasActionsTd,
   AcoesWrap,
   AcaoBtn,
@@ -39,9 +41,8 @@ import {
   EmptyLottieBox,
 } from './styles';
 
-// Lottie
 import Lottie from 'lottie-react';
-import EmptyCompaniesAnim from '../../components/lotties/empty-companies.json'; // ajuste o caminho conforme sua pasta
+import EmptyCompaniesAnim from '../../components/lotties/empty-companies.json';
 
 const swal = Swal.mixin({
   customClass: {
@@ -56,13 +57,10 @@ const swal = Swal.mixin({
 
 const Empresas = () => {
   const [areaModalAddEmpresa, setAreaModalAddEmpresa] = useState(false);
-
   const [empresas, setEmpresas] = useState([]);
   const [termoBusca, setTermoBusca] = useState('');
-
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
 
-  // Modais existentes
   const [areaModalListMotoristaInfo, setAreaModalListMotoristaInfo] = useState(false);
   const [areaModalListVeiculosInfo, setAreaModalListVeiculosInfo] = useState(false);
   const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
@@ -73,12 +71,12 @@ const Empresas = () => {
   const empresasFiltradas = useMemo(() => (
     Array.isArray(empresas)
       ? empresas.filter((e) =>
-          (e?.nomeEmpresa || '').toLowerCase().includes((termoBusca || '').toLowerCase())
-        )
+        (e?.nomeEmpresa || '').toLowerCase().includes((termoBusca || '').toLowerCase())
+      )
       : []
   ), [empresas, termoBusca]);
 
-  const isEmptyDB = empresas.length === 0; // “nenhuma empresa cadastrada” (não confundir com busca vazia)
+  const isEmptyDB = empresas.length === 0;
 
   const areaModalListMotoristas = (id, nome) => {
     setEmpresaSelecionada({ id, nome });
@@ -133,7 +131,7 @@ const Empresas = () => {
 
     if (confirm.isConfirmed) {
       try {
-        const empresaRef = ref(db, `empresas/${empresaId}`);
+        const empresaRef = ref(db, `fleetBusiness/${empresaId}`);
         await remove(empresaRef);
         Swal.fire({
           title: 'Excluído!',
@@ -143,7 +141,6 @@ const Empresas = () => {
         });
         setEmpresas((prev) => prev.filter((emp) => emp.id !== empresaId));
       } catch (error) {
-        console.error('Erro ao excluir a empresa:', error);
         Swal.fire({
           title: 'Erro!',
           text: 'Ocorreu um erro ao tentar excluir a empresa. Tente novamente.',
@@ -155,7 +152,7 @@ const Empresas = () => {
   };
 
   useEffect(() => {
-    const companiesRef = ref(db, 'empresas');
+    const companiesRef = ref(db, 'fleetBusiness');
     return onValue(companiesRef, (snap) => {
       const raw = snap.val() || {};
       const list = Object.keys(raw).map((k) => ({ id: k, ...raw[k] }));
@@ -163,27 +160,14 @@ const Empresas = () => {
     });
   }, []);
 
+  const shortId = (id = '') => String(id).slice(-6); // ID curto para coluna pequena
+
   return (
     <Container>
       <SwalCustomStyles />
 
-      {/* Header / Filtros / Ações principais — aparece SEMPRE */}
-      <Box
-        color={colors.black}
-        width={'95%'}
-        topSpace={'10px'}
-        direction={'column'}
-        align={'center'}
-      >
-        <Box
-          width={'95%'}
-          justify={'space-between'}
-          align={'center'}
-          topSpace={'10px'}
-          paddingTop={'10px'}
-          paddingLeft={'20px'}
-          paddingRight={'20px'}
-        >
+      <Box color={colors.black} width={'95%'} topSpace={'10px'} direction={'column'} align={'center'}>
+        <Box width={'95%'} justify={'space-between'} align={'center'} topSpace={'10px'} paddingTop={'10px'} paddingLeft={'20px'} paddingRight={'20px'}>
           <Box direction="row" align="center">
             <GoOrganization size={'26px'} color={colors.silver} />
             <TextDefault left={'10px'} color={colors.silver} weight={'bold'} size={'20px'}>
@@ -209,16 +193,10 @@ const Empresas = () => {
         </Box>
       </Box>
 
-      {/* Conteúdo condicional abaixo do Header */}
       {isEmptyDB ? (
         <EmptyState>
           <EmptyLottieBox>
-            <Lottie
-              animationData={EmptyCompaniesAnim}
-              loop
-              autoplay
-              style={{ width: '520px', maxWidth: '90vw' }}
-            />
+            <Lottie animationData={EmptyCompaniesAnim} loop autoplay style={{ width: '520px', maxWidth: '90vw' }} />
           </EmptyLottieBox>
         </EmptyState>
       ) : (
@@ -226,74 +204,68 @@ const Empresas = () => {
           <EmpresasTable>
             <EmpresasThead>
               <tr>
-                <EmpresasTh>Empresa</EmpresasTh>
-                <EmpresasTh>CNPJ</EmpresasTh>
-                <EmpresasTh>Categoria</EmpresasTh>
-                <EmpresasTh>Status</EmpresasTh>
-                <EmpresasTh>Ações</EmpresasTh>
+                <EmpresasIdTh>
+                  <span>ID</span>
+                </EmpresasIdTh>
+
+                <EmpresasTh>
+                  <span>Empresa</span>
+                </EmpresasTh>
+
+                <EmpresasTh>
+                  <span>CNPJ</span>
+                </EmpresasTh>
+
+                <EmpresasTh>
+                  <span>Categoria</span>
+                </EmpresasTh>
+
+                <EmpresasTh>
+                  <span>Qtd. Veículos</span>
+                </EmpresasTh>
+
+                <EmpresasTh>
+                  <span>Ações</span>
+                </EmpresasTh>
               </tr>
             </EmpresasThead>
 
             <tbody>
               {empresasFiltradas.map((empresa) => (
                 <EmpresasTr key={empresa.id}>
+                  <EmpresasIdTd title={empresa.id}>{shortId(empresa.id)}</EmpresasIdTd>
                   <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
                   <EmpresasTd>{empresa.cnpj}</EmpresasTd>
                   <EmpresasTd>{empresa.tipo}</EmpresasTd>
-                  <EmpresasTd>{empresa.extras?.status || 'Ativa'}</EmpresasTd>
+                  <EmpresasTd>{empresa.qtdVeiculos}</EmpresasTd>
 
                   <EmpresasActionsTd>
                     <AcoesWrap>
-                      <AcaoBtn
-                        aria-label="Dashboard"
-                        onClick={() => {
-                          Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info');
-                        }}
-                      >
+                      <AcaoBtn aria-label="Dashboard" onClick={() => Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info')}>
                         <FaArrowUpRightDots />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="Editar"
-                        onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}
-                      >
+                      <AcaoBtn aria-label="Financeiro" onClick={() => Swal.fire('Em breve', 'Área Financeira da frota em desenvolvimento.', 'info')}>
+                        <FaMoneyBillWave />
+                      </AcaoBtn>
+                      <AcaoBtn aria-label="Editar" onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}>
                         <MdEditSquare />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="Usuários"
-                        onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}
-                      >
+                      <AcaoBtn aria-label="Usuários" onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}>
                         <BiSolidUserCircle />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="Veículos"
-                        onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}
-                      >
+                      <AcaoBtn aria-label="Veículos" onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}>
                         <FaTruckFront />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="Meets"
-                        onClick={() => {
-                          Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info');
-                        }}
-                      >
+                      <AcaoBtn aria-label="Meets" onClick={() => Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info')}>
                         <GoHeartFill />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="CheckList"
-                        onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}
-                      >
+                      <AcaoBtn aria-label="CheckList" onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}>
                         <PiListBulletsFill />
                       </AcaoBtn>
-
-                      <AcaoBtn
-                        aria-label="Excluir"
-                        onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}
-                      >
+                      <AcaoBtn aria-label="Multas" onClick={() => Swal.fire('Em breve', 'Área de Multas em desenvolvimento.', 'info')}>
+                        <FaTicket />
+                      </AcaoBtn>
+                      <AcaoBtn aria-label="Excluir" onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}>
                         <FaTrash />
                       </AcaoBtn>
                     </AcoesWrap>
@@ -305,7 +277,6 @@ const Empresas = () => {
         </EmpresasTableWrapper>
       )}
 
-      {/* Modais */}
       {areaModalAddEmpresa && (
         <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />
       )}

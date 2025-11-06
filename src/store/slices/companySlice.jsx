@@ -1,92 +1,79 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  nomeEmpresa: "",
-  cnpj: "",
-  telefone: "",
+  nomeEmpresa: '',
+  cnpj: '',
+  telefone: '',
+  tipo: '',
+  qtdVeiculos: '',
   endereco: {
-    logradouro: "",
-    numero: "",
-    bairro: "",
-    complemento: "",
-    cidade: ""
+    cep: '',
+    logradouro: '',
+    numero: '',
+    bairro: '',
+    complemento: '',
+    cidade: '',
+    // uf: '' // se desejar usar depois
   },
-  tipo: "",
-  extras: {
-    status: "",
-    email: "",
-    site: ""
-  },
-  cargos: [],
-  permissoes: {
-    abastecimento: false,
-    checklist: false,
-    contabilidade: false,
-    cursos: false,
-    fleetIA: false,
-    juridico: false,
-    localizacao: false,
-    manutencao: false,
-    multas: false,
-  },
-  bases: ["Matriz"] // <-- Sempre começa com Matriz
-
+  extras: {},
+  // IMPORTANTE: Matriz NÃO é base/filial → não entra aqui
+  bases: [],
 };
 
-export const companySlice = createSlice({
-  name: "company",
+const companySlice = createSlice({
+  name: 'company',
   initialState,
   reducers: {
     setNomeEmpresa(state, action) {
-      state.nomeEmpresa = action.payload;
+      state.nomeEmpresa = action.payload || '';
     },
     setCnpj(state, action) {
-      state.cnpj = action.payload;
+      state.cnpj = action.payload || '';
     },
     setTelefone(state, action) {
-      state.telefone = action.payload;
-    },
-    setEnderecoField(state, action) {
-      const { field, value } = action.payload;
-      state.endereco[field] = value;
+      state.telefone = action.payload || '';
     },
     setTipo(state, action) {
-      state.tipo = action.payload;
+      state.tipo = action.payload || '';
+    },
+    setQtdVeiculos(state, action) {
+      // armazena como string numérica (mantém form simples; valida na gravação se precisar)
+      state.qtdVeiculos = action.payload || '';
+    },
+    setEnderecoField(state, action) {
+      const { field, value } = action.payload || {};
+      if (!field) return;
+      state.endereco[field] = value ?? '';
     },
     setExtrasField(state, action) {
-      const { field, value } = action.payload;
+      const { field, value } = action.payload || {};
+      if (!field) return;
       state.extras[field] = value;
     },
-    setCargos(state, action) {
-      state.cargos = action.payload;
-    },
-    addCargo(state, action) {
-      state.cargos.push(action.payload);
-    },
-    removeCargo(state, action) {
-      state.cargos = state.cargos.filter((_, i) => i !== action.payload);
-    },
-
-    setPermissoes(state, action) {
-      state.permissoes = { ...state.permissoes, ...action.payload };
-    },
-    // Novos reducers para bases
     setBases(state, action) {
-      state.bases = action.payload;
+      const arr = Array.isArray(action.payload) ? action.payload : [];
+      // Garante que "Matriz" não entre por engano
+      state.bases = arr
+        .map(b => String(b).trim())
+        .filter(b => b && b.toLowerCase() !== 'matriz')
+        // evita duplicatas mantendo a ordem
+        .filter((b, i, self) => self.indexOf(b) === i);
     },
     addBase(state, action) {
-      const base = action.payload;
-      // garante que não entra duplicado
-      if (!state.bases.includes(base)) {
-        state.bases.push(base);
+      const base = String(action.payload || '').trim();
+      if (!base) return;
+      // Segurança: impede "Matriz" como base/filial
+      if (base.toLowerCase() === 'matriz') return;
+      if (!state.bases.includes(base)) state.bases.push(base);
+    },
+    removeBase(state, action) {
+      const index = Number(action.payload);
+      if (Number.isInteger(index) && index >= 0 && index < state.bases.length) {
+        state.bases.splice(index, 1);
       }
     },
-
-    removeBase(state, action) {
-      state.bases = state.bases.filter((_, i) => i !== action.payload);
-    },
-    resetCompany(state) {
-      return initialState;
+    resetCompany() {
+      return { ...initialState };
     },
   },
 });
@@ -95,13 +82,10 @@ export const {
   setNomeEmpresa,
   setCnpj,
   setTelefone,
-  setEnderecoField,
   setTipo,
+  setQtdVeiculos,
+  setEnderecoField,
   setExtrasField,
-  setCargos,
-  addCargo,
-  removeCargo,
-  setPermissoes,
   setBases,
   addBase,
   removeBase,

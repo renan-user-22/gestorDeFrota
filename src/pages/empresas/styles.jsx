@@ -36,7 +36,7 @@ export const DefaultButton = styled.button`
   &:active { transform: scale(0.98); }
 `;
 
-/* Input padrão */
+/* Input padrão com transient props */
 export const Input = styled.input`
   width: ${p => p.$width || '260px'};
   background-color: ${colors.silver};
@@ -85,27 +85,27 @@ export const EmpresasTh = styled.th`
   font-weight: 700;
   position: relative;
 
-  /* 2ª coluna ("Empresa") também à esquerda */
+  /* 2ª coluna ("Empresa") centralizada */
   &:nth-child(2) {
-    text-align: left;
+    text-align: center;
   }
 
   /* Última coluna ("Ações") – centralização visual custom */
   &:last-child {
-    text-align: left; /* base neutra para nosso span absoluto */
+    text-align: left;
   }
   &:last-child span {
     position: absolute;
-    right: 40%; /* ajuste fino já existente no seu arquivo */
+    right: 40%; /* ajuste fino da label "Ações" */
     top: 50%;
     transform: translateY(-50%);
   }
 `;
 
-/* NOVO: Cabeçalho da coluna ID (1ª coluna, pequena) */
+/* Cabeçalho da coluna ID (1ª coluna, pequena e centralizada) */
 export const EmpresasIdTh = styled.th`
   padding: 10px 12px;
-  text-align: left;
+  text-align: center;
   vertical-align: middle;
   border: none;
   font-weight: 700;
@@ -129,16 +129,16 @@ export const EmpresasTd = styled.td`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  /* 2ª coluna ("Empresa") à esquerda */
+  /* 2ª coluna ("Empresa") centralizada */
   &:nth-child(2) {
-    text-align: left;
+    text-align: center;
   }
 `;
 
-/* NOVO: Célula da coluna ID (pequena, monoespaçada) */
+/* Célula da coluna ID (centralizada, monoespaçada) */
 export const EmpresasIdTd = styled.td`
   padding: 10px 12px;
-  text-align: left;
+  text-align: center;
   vertical-align: middle;
   border: none;
   width: 110px;
@@ -152,7 +152,7 @@ export const EmpresasIdTd = styled.td`
 /* Coluna de ações */
 export const EmpresasActionsTd = styled(EmpresasTd)`
   white-space: nowrap;
-  min-width: 420px; /* em sincronia com a lógica do cabeçalho de Ações */
+  min-width: 420px;
   width: 1%;
   text-align: right;
   overflow: visible;

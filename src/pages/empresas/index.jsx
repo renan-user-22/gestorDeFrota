@@ -1,14 +1,19 @@
 // src/pages/empresas/index.jsx
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 
-import ModalAddEmpresa from '../../components/pagesModais/addEmpresa';
-import ModalListaMotoristas from '../../components/pagesModais/listaMotoristas';
+// Nova estrutura:
+import ModalAddEmpresa from '../../components/fleet-settings/create-empresa';
+import DashboardClient from '../../components/fleet-settings/dashboard-customer-action';
+import FinanceiroClient from '../../components/fleet-settings/financial-action';
+import UsersConfigs from '../../components/fleet-settings/users-actions/list-users';
+
+// Antiga estrutura, porém está funcionando.
 import ModalListaVeiculos from '../../components/pagesModaisVeiculos/ModalListaVeiculos';
 import ModalEditEmpresa from '../../components/pagesModais/ModalEditEmpresa';
 import ModalCheckList from '../../components/pagesModais/ModalCheckList';
 
 import { db } from '../../firebaseConnection';
-import { ref, onValue, remove } from 'firebase/database';
+import { ref, onValue, remove, get } from 'firebase/database';
 
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
@@ -30,10 +35,10 @@ import {
   EmpresasTable,
   EmpresasThead,
   EmpresasTh,
-  EmpresasIdTh,        // ⬅️ NOVO
+  EmpresasIdTh,
   EmpresasTr,
   EmpresasTd,
-  EmpresasIdTd,        // ⬅️ NOVO
+  EmpresasIdTd,
   EmpresasActionsTd,
   AcoesWrap,
   AcaoBtn,
@@ -66,6 +71,14 @@ const Empresas = () => {
   const [areaModalEditEmpresa, setAreaModalEditEmpresa] = useState(false);
   const [areaModalChecklist, setAreaModalChecklist] = useState(false);
 
+  // NOVO: flag para abrir o Dashboard
+  const [areaDashboard, setAreaDashboard] = useState(false);
+  const [areaFinanceiro, setAreaFinanceiro] = useState(false);
+
+  // Mapa idEmpresa -> quantidade de veículos cadastrados
+  const [veiculosCountMap, setVeiculosCountMap] = useState({});
+  const refreshTimerRef = useRef(null);
+
   const openModalAdd = () => setAreaModalAddEmpresa(true);
 
   const empresasFiltradas = useMemo(() => (
@@ -84,7 +97,20 @@ const Empresas = () => {
     setAreaModalListVeiculosInfo(false);
     setAreaModalEditEmpresa(false);
     setAreaModalChecklist(false);
+    setAreaDashboard(false);
   };
+
+  // ✅ NOVO: abrir Financeiro (segue o mesmo padrão do Dashboard)
+  const abrirFinanceiro = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
+    setAreaFinanceiro(true);
+    setAreaDashboard(false);
+    setAreaModalListVeiculosInfo(false);
+    setAreaModalListMotoristaInfo(false);
+    setAreaModalEditEmpresa(false);
+    setAreaModalChecklist(false);
+  };
+
 
   const areaModaladdVeiculo = (id, nome) => {
     setEmpresaSelecionada({ id, nome });
@@ -92,6 +118,7 @@ const Empresas = () => {
     setAreaModalListMotoristaInfo(false);
     setAreaModalEditEmpresa(false);
     setAreaModalChecklist(false);
+    setAreaDashboard(false);
   };
 
   const areaModalEditEmpresaNext = (id, nome) => {
@@ -100,6 +127,7 @@ const Empresas = () => {
     setAreaModalListVeiculosInfo(false);
     setAreaModalListMotoristaInfo(false);
     setAreaModalChecklist(false);
+    setAreaDashboard(false);
   };
 
   const abrirModalChecklist = (id, nome) => {
@@ -108,6 +136,18 @@ const Empresas = () => {
     setAreaModalListVeiculosInfo(false);
     setAreaModalListMotoristaInfo(false);
     setAreaModalEditEmpresa(false);
+    setAreaDashboard(false);
+  };
+
+  // NOVO: abrir Dashboard (segue analogia dos demais módulos)
+  const abrirDashboard = (id, nome) => {
+    setEmpresaSelecionada({ id, nome });
+    setAreaDashboard(true);
+    // fecha outros modais para evitar sobreposição
+    setAreaModalListVeiculosInfo(false);
+    setAreaModalListMotoristaInfo(false);
+    setAreaModalEditEmpresa(false);
+    setAreaModalChecklist(false);
   };
 
   const areaModalDeleteEmpresa = async (empresaId, empresaNome) => {
@@ -140,6 +180,11 @@ const Empresas = () => {
           confirmButtonColor: colors.orange,
         });
         setEmpresas((prev) => prev.filter((emp) => emp.id !== empresaId));
+        setVeiculosCountMap((prev) => {
+          const clone = { ...prev };
+          delete clone[empresaId];
+          return clone;
+        });
       } catch (error) {
         Swal.fire({
           title: 'Erro!',
@@ -151,16 +196,64 @@ const Empresas = () => {
     }
   };
 
+  // Listener principal das empresas
   useEffect(() => {
     const companiesRef = ref(db, 'fleetBusiness');
-    return onValue(companiesRef, (snap) => {
+    const unsub = onValue(companiesRef, (snap) => {
       const raw = snap.val() || {};
       const list = Object.keys(raw).map((k) => ({ id: k, ...raw[k] }));
       setEmpresas(list);
     });
+    return () => unsub();
   }, []);
 
+  // Função para contar veículos por empresa (usa caminho fleetBusiness/<id>/veiculos)
+  const fetchCountsOnce = async (list) => {
+    const pairs = await Promise.all(
+      list.map(async (emp) => {
+        try {
+          const snap = await get(ref(db, `fleetBusiness/${emp.id}/veiculos`));
+          const val = snap.val() || {};
+          const count = typeof val === 'object' ? Object.keys(val).length : 0;
+          return [emp.id, count];
+        } catch {
+          return [emp.id, 0];
+        }
+      })
+    );
+    const map = {};
+    pairs.forEach(([id, count]) => (map[id] = count));
+    setVeiculosCountMap(map);
+  };
+
+  // Atualiza contadores sempre que a lista muda
+  useEffect(() => {
+    if (empresas.length === 0) {
+      setVeiculosCountMap({});
+      return;
+    }
+    fetchCountsOnce(empresas);
+  }, [empresas]);
+
+  // Olheiro: atualiza a cada 3 minutos
+  useEffect(() => {
+    if (empresas.length === 0) return;
+    if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
+
+    refreshTimerRef.current = setInterval(() => {
+      fetchCountsOnce(empresas);
+    }, 3 * 60 * 1000); // 3 minutos
+
+    return () => {
+      if (refreshTimerRef.current) clearInterval(refreshTimerRef.current);
+    };
+  }, [empresas]);
+
   const shortId = (id = '') => String(id).slice(-6); // ID curto para coluna pequena
+  const toInt = (v) => {
+    const n = parseInt(`${v}`.replace(/\D/g, ''), 10);
+    return Number.isFinite(n) ? n : 0;
+  };
 
   return (
     <Container>
@@ -204,83 +297,80 @@ const Empresas = () => {
           <EmpresasTable>
             <EmpresasThead>
               <tr>
-                <EmpresasIdTh>
-                  <span>ID</span>
-                </EmpresasIdTh>
-
-                <EmpresasTh>
-                  <span>Empresa</span>
-                </EmpresasTh>
-
-                <EmpresasTh>
-                  <span>CNPJ</span>
-                </EmpresasTh>
-
-                <EmpresasTh>
-                  <span>Categoria</span>
-                </EmpresasTh>
-
-                <EmpresasTh>
-                  <span>Qtd. Veículos</span>
-                </EmpresasTh>
-
-                <EmpresasTh>
-                  <span>Ações</span>
-                </EmpresasTh>
+                <EmpresasIdTh><span>ID</span></EmpresasIdTh>
+                <EmpresasTh><span>Empresa</span></EmpresasTh>
+                <EmpresasTh><span>CNPJ</span></EmpresasTh>
+                <EmpresasTh><span>Categoria</span></EmpresasTh>
+                <EmpresasTh><span>Qtd. Veículos</span></EmpresasTh>
+                <EmpresasTh><span>Ações</span></EmpresasTh>
               </tr>
             </EmpresasThead>
 
             <tbody>
-              {empresasFiltradas.map((empresa) => (
-                <EmpresasTr key={empresa.id}>
-                  <EmpresasIdTd title={empresa.id}>{shortId(empresa.id)}</EmpresasIdTd>
-                  <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
-                  <EmpresasTd>{empresa.cnpj}</EmpresasTd>
-                  <EmpresasTd>{empresa.tipo}</EmpresasTd>
-                  <EmpresasTd>{empresa.qtdVeiculos}</EmpresasTd>
+              {empresasFiltradas.map((empresa) => {
+                const cadastrados = veiculosCountMap[empresa.id] || 0;
+                const limite = toInt(empresa.qtdVeiculos);
+                const textoQtd = `${cadastrados}/${limite}`;
 
-                  <EmpresasActionsTd>
-                    <AcoesWrap>
-                      <AcaoBtn aria-label="Dashboard" onClick={() => Swal.fire('Em breve', 'Dashboard da empresa em desenvolvimento.', 'info')}>
-                        <FaArrowUpRightDots />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Financeiro" onClick={() => Swal.fire('Em breve', 'Área Financeira da frota em desenvolvimento.', 'info')}>
-                        <FaMoneyBillWave />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Editar" onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}>
-                        <MdEditSquare />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Usuários" onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}>
-                        <BiSolidUserCircle />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Veículos" onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}>
-                        <FaTruckFront />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Meets" onClick={() => Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info')}>
-                        <GoHeartFill />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="CheckList" onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}>
-                        <PiListBulletsFill />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Multas" onClick={() => Swal.fire('Em breve', 'Área de Multas em desenvolvimento.', 'info')}>
-                        <FaTicket />
-                      </AcaoBtn>
-                      <AcaoBtn aria-label="Excluir" onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}>
-                        <FaTrash />
-                      </AcaoBtn>
-                    </AcoesWrap>
-                  </EmpresasActionsTd>
-                </EmpresasTr>
-              ))}
+                return (
+                  <EmpresasTr key={empresa.id}>
+                    <EmpresasIdTd title={empresa.id}>{shortId(empresa.id)}</EmpresasIdTd>
+                    <EmpresasTd>{empresa.nomeEmpresa}</EmpresasTd>
+                    <EmpresasTd>{empresa.cnpj}</EmpresasTd>
+                    <EmpresasTd>{empresa.tipo}</EmpresasTd>
+                    <EmpresasTd title={`Veículos: ${textoQtd}`}>{textoQtd}</EmpresasTd>
+
+                    <EmpresasActionsTd>
+                      <AcoesWrap>
+                        {/* Dashboard */}
+                        <AcaoBtn aria-label="Dashboard" onClick={() => abrirDashboard(empresa.id, empresa.nomeEmpresa)}>
+                          <FaArrowUpRightDots />
+                        </AcaoBtn>
+
+                        {/* Financeiro - abre FinanceiroClient */}
+                        <AcaoBtn aria-label="Financeiro" onClick={() => abrirFinanceiro(empresa.id, empresa.nomeEmpresa)}>
+                          <FaMoneyBillWave />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Editar" onClick={() => areaModalEditEmpresaNext(empresa.id, empresa.nomeEmpresa)}>
+                          <MdEditSquare />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Usuários" onClick={() => areaModalListMotoristas(empresa.id, empresa.nomeEmpresa)}>
+                          <BiSolidUserCircle />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Veículos" onClick={() => areaModaladdVeiculo(empresa.id, empresa.nomeEmpresa)}>
+                          <FaTruckFront />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Meets" onClick={() => Swal.fire('Em breve', 'Área de Meets em desenvolvimento.', 'info')}>
+                          <GoHeartFill />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="CheckList" onClick={() => abrirModalChecklist(empresa.id, empresa.nomeEmpresa)}>
+                          <PiListBulletsFill />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Multas" onClick={() => Swal.fire('Em breve', 'Área de Multas em desenvolvimento.', 'info')}>
+                          <FaTicket />
+                        </AcaoBtn>
+
+                        <AcaoBtn aria-label="Excluir" onClick={() => areaModalDeleteEmpresa(empresa.id, empresa.nomeEmpresa)}>
+                          <FaTrash />
+                        </AcaoBtn>
+                      </AcoesWrap>
+                    </EmpresasActionsTd>
+                  </EmpresasTr>
+                );
+              })}
             </tbody>
           </EmpresasTable>
         </EmpresasTableWrapper>
       )}
 
-      {areaModalAddEmpresa && (
-        <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />
-      )}
-
+      {/* Modais */}
+      {areaModalAddEmpresa && <ModalAddEmpresa closeModalAddEmpresa={() => setAreaModalAddEmpresa(false)} />}
       {areaModalEditEmpresa && empresaSelecionada && (
         <ModalEditEmpresa
           closeModalEditEmpresa={() => setAreaModalEditEmpresa(false)}
@@ -288,15 +378,13 @@ const Empresas = () => {
           empresaNome={empresaSelecionada.nome}
         />
       )}
-
       {areaModalListMotoristaInfo && empresaSelecionada && (
-        <ModalListaMotoristas
+        <UsersConfigs
           closeModalListMotorista={() => setAreaModalListMotoristaInfo(false)}
           empresaId={empresaSelecionada.id}
           empresaNome={empresaSelecionada.nome}
         />
       )}
-
       {areaModalListVeiculosInfo && empresaSelecionada && (
         <ModalListaVeiculos
           closeModalListVeiculos={() => setAreaModalListVeiculosInfo(false)}
@@ -304,10 +392,27 @@ const Empresas = () => {
           empresaNome={empresaSelecionada.nome}
         />
       )}
-
       {areaModalChecklist && empresaSelecionada && (
         <ModalCheckList
           closeModalChecklist={() => setAreaModalChecklist(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
+      )}
+
+      {/* Dashboard */}
+      {areaDashboard && empresaSelecionada && (
+        <DashboardClient
+          closeDashboard={() => setAreaDashboard(false)}
+          empresaId={empresaSelecionada.id}
+          empresaNome={empresaSelecionada.nome}
+        />
+      )}
+
+      {/* ✅ Financeiro */}
+      {areaFinanceiro && empresaSelecionada && (
+        <FinanceiroClient
+          closeFinanceiro={() => setAreaFinanceiro(false)}
           empresaId={empresaSelecionada.id}
           empresaNome={empresaSelecionada.nome}
         />

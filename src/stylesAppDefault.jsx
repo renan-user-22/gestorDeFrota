@@ -4,8 +4,8 @@ import { colors } from './theme';
 // >>> IMPORTES DAS FONTES (usando os arquivos que você já tem em src/fonts/)
 import OctoExtraLightTTF from './fonts/TT Octosquares Trial ExtraLight.ttf';
 import OctoBoldItalicTTF from './fonts/TT Octosquares Trial Bold Italic.ttf';
-import NebulaOTF        from './fonts/Nebula-Regular.otf';
-import CaviarTTF        from './fonts/CaviarDreams.ttf';
+import NebulaOTF from './fonts/Nebula-Regular.otf';
+import CaviarTTF from './fonts/CaviarDreams.ttf';
 
 // Se preferir, depois você pode trocar para .woff/.woff2 (menores)
 
@@ -64,6 +64,30 @@ export const GlobalStyle = createGlobalStyle`
     font-family: 'Octosquares Extra Light', ui-monospace, SFMono-Regular, Menlo,
                  Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   }
+
+    /* ===== Scrollbar global (Fleet Recurso / Fleet Solutions) ===== */
+  * {
+    scrollbar-width: thin;                    /* Firefox */
+    scrollbar-color: ${colors.orange} transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;                               /* Scroll fino */
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;                  /* Fundo “limpo” */
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: ${colors.orange};       /* Cor do scroll */
+    border-radius: 20px;                      /* Bordas arredondadas */
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #ff7a00;                /* Um pouco mais claro no hover */
+  }
+
 `;
 
 const deny = (...names) => (prop) => !names.includes(prop);

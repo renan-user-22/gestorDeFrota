@@ -20,6 +20,7 @@ import RelatoriosPage from '../relatorios';
 import ConfiguracoesPage from '../configuracoes';
 import MultasPage from '../multas';
 import Ia from '../ia';
+import RecursoMultas from '../recurso';
 
 import { FaFileInvoiceDollar, FaHandshake, FaShieldAlt } from 'react-icons/fa';
 import { IoSettingsSharp, IoChevronDown, IoChevronUp, IoChevronBack, IoChevronForward } from 'react-icons/io5';
@@ -207,7 +208,7 @@ const Home = () => {
         onClick={() => { setOpenGroup(null); handleNavigate(keyName); }}
         onKeyDown={(e) => { onItemKeyDown(e, keyName); if (e.key === 'Enter' || e.key === ' ') setOpenGroup(null); }}
         tabIndex={0}
-        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: '60px'}}
+        style={{ justifyContent: isMenuCollapsed ? 'center' : 'flex-start', height: '60px' }}
       >
         <Icon size={isMenuCollapsed ? 22 : 20} />
         {!isMenuCollapsed && <TextDefault style={{ color: active ? colors.orange : colors.silver }}>{label}</TextDefault>}
@@ -346,10 +347,7 @@ const Home = () => {
         </PageTransition>
 
         <PageTransition $visible={isActive('Recurso: Clientes')} key={`RecursoClientes-${k('Recurso: Clientes')}`}>
-          <Box width="100%" height="100%" justify="center" align="center" direction="column">
-            <TextDefault size="22px" weight="bold" top="10px">Fleet Recurso — Clientes</TextDefault>
-            <TextDefault top="10px">Em breve: cadastro/gestão de clientes do Recurso.</TextDefault>
-          </Box>
+          <RecursoMultas key={`RecursoClientes-${k('Recurso: Clientes')}`} />
         </PageTransition>
 
         <PageTransition $visible={isActive('Yard: Pátios')} key={`YardPatios-${k('Yard: Pátios')}`}>
